@@ -1,0 +1,39 @@
+{
+  "contract": "DOR-PUBLIC-DATASET-GATE-VERIFICATION/1.0",
+  "verified_on": "2026-08-13",
+  "public_catalog": {
+    "dataset_count": 7,
+    "validation": "PASS",
+    "uci_detection_localization_classification_plan": "ELIGIBLE",
+    "identification_plan": "LIMITED"
+  },
+  "uci_hydraulic_official_source": {
+    "official_zip_sha256": "24128aad2ee45eea7e6b63ebbd9992cdf25d0483a2cebefbfc13bc69079af1f2",
+    "cycles_verified": 2205,
+    "representative_sensors_verified": ["PS1@100Hz", "FS1@10Hz", "TS1@1Hz"],
+    "raw_feature_count_after_encoding": 66,
+    "adapter_state": "PASS",
+    "design_state": "QUALIFIED",
+    "localization_calibration_rows": 220,
+    "test_rows": 225,
+    "test_localization_macro_f1_on_executed": 0.9926332086182428,
+    "scope_warning": "representative three-sensor smoke only; not a full 17-sensor architecture comparison; test split contained no trusted-normal rows for labelled detection AP"
+  },
+  "uci_hydraulic_derived_smoke": {
+    "row_count": 1449,
+    "qualification": "CONDITIONALLY_QUALIFIED",
+    "reference_test_rows": 240,
+    "reference_supported_rows": 240,
+    "scope": "plan-only smoke on the committed derived accumulator feature view"
+  },
+  "regression": {
+    "dor": {"passed": 44},
+    "m2n": {"passed": 36},
+    "fec": {"passed": 73},
+    "isgn": {"passed": 95}
+  },
+  "warnings": [
+    "joblib emitted NumPy 2.5 shape-setting deprecation warnings in existing serialization tests",
+    "the official source smoke used three representative sampling rates, not all 17 sensors"
+  ]
+}

@@ -81,6 +81,8 @@ def test_auto_design_four_stage_bundle_and_predict(tmp_path: Path):
     }
     assert (out / "pipeline_bundle" / "bundle.json").is_file()
     assert (out / "audit_report.md").is_file()
+    assert json.loads((out / "end_to_end_test_audit.json").read_text())["selection_uses_test"] is False
+    assert json.loads((out / "mechanism_stress_audit.json").read_text())["state"] == "RUN"
     assert "No novelty claim" in (out / "component_registry.csv").read_text(encoding="utf-8-sig")
     pred = predict_pipeline(out / "pipeline_bundle", data, tmp_path / "pred.csv")
     p = pd.read_csv(pred)
@@ -89,6 +91,39 @@ def test_auto_design_four_stage_bundle_and_predict(tmp_path: Path):
     assert any(c.endswith("__state") for c in p.columns)
     assert any(c.endswith("__prediction") for c in p.columns)
     assert any(c.endswith("__severity") for c in p.columns)
+    assert any(c.endswith("__severity__lower") for c in p.columns)
+    assert any(c.endswith("__severity__upper") for c in p.columns)
+
+
+def test_multilabel_localization_is_calibrated_and_emits_sets(tmp_path: Path):
+    rng = np.random.default_rng(14)
+    n = 160
+    a = (np.arange(n) % 3 == 0).astype(int)
+    b = (np.arange(n) % 4 < 2).astype(int)
+    df = pd.DataFrame({
+        "sample_id": np.arange(n), "run_id": [f"r{i}" for i in range(n)],
+        "split": ["train"] * 80 + ["val"] * 40 + ["cal"] * 20 + ["test"] * 20,
+        "x1": a + rng.normal(0, .08, n), "x2": b + rng.normal(0, .08, n),
+        "component_a": a, "component_b": b,
+    })
+    data = tmp_path / "data.csv"; df.to_csv(data, index=False)
+    card = _write_json(tmp_path / "card.json", _card())
+    manifest_value = _manifest()
+    manifest_value["supervision"] = {"localization": {"target_columns": ["component_a", "component_b"]}}
+    manifest = _write_json(tmp_path / "manifest.json", manifest_value)
+    request_value = _request(); request_value["stages"] = ["LOCALIZATION"]
+    request = _write_json(tmp_path / "request.json", request_value)
+    out = tmp_path / "out"
+    result = run_auto_design(card, manifest, data, request, out)
+    assert result["qualification"]["stages"][1]["status"] == "QUALIFIED"
+    bundle = json.loads((out / "pipeline_bundle" / "bundle.json").read_text())
+    model = bundle["models"][0]
+    assert model["multilabel_targets"] == ["component_a", "component_b"]
+    assert model["multilabel_calibration_rows"] == 20
+    predict_pipeline(out / "pipeline_bundle", data, tmp_path / "pred.csv")
+    columns = pd.read_csv(tmp_path / "pred.csv").columns
+    assert any(c.endswith("__prediction_set") for c in columns)
+    assert any(c.endswith("__component_a__present") for c in columns)
 
 
 def test_timeseries_long_degrades_without_stage_labels(tmp_path: Path):
@@ -113,6 +148,7 @@ def test_timeseries_long_degrades_without_stage_labels(tmp_path: Path):
     status = {x["stage"]: x["status"] for x in result["qualification"]["stages"]}
     assert status["DETECTION"] == "PORTFOLIO_ONLY"
     assert status["LOCALIZATION"] == "UNSUPPORTED"
+    json.loads((tmp_path / "out" / "validation_results.json").read_text(), parse_constant=lambda value: (_ for _ in ()).throw(ValueError(value)))
 
 
 def test_leakage_guard_and_resume_binding_fail_closed(tmp_path: Path):
@@ -144,7 +180,10 @@ def test_timeseries_npz_contract(tmp_path: Path):
         "supervision": {}, "leakage_guard": {"group_columns": ["sample_id"]}
     })
     request_value = _request(); request_value["stages"] = ["DETECTION"]
+    request_value["representations"] = {"temporal_pyramid": True}
     request = _write_json(tmp_path / "request.json", request_value)
     result = run_auto_design(card, manifest, tmp_path / "data.npz", request, tmp_path / "out")
     assert result["data"]["modality"] == "TIMESERIES_NPZ"
     assert result["qualification"]["stages"][0]["status"] == "PORTFOLIO_ONLY"
+    candidates = json.loads((tmp_path / "out" / "validation_results.json").read_text())["records"]
+    assert any(x["view"] == "RAW_TEMPORAL_PYRAMID" for x in candidates)

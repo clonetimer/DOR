@@ -1,0 +1,146 @@
+{
+  "contract": "DOR-PUBLIC-DIAGNOSTIC-DATASET-CATALOG/1.0",
+  "last_verified_on": "2026-08-13",
+  "datasets": [
+    {
+      "dataset_id": "uci-hydraulic",
+      "name": "Condition monitoring of hydraulic systems",
+      "device_domain": "hydraulic test rig",
+      "official_landing_page": "https://archive.ics.uci.edu/dataset/447/condition+monitoring+of+hydraulic+systems",
+      "primary_references": ["https://doi.org/10.24432/C5CW21"],
+      "access": {"status": "PUBLIC", "license": "CC BY 4.0", "redistribution": "attribution required"},
+      "modality": ["multirate time series", "cycle-level condition labels"],
+      "fault_origin": "controlled test-rig degradation states",
+      "labels": ["cooler condition", "valve condition", "internal pump leakage", "accumulator pressure", "stable flag"],
+      "stage_evidence": {"DETECTION": "AVAILABLE", "LOCALIZATION": "AVAILABLE", "CLASSIFICATION": "AVAILABLE", "IDENTIFICATION": "PARTIAL"},
+      "dor_support": {"DETECTION": "READY", "LOCALIZATION": "READY", "CLASSIFICATION": "READY", "IDENTIFICATION": "PARTIAL"},
+      "validation": {
+        "split_unit": "complete 60-second load cycle and any repeated operating-condition group",
+        "required_guard": "never split samples within a cycle; hold out condition combinations or acquisition blocks when testing generalization",
+        "leakage_risk": "random window or row splits copy nearly identical operating cycles across folds"
+      },
+      "adapter": {"status": "READY", "profile": "dor uci-hydraulic-prepare; historical derived views remain under examples/hydraulic_*", "raw_checksum": "24128aad2ee45eea7e6b63ebbd9992cdf25d0483a2cebefbfc13bc69079af1f2"},
+      "prohibited_claims": ["discrete condition classes are not continuous physical parameter identification", "a derived feature subset is not a raw-signal benchmark", "component-wise simultaneous faults must be evaluated as multi-label localization rather than collapsed to one class"]
+    },
+    {
+      "dataset_id": "cwru-bearing",
+      "name": "Case Western Reserve University Bearing Data Center",
+      "device_domain": "motor bearing test stand",
+      "official_landing_page": "https://engineering.case.edu/bearingdatacenter/welcome",
+      "primary_references": ["https://engineering.case.edu/bearingdatacenter/download-data-file"],
+      "access": {"status": "PUBLIC", "license": "not stated on landing page", "redistribution": "link to official source; verify terms before redistribution"},
+      "modality": ["drive-end and fan-end vibration", "motor speed/load metadata"],
+      "fault_origin": "seeded single-point bearing faults",
+      "labels": ["normal", "inner race", "ball", "outer race", "fault diameter", "motor load"],
+      "stage_evidence": {"DETECTION": "AVAILABLE", "LOCALIZATION": "PARTIAL", "CLASSIFICATION": "AVAILABLE", "IDENTIFICATION": "PARTIAL"},
+      "dor_support": {"DETECTION": "PARTIAL", "LOCALIZATION": "PARTIAL", "CLASSIFICATION": "PARTIAL", "IDENTIFICATION": "PARTIAL"},
+      "validation": {
+        "split_unit": "entire MAT recording and fault specimen",
+        "required_guard": "specimen- or condition-held-out evaluation; do not random-split overlapping windows from one recording",
+        "leakage_risk": "window identity and fixed rig conditions can dominate fault evidence"
+      },
+      "adapter": {"status": "PLANNED", "profile": "MAT channel and metadata adapter", "raw_checksum": null},
+      "prohibited_claims": ["seeded faults do not establish natural-damage field performance", "fault diameter classes do not prove continuous severity estimation"]
+    },
+    {
+      "dataset_id": "paderborn-bearing",
+      "name": "Paderborn University Bearing Data Center",
+      "device_domain": "electromechanical bearing test rig",
+      "official_landing_page": "https://mb.uni-paderborn.de/en/kat/research/bearing-datacenter/data-sets-and-download",
+      "primary_references": ["https://mb.uni-paderborn.de/fileadmin-mb/kat/PDF/Veroeffentlichungen/20160703_PHME16_CM_bearing.pdf"],
+      "access": {"status": "PUBLIC", "license": "CC BY-NC 4.0", "redistribution": "non-commercial with attribution"},
+      "modality": ["vibration", "motor current", "speed", "torque", "radial load", "temperature"],
+      "fault_origin": "artificial and real bearing damage",
+      "labels": ["healthy", "inner race", "outer race", "damage characterization", "operating condition"],
+      "stage_evidence": {"DETECTION": "AVAILABLE", "LOCALIZATION": "PARTIAL", "CLASSIFICATION": "AVAILABLE", "IDENTIFICATION": "PARTIAL"},
+      "dor_support": {"DETECTION": "PARTIAL", "LOCALIZATION": "PARTIAL", "CLASSIFICATION": "PARTIAL", "IDENTIFICATION": "PARTIAL"},
+      "validation": {
+        "split_unit": "physical bearing specimen",
+        "required_guard": "hold out whole bearings; report artificial-to-real and cross-operating-condition transfer separately",
+        "leakage_risk": "measurements repeat per bearing and operating condition"
+      },
+      "adapter": {"status": "PLANNED", "profile": "MAT multichannel bearing adapter", "raw_checksum": null},
+      "prohibited_claims": ["random measurement splits do not prove unseen-bearing generalization", "non-commercial license limits deployment and redistribution"]
+    },
+    {
+      "dataset_id": "nasa-ims-bearing",
+      "name": "IMS Bearings",
+      "device_domain": "bearing run-to-failure test rig",
+      "official_landing_page": "https://data.nasa.gov/dataset/ims-bearings",
+      "primary_references": ["https://data.nasa.gov/dataset/ims-bearings"],
+      "access": {"status": "PUBLIC", "license": "NASA public-data terms; dataset page does not state a separate license", "redistribution": "retain NASA provenance"},
+      "modality": ["run-to-failure vibration time series"],
+      "fault_origin": "accelerated natural degradation under test conditions",
+      "labels": ["experiment/run identity", "terminal bearing failure notes"],
+      "stage_evidence": {"DETECTION": "PARTIAL", "LOCALIZATION": "PARTIAL", "CLASSIFICATION": "ABSENT", "IDENTIFICATION": "PARTIAL"},
+      "dor_support": {"DETECTION": "PARTIAL", "LOCALIZATION": "BLOCKED", "CLASSIFICATION": "BLOCKED", "IDENTIFICATION": "BLOCKED"},
+      "validation": {
+        "split_unit": "entire run-to-failure experiment and bearing channel",
+        "required_guard": "time-ordered evaluation with training before evaluation; no future windows in training",
+        "leakage_risk": "random temporal splits expose future degradation state and adjacent-window autocorrelation"
+      },
+      "adapter": {"status": "PLANNED", "profile": "IMS text hierarchy adapter", "raw_checksum": null},
+      "prohibited_claims": ["terminal failure notes are not dense fault-onset truth", "few runs cannot identify a universally optimal architecture"]
+    },
+    {
+      "dataset_id": "femto-pronostia",
+      "name": "FEMTO-ST PRONOSTIA Bearing Data Set",
+      "device_domain": "bearing accelerated life test rig",
+      "official_landing_page": "https://data.phmsociety.org/nasa/",
+      "primary_references": ["https://doi.org/10.1109/PHM.2012.6228856"],
+      "access": {"status": "PUBLIC", "license": "not stated by PHM Society mirror", "redistribution": "link to official mirror; verify terms before redistribution"},
+      "modality": ["vibration", "temperature", "run-to-failure sequence"],
+      "fault_origin": "accelerated bearing degradation",
+      "labels": ["bearing/run", "operating condition", "remaining useful life challenge targets"],
+      "stage_evidence": {"DETECTION": "PARTIAL", "LOCALIZATION": "ABSENT", "CLASSIFICATION": "ABSENT", "IDENTIFICATION": "PARTIAL"},
+      "dor_support": {"DETECTION": "PARTIAL", "LOCALIZATION": "BLOCKED", "CLASSIFICATION": "BLOCKED", "IDENTIFICATION": "BLOCKED"},
+      "validation": {
+        "split_unit": "entire bearing lifetime",
+        "required_guard": "hold out whole bearings and preserve temporal order",
+        "leakage_risk": "random windows leak bearing identity and future health trajectory"
+      },
+      "adapter": {"status": "PLANNED", "profile": "PRONOSTIA file-tree sequence adapter", "raw_checksum": null},
+      "prohibited_claims": ["RUL evidence is not fault-type classification evidence", "bearing-lifetime windows are not independent samples"]
+    },
+    {
+      "dataset_id": "nasa-adapt",
+      "name": "NASA Advanced Diagnostics and Prognostics Testbed",
+      "device_domain": "aerospace electrical power distribution testbed",
+      "official_landing_page": "https://data.nasa.gov/dataset/adapt-dataset",
+      "primary_references": ["https://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/20110011109.pdf"],
+      "access": {"status": "PUBLIC", "license": "NASA public-data terms; dataset page does not state a separate license", "redistribution": "retain NASA provenance"},
+      "modality": ["voltage", "current", "temperature", "switch state", "experiment log", "system diagrams"],
+      "fault_origin": "controlled electrical fault injection",
+      "labels": ["experimental scenario", "injected fault", "system configuration"],
+      "stage_evidence": {"DETECTION": "AVAILABLE", "LOCALIZATION": "AVAILABLE", "CLASSIFICATION": "AVAILABLE", "IDENTIFICATION": "PARTIAL"},
+      "dor_support": {"DETECTION": "BLOCKED", "LOCALIZATION": "PARTIAL", "CLASSIFICATION": "BLOCKED", "IDENTIFICATION": "BLOCKED"},
+      "validation": {
+        "split_unit": "complete experimental run and injected-fault scenario",
+        "required_guard": "hold out entire runs/scenarios and bind topology edges plus truth to source provenance",
+        "leakage_risk": "scenario templates, commanded configuration and adjacent telemetry reveal run identity"
+      },
+      "adapter": {"status": "PLANNED", "profile": "dataset_text/Experiment_Log aligned run adapter", "raw_checksum": null},
+      "prohibited_claims": ["the bundled synthetic fixture is not the real ADAPT benchmark", "topology proximity alone is not root-cause evidence"]
+    },
+    {
+      "dataset_id": "uci-metropt3",
+      "name": "MetroPT-3 Dataset",
+      "device_domain": "metro train air-production compressor",
+      "official_landing_page": "https://archive.ics.uci.edu/dataset/791/metropt+3+dataset",
+      "primary_references": ["https://doi.org/10.24432/C5VW3R"],
+      "access": {"status": "PUBLIC", "license": "CC BY 4.0", "redistribution": "attribution required"},
+      "modality": ["multivariate timestamped sensor and digital signal stream"],
+      "fault_origin": "real operational failures documented by maintenance reports",
+      "labels": ["timestamped failure intervals and component reports"],
+      "stage_evidence": {"DETECTION": "AVAILABLE", "LOCALIZATION": "PARTIAL", "CLASSIFICATION": "PARTIAL", "IDENTIFICATION": "ABSENT"},
+      "dor_support": {"DETECTION": "PARTIAL", "LOCALIZATION": "BLOCKED", "CLASSIFICATION": "BLOCKED", "IDENTIFICATION": "BLOCKED"},
+      "validation": {
+        "split_unit": "chronological maintenance episode",
+        "required_guard": "forward-chaining temporal split with an exclusion gap around maintenance/failure boundaries",
+        "leakage_risk": "random rows leak neighboring timestamps and post-maintenance state"
+      },
+      "adapter": {"status": "PLANNED", "profile": "chronological CSV event-window adapter", "raw_checksum": null},
+      "prohibited_claims": ["maintenance intervals are not precise component-onset timestamps", "one train compressor does not prove fleet transfer"]
+    }
+  ]
+}

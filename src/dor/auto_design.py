@@ -28,6 +28,7 @@ from sklearn.ensemble import (
 )
 from sklearn.linear_model import LogisticRegression, Ridge
 from sklearn.metrics import average_precision_score, f1_score, mean_absolute_error, roc_auc_score
+from sklearn.multiclass import OneVsRestClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
@@ -48,8 +49,18 @@ def _json(path: str | Path) -> dict[str, Any]:
 
 
 def _write_json(path: Path, value: Any) -> Path:
+    def safe(item: Any) -> Any:
+        if isinstance(item, Mapping):
+            return {str(k): safe(v) for k, v in item.items()}
+        if isinstance(item, (list, tuple)):
+            return [safe(v) for v in item]
+        if isinstance(item, (float, np.floating)) and not math.isfinite(float(item)):
+            return None
+        if isinstance(item, np.generic):
+            return item.item()
+        return item
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(value, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    path.write_text(json.dumps(safe(value), indent=2, ensure_ascii=False, allow_nan=False) + "\n", encoding="utf-8")
     return path
 
 
@@ -143,8 +154,8 @@ def _validate_request(request: Mapping[str, Any]) -> None:
 def _validate_manifest(manifest: Mapping[str, Any]) -> None:
     _require_contract(manifest, MANIFEST_CONTRACT, "dataset manifest")
     modality = str(manifest.get("modality", "TABULAR")).upper()
-    if modality not in {"TABULAR", "TIMESERIES_LONG", "TIMESERIES_NPZ"}:
-        raise ValueError("manifest.modality must be TABULAR, TIMESERIES_LONG, or TIMESERIES_NPZ")
+    if modality not in {"TABULAR", "TIMESERIES_LONG", "TIMESERIES_NPZ", "MULTIRATE_NPZ"}:
+        raise ValueError("manifest.modality must be TABULAR, TIMESERIES_LONG, TIMESERIES_NPZ, or MULTIRATE_NPZ")
     split = manifest.get("split") or {}
     if not split.get("column"):
         raise ValueError("manifest.split.column is required")
@@ -169,6 +180,15 @@ def _series_features(values: np.ndarray) -> dict[str, float]:
     }
     for i, band in enumerate(bands):
         result[f"fft_band_{i}"] = float(np.mean(band)) if band.size else 0.0
+    differences = np.diff(x)
+    result["temporal__diff_std"] = float(np.std(differences))
+    if np.std(x[:-1]) > 1e-12 and np.std(x[1:]) > 1e-12:
+        result["temporal__autocorr_1"] = float(np.corrcoef(x[:-1], x[1:])[0, 1])
+    else:
+        result["temporal__autocorr_1"] = 0.0
+    for i, segment in enumerate(np.array_split(x, min(4, x.size))):
+        result[f"temporal__segment_{i}_mean"] = float(np.mean(segment))
+        result[f"temporal__segment_{i}_std"] = float(np.std(segment))
     return result
 
 
@@ -202,11 +222,52 @@ def _load_npz(manifest: Mapping[str, Any], data_path: Path, *, inference: bool =
     return pd.DataFrame(rows), features
 
 
+def _load_multirate_npz(manifest: Mapping[str, Any], data_path: Path, *, inference: bool = False) -> tuple[pd.DataFrame, list[str]]:
+    cfg = manifest.get("timeseries") or {}
+    sensor_arrays = {str(k): str(v) for k, v in (cfg.get("sensor_arrays") or {}).items()}
+    if not sensor_arrays:
+        raise ValueError("MULTIRATE_NPZ requires timeseries.sensor_arrays")
+    with np.load(data_path, allow_pickle=False) as z:
+        arrays: dict[str, np.ndarray] = {}
+        n_samples: int | None = None
+        for sensor, key in sensor_arrays.items():
+            if key not in z:
+                raise ValueError(f"NPZ lacks sensor array {key!r}")
+            values = np.asarray(z[key], dtype=float)
+            if values.ndim != 2:
+                raise ValueError(f"multirate sensor {sensor!r} must have shape [sample,time]")
+            if n_samples is not None and values.shape[0] != n_samples:
+                raise ValueError("all multirate sensor arrays must have the same sample count")
+            n_samples = values.shape[0]
+            arrays[sensor] = values
+        metadata: dict[str, np.ndarray] = {}
+        for output_name, key in (cfg.get("metadata_keys") or {}).items():
+            if str(key) not in z:
+                if inference:
+                    continue
+                raise ValueError(f"NPZ lacks metadata array {key!r}")
+            values = np.asarray(z[str(key)])
+            if len(values) != n_samples:
+                raise ValueError(f"metadata {key!r} sample count mismatch")
+            metadata[str(output_name)] = values
+        rows: list[dict[str, Any]] = []
+        for i in range(int(n_samples or 0)):
+            row = {name: values[i].item() for name, values in metadata.items()}
+            for sensor, values in arrays.items():
+                for stat, value in _series_features(values[i]).items():
+                    row[f"{sensor}__{stat}"] = value
+            rows.append(row)
+    features = [c for c in rows[0] if "__" in c] if rows else []
+    return pd.DataFrame(rows), features
+
+
 def _load_frame(manifest: Mapping[str, Any], data_path: str | Path, *, inference: bool = False) -> tuple[pd.DataFrame, list[str]]:
     p = Path(data_path)
     modality = str(manifest.get("modality", "TABULAR")).upper()
     if modality == "TIMESERIES_NPZ":
         return _load_npz(manifest, p, inference=inference)
+    if modality == "MULTIRATE_NPZ":
+        return _load_multirate_npz(manifest, p, inference=inference)
     if p.suffix.lower() == ".parquet":
         df = pd.read_parquet(p)
     else:
@@ -352,8 +413,20 @@ def _qualify_stages(df: pd.DataFrame, manifest: Mapping[str, Any], request: Mapp
             else:
                 output.append(StageQualification(stage, "PORTFOLIO_ONLY", "no detection labels; only normal-data detector portfolio can be retained", (), metric or "average_precision"))
         elif stage in {"LOCALIZATION", "CLASSIFICATION"}:
+            multi_targets = tuple(map(str, cfg.get("target_columns") or [])) if stage == "LOCALIZATION" else ()
             col = cfg.get("label_column")
-            if not col or str(col) not in df.columns:
+            missing_targets = [c for c in multi_targets if c not in df.columns]
+            if multi_targets and not missing_targets:
+                train_y = df.loc[masks["train"], list(multi_targets)].to_numpy(dtype=int)
+                valid_values = set(np.unique(train_y).tolist()) <= {0, 1}
+                varying = np.ptp(train_y, axis=0) > 0
+                if not valid_values or not varying.all():
+                    output.append(StageQualification(stage, "UNSUPPORTED", "multi-label localization targets must be binary and vary in training", multi_targets, metric or "macro_f1"))
+                else:
+                    output.append(StageQualification(stage, "QUALIFIED", "independent binary component labels support concurrent localization", multi_targets, metric or "macro_f1"))
+            elif multi_targets:
+                output.append(StageQualification(stage, "UNSUPPORTED", f"multi-label target columns unavailable: {missing_targets}", multi_targets, metric or "macro_f1"))
+            elif not col or str(col) not in df.columns:
                 output.append(StageQualification(stage, "UNSUPPORTED", "required label column is unavailable; pseudo-labels are prohibited", (), metric or "macro_f1"))
             elif df.loc[masks["train"], str(col)].astype(str).nunique() < 2:
                 output.append(StageQualification(stage, "UNSUPPORTED", "training split has fewer than two classes", (str(col),), metric or "macro_f1"))
@@ -376,8 +449,14 @@ def _qualify_stages(df: pd.DataFrame, manifest: Mapping[str, Any], request: Mapp
     return output
 
 
-def _views(raw: Sequence[str], mechanism: Sequence[str]) -> dict[str, list[str]]:
+def _views(raw: Sequence[str], mechanism: Sequence[str], request: Mapping[str, Any]) -> dict[str, list[str]]:
     result = {"RAW": list(raw)}
+    if bool((request.get("representations") or {}).get("temporal_pyramid", False)):
+        temporal = [x for x in raw if "__temporal__" in x]
+        summary = [x for x in raw if "__temporal__" not in x]
+        if temporal and summary:
+            result["RAW_SUMMARY"] = summary
+            result["RAW_TEMPORAL_PYRAMID"] = temporal
     if mechanism:
         result["MECHANISM"] = list(mechanism)
         result["RAW_PLUS_MECHANISM"] = _unique(list(raw) + list(mechanism))
@@ -432,6 +511,8 @@ def _score_candidate(stage: str, model: Any, x: np.ndarray, y: np.ndarray, cfg: 
     if stage == "DETECTION":
         return _metric_detection(y, model.score(x), str(cfg.get("normal_label")), metric)
     if stage in {"LOCALIZATION", "CLASSIFICATION"}:
+        if np.asarray(y).ndim == 2:
+            return float(f1_score(np.asarray(y, dtype=int), np.asarray(model.predict(x), dtype=int), average="macro", zero_division=0))
         return float(f1_score(y.astype(str), model.predict(x).astype(str), average="macro", zero_division=0))
     pred = np.asarray(model.predict(x), dtype=float)
     truth = np.asarray(y, dtype=float)
@@ -455,6 +536,8 @@ def _fit_model(stage: str, family: str, seed: int, x: np.ndarray, y: np.ndarray 
         model = PCAReconstruction() if family == "pca_reconstruction" else IsolationDetector(seed)
         return model.fit(fit_x)
     if stage in {"LOCALIZATION", "CLASSIFICATION"}:
+        if stage == "LOCALIZATION" and np.asarray(y).ndim == 2:
+            return OneVsRestClassifier(_classifier(family, seed)).fit(x, np.asarray(y, dtype=int))
         return _classifier(family, seed).fit(x, np.asarray(y).astype(str))
     target = np.asarray(y, dtype=float)
     if target.ndim == 2 and target.shape[1] == 1:
@@ -465,6 +548,8 @@ def _fit_model(stage: str, family: str, seed: int, x: np.ndarray, y: np.ndarray 
 def _stage_target(df: pd.DataFrame, stage: str, cfg: Mapping[str, Any]) -> np.ndarray | None:
     if stage == "DETECTION" and not cfg.get("label_column"):
         return None
+    if stage == "LOCALIZATION" and cfg.get("target_columns"):
+        return df[list(map(str, cfg["target_columns"]))].to_numpy(dtype=int)
     if stage in {"DETECTION", "LOCALIZATION", "CLASSIFICATION"}:
         return df[str(cfg["label_column"])].astype(str).to_numpy()
     return df[list(map(str, cfg.get("target_columns") or []))].to_numpy(dtype=float)
@@ -499,6 +584,93 @@ def _pipeline_dag(qualifications: Sequence[StageQualification]) -> dict[str, Any
     return {"topology": "CONDITIONAL_CASCADE", "nodes": nodes, "edges": edges, "teacher_forced_evaluation_prohibited": True}
 
 
+def _mechanism_stress_audit(
+    frame: pd.DataFrame, masks: Mapping[str, np.ndarray], manifest: Mapping[str, Any],
+    request: Mapping[str, Any], models: Sequence[Mapping[str, Any]], mechanism_features: Sequence[str],
+) -> dict[str, Any]:
+    records: list[dict[str, Any]] = []
+    sup = manifest.get("supervision") or {}
+    rng = np.random.default_rng(20260813)
+    for rec in models:
+        affected = [c for c in rec["feature_columns"] if c in mechanism_features]
+        if not affected:
+            continue
+        stage = str(rec["stage"]); cfg = sup.get(stage.lower()) or {}
+        y = _stage_target(frame, stage, cfg)
+        if y is None:
+            continue
+        xtr = frame.loc[masks["train"], rec["feature_columns"]].to_numpy(dtype=float)
+        xv = frame.loc[masks["validation"], rec["feature_columns"]].to_numpy(dtype=float)
+        model = _fit_model(stage, str(rec["family"]), 20260813, xtr, y[masks["train"]], cfg)
+        metric = next((m for m in (request.get("metrics") or {}).get(stage.lower(), {}).values()), None)
+        if not metric:
+            metric = "average_precision" if stage == "DETECTION" else ("macro_f1" if stage != "IDENTIFICATION" else "normalized_mae")
+        baseline = _score_candidate(stage, model, xv, y[masks["validation"]], cfg, str(metric))
+        corrupted = xv.copy()
+        for column in affected:
+            j = rec["feature_columns"].index(column)
+            corrupted[:, j] = rng.permutation(corrupted[:, j])
+        shuffled = _score_candidate(stage, model, corrupted, y[masks["validation"]], cfg, str(metric))
+        records.append({
+            "candidate_id": rec["candidate_id"], "stage": stage, "stress": "SHUFFLED_MECHANISM_FEATURES",
+            "affected_features": affected, "baseline_score": baseline, "stressed_score": shuffled,
+            "score_delta": baseline - shuffled, "selection_uses_stress_result": False,
+        })
+    return {"contract": "DOR-MECHANISM-STRESS-AUDIT/1.0", "state": "RUN" if records else "NOT_APPLICABLE", "records": records}
+
+
+def _test_audit(
+    frame: pd.DataFrame, masks: Mapping[str, np.ndarray], manifest: Mapping[str, Any],
+    bundle_root: Path, models: Sequence[Mapping[str, Any]], alpha: float,
+) -> dict[str, Any]:
+    if not masks["test"].any():
+        return {"contract": "DOR-END-TO-END-TEST-AUDIT/1.0", "state": "NOT_RUN", "reason": "no test split", "selection_uses_test": False, "records": []}
+    sup = manifest.get("supervision") or {}
+    test_rows = np.flatnonzero(masks["test"])
+    gate = np.full(len(test_rows), True)
+    detection_states = []
+    records: list[dict[str, Any]] = []
+    for rec in models:
+        if rec["stage"] != "DETECTION" or rec.get("decision_threshold") is None:
+            continue
+        model = joblib.load(bundle_root / rec["artifact"])
+        x = frame.iloc[test_rows][rec["feature_columns"]].to_numpy(dtype=float)
+        score = model.score(x); state = score > float(rec["decision_threshold"])
+        detection_states.append(state)
+        cfg = sup.get("detection") or {}; y = _stage_target(frame, "DETECTION", cfg)
+        metric = _metric_detection(y[test_rows], score, str(cfg.get("normal_label")), "average_precision") if y is not None else float("nan")
+        records.append({"candidate_id": rec["candidate_id"], "stage": "DETECTION", "average_precision": metric})
+    if detection_states:
+        gate = np.all(np.stack(detection_states, axis=1), axis=1)
+    for rec in models:
+        stage = str(rec["stage"])
+        if stage == "DETECTION":
+            continue
+        cfg = sup.get(stage.lower()) or {}; y = _stage_target(frame, stage, cfg)
+        if y is None:
+            continue
+        model = joblib.load(bundle_root / rec["artifact"])
+        x = frame.iloc[test_rows][rec["feature_columns"]].to_numpy(dtype=float)
+        evaluated = int(gate.sum())
+        row: dict[str, Any] = {"candidate_id": rec["candidate_id"], "stage": stage, "test_rows": len(test_rows), "executed_rows": evaluated, "teacher_forced": False}
+        if evaluated:
+            pred = np.asarray(model.predict(x[gate]))
+            truth = np.asarray(y[test_rows][gate])
+            if stage in {"LOCALIZATION", "CLASSIFICATION"}:
+                row["macro_f1_on_executed"] = float(f1_score(truth, pred, average="macro", zero_division=0))
+            else:
+                if pred.ndim == 1: pred = pred[:, None]
+                if truth.ndim == 1: truth = truth[:, None]
+                row["mae_on_executed"] = float(mean_absolute_error(truth, pred))
+                radii = rec.get("absolute_error_quantiles") or []
+                if len(radii) == truth.shape[1]:
+                    radius = np.asarray(radii)[None, :]
+                    row["interval_joint_coverage_on_executed"] = float(np.mean(np.all(np.abs(truth - pred) <= radius, axis=1)))
+                    row["interval_alpha"] = alpha
+        records.append(row)
+    return {"contract": "DOR-END-TO-END-TEST-AUDIT/1.0", "state": "RUN", "selection_uses_test": False, "gate_rule": "all retained detectors abnormal", "records": records}
+
+
 def _audit_markdown(summary: Mapping[str, Any]) -> str:
     qrows = "\n".join(f"| {q['stage']} | {q['status']} | {q['reason']} |" for q in summary["qualification"]["stages"])
     return f"""# Auto Diagnostic Architect 审计报告
@@ -516,10 +688,10 @@ def _audit_markdown(summary: Mapping[str, Any]) -> str:
 
 ## 2. 组件机制卡
 
-### 时序统计/频域编码
+### 时序统计/频域/时间金字塔编码
 
-- 一句话机制：将 `[B,T,C]` 的有限窗口压缩为每通道统计量和四段频谱能量。
-- 作用轴：时间轴；压缩不可逆，会丢失精确相位和事件次序。
+- 一句话机制：将 `[B,T,C]` 的有限窗口压缩为每通道统计量、频谱能量、差分/自相关和分段时间统计。
+- 作用轴：时间轴；时间金字塔保留粗粒度次序，但压缩仍不可逆，会丢失精确相位和事件次序。
 - 创新类型：数据与表示方案；不提供新事实观测。
 - 失败模式：短瞬态、非平稳相位关系和跨窗口依赖可能丢失。
 
@@ -558,7 +730,7 @@ def _audit_markdown(summary: Mapping[str, Any]) -> str:
 
 ## 6. 技术报告扫描
 
-本实现没有“新组件”或“首次提出”声明。实际变化属于成熟统计/机器学习组件的组合、数据表示、训练选择和工程编排；未进行最新技术报告创新性检索，因此禁止作新颖性结论。
+本实现没有“新组件”或“首次提出”声明。公开证据扫描覆盖 NASA ADAPT 原始 benchmark、ROCKET/MiniRocket、InceptionTime 与多标签 conformal prediction；实际变化属于成熟统计/机器学习组件的组合、数据表示、校准和工程编排，因此禁止作新颖性结论。来源与适用边界见仓库 `docs/PUBLIC_DATASET_AND_LITERATURE_GAP_AUDIT_CN.md`。
 
 ## 7. 证据等级与不可宣称内容
 
@@ -598,9 +770,11 @@ def _write_component_registry(path: Path) -> None:
         "evidence_level", "adoption_level", "source_urls", "last_verified_date", "notes",
     ]
     rows = [
-        {"component_id": "DOR-AUTO-TS-FEATURES", "canonical_name": "Time-series statistical/frequency encoding", "component_family": "data_representation", "architecture_level": "data", "parent_component": "window feature extraction", "nearest_prior_art": "statistical condition-monitoring features", "computation_delta": "fixed summary and FFT-band encoding", "input_output": "[B,T,C] -> [B,F]", "action_axis": "time", "interaction_range": "per-window", "inductive_bias": "stationary finite-window summaries", "expressive_boundary": "phase and exact event order are lost", "failure_modes": "short transient loss; window sensitivity", "innovation_class": "data_or_representation", "evidence_level": "E1", "adoption_level": "A4", "last_verified_date": "2026-08-12", "notes": "No novelty claim"},
+        {"component_id": "DOR-AUTO-TS-FEATURES", "canonical_name": "Time-series statistical/frequency/temporal-pyramid encoding", "component_family": "data_representation", "architecture_level": "data", "parent_component": "window feature extraction", "nearest_prior_art": "statistical condition-monitoring and temporal pyramid features", "computation_delta": "fixed summary, FFT-band, difference, autocorrelation and segment encoding", "input_output": "[B,T,C] -> [B,F]", "action_axis": "time", "interaction_range": "per-window", "inductive_bias": "finite-window summaries with coarse order", "expressive_boundary": "exact phase and event order are lost", "failure_modes": "short transient loss; window sensitivity", "innovation_class": "data_or_representation", "evidence_level": "E1", "adoption_level": "A4", "last_verified_date": "2026-08-13", "notes": "No novelty claim; not MiniRocket"},
         {"component_id": "DOR-AUTO-MECH-VIEW", "canonical_name": "Mechanism feature view", "component_family": "multimodal_fusion", "architecture_level": "data/topology", "parent_component": "engineered feature fusion", "nearest_prior_art": "physics-informed feature engineering", "computation_delta": "raw/mechanism/combined candidate views", "input_output": "[B,F]+[B,M] -> candidate views", "action_axis": "feature", "interaction_range": "per-sample", "inductive_bias": "declared physical relations", "expressive_boundary": "cannot recover unobserved facts", "failure_modes": "wrong provenance; unstable ratio; domain shift", "innovation_class": "architecture_combination", "evidence_level": "E1", "adoption_level": "A3", "last_verified_date": "2026-08-12", "notes": "Deterministic representation, not new evidence"},
         {"component_id": "DOR-AUTO-CASCADE", "canonical_name": "Conditional diagnostic cascade", "component_family": "routing", "architecture_level": "topology", "parent_component": "multi-stage classifier", "nearest_prior_art": "hierarchical/conditional classification", "computation_delta": "detection gates localization/classification/identification", "input_output": "stage outputs -> conditional stage inputs", "action_axis": "stage depth", "interaction_range": "pipeline", "state_rule": "abnormal gate", "inductive_bias": "healthy samples need no downstream diagnosis", "expressive_boundary": "upstream misses truncate downstream", "failure_modes": "error propagation; threshold shift", "innovation_class": "architecture_combination", "evidence_level": "E1", "adoption_level": "A3", "last_verified_date": "2026-08-12", "notes": "End-to-end evaluation required"},
+        {"component_id": "DOR-AUTO-MULTILABEL-LOC", "canonical_name": "Calibrated multi-label component localization", "component_family": "prediction_head", "architecture_level": "head/calibration", "parent_component": "one-vs-rest classification", "nearest_prior_art": "multi-label classification and conformal-style threshold calibration", "computation_delta": "one binary head and calibration threshold per component", "input_output": "[B,F] -> component prediction set", "action_axis": "component label", "interaction_range": "per-sample", "inductive_bias": "component faults may co-occur", "expressive_boundary": "empirical calibration is not distribution-shift coverage", "failure_modes": "rare negative labels; label shift", "innovation_class": "architecture_combination", "evidence_level": "E1", "adoption_level": "A3", "source_urls": "https://proceedings.mlr.press/v162/fisch22a.html", "last_verified_date": "2026-08-13", "notes": "No novelty claim"},
+        {"component_id": "DOR-AUTO-ID-INTERVAL", "canonical_name": "Split-calibrated identification interval", "component_family": "uncertainty_calibration", "architecture_level": "output", "parent_component": "absolute residual interval", "nearest_prior_art": "split conformal regression", "computation_delta": "per-target held-out residual quantile", "input_output": "point estimate -> lower/upper", "action_axis": "target", "interaction_range": "calibration population", "inductive_bias": "exchangeable calibration and deployment samples", "expressive_boundary": "coverage is not guaranteed under arbitrary shift", "failure_modes": "small calibration set; distribution drift", "innovation_class": "training_or_calibration", "evidence_level": "E1", "adoption_level": "A3", "last_verified_date": "2026-08-13", "notes": "No novelty claim"},
     ]
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8-sig", newline="") as f:
@@ -647,7 +821,7 @@ def run_auto_design(
         raise ValueError("model features contain missing/non-finite values; implicit imputation is prohibited")
     masks = _role_masks(frame, manifest)
     qualifications = _qualify_stages(frame, manifest, request, masks)
-    views = _views(raw_features, mechanism_features)
+    views = _views(raw_features, mechanism_features, request)
     max_candidates = int((request.get("budget") or {}).get("max_candidates", 24))
     max_seconds = float((request.get("budget") or {}).get("max_wall_seconds", 7200))
     seeds = list(map(int, (request.get("search") or {}).get("seeds") or [101, 102, 103]))
@@ -755,6 +929,37 @@ def run_auto_design(
             rec["decision_threshold"] = float(np.quantile(scores, 1.0 - alpha, method="higher"))
             rec["threshold_alpha"] = alpha
             rec["threshold_reference_role"] = reference_role
+    calibration_mask = masks["calibration"]
+    for rec in model_index:
+        if rec["candidate_id"] not in retained_ids or not calibration_mask.any():
+            continue
+        model = joblib.load(out / "pipeline_bundle" / rec["artifact"])
+        xcal = frame.loc[calibration_mask, rec["feature_columns"]].to_numpy(dtype=float)
+        if rec["stage"] == "LOCALIZATION" and (sup.get("localization") or {}).get("target_columns"):
+            targets = list(map(str, sup["localization"]["target_columns"]))
+            truth = frame.loc[calibration_mask, targets].to_numpy(dtype=int)
+            probabilities = np.asarray(model.predict_proba(xcal), dtype=float)
+            thresholds: list[float | None] = []
+            for j in range(len(targets)):
+                negative = probabilities[truth[:, j] == 0, j]
+                thresholds.append(float(np.quantile(negative, 1.0 - alpha, method="higher")) if len(negative) else None)
+            rec["multilabel_targets"] = targets
+            rec["multilabel_thresholds"] = thresholds
+            rec["multilabel_false_positive_alpha"] = alpha
+            rec["multilabel_calibration_rows"] = int(calibration_mask.sum())
+        elif rec["stage"] == "IDENTIFICATION":
+            targets = list(map(str, (sup.get("identification") or {}).get("target_columns") or []))
+            truth = frame.loc[calibration_mask, targets].to_numpy(dtype=float)
+            pred = np.asarray(model.predict(xcal), dtype=float)
+            if pred.ndim == 1:
+                pred = pred[:, None]
+            rec["interval_targets"] = targets
+            rec["absolute_error_quantiles"] = [
+                float(np.quantile(np.abs(truth[:, j] - pred[:, j]), 1.0 - alpha, method="higher"))
+                for j in range(len(targets))
+            ]
+            rec["interval_alpha"] = alpha
+            rec["interval_calibration_rows"] = int(calibration_mask.sum())
     retained_models: list[dict[str, Any]] = []
     for rec in model_index:
         artifact = out / "pipeline_bundle" / rec["artifact"]
@@ -777,6 +982,8 @@ def run_auto_design(
         ],
     }
     _write_json(out / "pipeline_bundle" / "bundle.json", bundle)
+    _write_json(out / "mechanism_stress_audit.json", _mechanism_stress_audit(frame, masks, manifest, request, model_index, mechanism_features))
+    _write_json(out / "end_to_end_test_audit.json", _test_audit(frame, masks, manifest, out / "pipeline_bundle", model_index, alpha))
     qualification_payload = {
         "contract": "DOR-AUTO-DESIGN-QUALIFICATION/1.0", "status": "QUALIFIED" if any(q.status in {"QUALIFIED", "PORTFOLIO_ONLY"} for q in qualifications) else "UNSUPPORTED",
         "stages": [q.to_dict() for q in qualifications], "role_counts": {k: int(v.sum()) for k, v in masks.items()},
@@ -838,6 +1045,24 @@ def predict_pipeline(bundle_dir: str | Path, data_path: str | Path, output_path:
     execute_mask = gate != "NORMAL"
     for stage, prefix, model, x, rec in deferred:
         if stage in {"LOCALIZATION", "CLASSIFICATION"}:
+            if stage == "LOCALIZATION" and rec.get("multilabel_targets"):
+                probabilities = np.asarray(model.predict_proba(x), dtype=float)
+                targets = list(rec["multilabel_targets"])
+                thresholds = rec.get("multilabel_thresholds") or []
+                labels = []
+                for j, target in enumerate(targets):
+                    threshold = thresholds[j] if j < len(thresholds) else None
+                    values = np.full(len(frame), None, dtype=object)
+                    if threshold is not None:
+                        values[execute_mask] = probabilities[execute_mask, j] > float(threshold)
+                    result[f"{prefix}__{_safe_name(target)}__present"] = values
+                for i in range(len(frame)):
+                    if not execute_mask[i]:
+                        labels.append(None)
+                    else:
+                        labels.append("|".join(targets[j] for j, threshold in enumerate(thresholds) if threshold is not None and probabilities[i, j] > float(threshold)))
+                result[f"{prefix}__prediction_set"] = labels
+                continue
             pred = model.predict(x).astype(object)
             pred[~execute_mask] = None
             result[f"{prefix}__prediction"] = pred
@@ -849,5 +1074,10 @@ def predict_pipeline(bundle_dir: str | Path, data_path: str | Path, output_path:
             for j, target in enumerate(targets):
                 values = pred[:, j].copy(); values[~execute_mask] = np.nan
                 result[f"{prefix}__{target}"] = values
+                errors = rec.get("absolute_error_quantiles") or []
+                if j < len(errors):
+                    radius = float(errors[j])
+                    result[f"{prefix}__{target}__lower"] = values - radius
+                    result[f"{prefix}__{target}__upper"] = values + radius
     p = Path(output_path); p.parent.mkdir(parents=True, exist_ok=True); result.to_csv(p, index=False)
     return p

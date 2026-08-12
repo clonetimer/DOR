@@ -13,6 +13,8 @@ from .localization import localize_from_files, localize_batch_from_files
 from .rootcause import infer_root_causes_from_files
 from .stack import stack_info
 from .auto_design import predict_pipeline, run_auto_design
+from .dataset_registry import build_benchmark_plan, catalog_summary, default_catalog_path, load_catalog
+from .public_adapters import prepare_uci_hydraulic
 
 
 def main() -> int:
@@ -25,6 +27,14 @@ def main() -> int:
     ad.add_argument('--ontology',default=None); ad.add_argument('--resume',action='store_true')
     ai=sp.add_parser('auto-predict',help='run a frozen DOR auto-designed pipeline bundle')
     ai.add_argument('--bundle',required=True); ai.add_argument('--data',required=True); ai.add_argument('--output',required=True)
+
+    dc=sp.add_parser('dataset-catalog',help='validate and summarize the evidence-qualified public diagnostic dataset catalog')
+    dc.add_argument('--catalog',default=str(default_catalog_path()))
+    bp=sp.add_parser('benchmark-plan',help='check whether a public dataset can evaluate requested diagnostic stages without overclaiming')
+    bp.add_argument('--catalog',default=str(default_catalog_path()))
+    bp.add_argument('--dataset-id',required=True); bp.add_argument('--stages',nargs='+',required=True); bp.add_argument('--output',default=None)
+    uh=sp.add_parser('uci-hydraulic-prepare',help='convert the official UCI Hydraulic ZIP into a provenance-bound multirate DOR dataset')
+    uh.add_argument('--archive',required=True); uh.add_argument('--out',required=True); uh.add_argument('--sensors',nargs='*',default=None); uh.add_argument('--seed',type=int,default=447); uh.add_argument('--block-size',type=int,default=5)
 
     mc=sp.add_parser('manifest-check',help='formalize/validate a DatasetManifest and bind it to a concrete data artifact')
     mc.add_argument('--manifest',required=True); mc.add_argument('--request',required=True); mc.add_argument('--data',required=True); mc.add_argument('--output',required=True)
@@ -66,6 +76,15 @@ def main() -> int:
     if args.command=='auto-predict':
         output=predict_pipeline(args.bundle,args.data,args.output)
         print(json.dumps({'state':'OK','output':str(output.resolve())},indent=2)); return 0
+    if args.command=='dataset-catalog':
+        print(json.dumps(catalog_summary(load_catalog(args.catalog)),indent=2)); return 0
+    if args.command=='benchmark-plan':
+        result=build_benchmark_plan(load_catalog(args.catalog),args.dataset_id,args.stages)
+        if args.output: write_json(args.output,result)
+        print(json.dumps(result,indent=2)); return 0 if result['state']!='BLOCKED' else 2
+    if args.command=='uci-hydraulic-prepare':
+        result=prepare_uci_hydraulic(args.archive,args.out,sensors=args.sensors,seed=args.seed,block_size=args.block_size)
+        print(json.dumps({'state':'OK','binding':result,'out':str(Path(args.out).resolve())},indent=2)); return 0
     if args.command=='manifest-check':
         m=formalize_manifest(load_json(args.manifest),load_json(args.request),args.data); write_json(args.output,m); print(json.dumps({'state':'OK','contract':m['contract'],'output':str(Path(args.output).resolve())},indent=2)); return 0
     if args.command=='reference-plan':

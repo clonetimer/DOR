@@ -22,6 +22,19 @@ dor auto-predict --bundle design_output/pipeline_bundle --data deployment.csv --
 
 当前“最合适”严格表示声明预算、候选集合与 validation 合同内的稳定最佳或等价集合，不表示全局 NAS 最优。缺少定位、分类或辨识监督时相应阶段返回 `UNSUPPORTED`，不会隐式生成伪标签。详见 `docs/AUTO_DIAGNOSTIC_ARCHITECT_CN.md` 和实施台账 `docs/IMPLEMENTATION_LEDGER_AUTO_DESIGN_CN.md`。
 
+公开 benchmark 在运行前可先审查其证据范围与泄漏约束：
+
+```bash
+dor dataset-catalog
+dor benchmark-plan --dataset-id uci-hydraulic \
+  --stages DETECTION LOCALIZATION CLASSIFICATION IDENTIFICATION
+
+dor uci-hydraulic-prepare --archive condition-monitoring-hydraulic.zip \
+  --out prepared_uci_hydraulic
+```
+
+目录会明确区分“数据存在该监督”和“当前 DOR 已能安全消费该监督”。研究证据、差距与 U1—U7 更新路线见 `docs/PUBLIC_DATASET_AND_LITERATURE_GAP_AUDIT_CN.md`。
+
 ---
 
 # DOR Diagnostic Stack v0.6.0 — Propagation / Root-Cause Development Prototype

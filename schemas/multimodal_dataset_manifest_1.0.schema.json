@@ -7,7 +7,7 @@
   "properties": {
     "contract": {"const": "DOR-MULTIMODAL-DATASET-MANIFEST/1.0"},
     "dataset_id": {"type": "string", "minLength": 1},
-    "modality": {"enum": ["TABULAR", "TIMESERIES_LONG", "TIMESERIES_NPZ"]},
+    "modality": {"enum": ["TABULAR", "TIMESERIES_LONG", "TIMESERIES_NPZ", "MULTIRATE_NPZ"]},
     "identifiers": {"type": "array", "items": {"type": "string"}},
     "features": {"type": "object"},
     "timeseries": {"type": "object"},

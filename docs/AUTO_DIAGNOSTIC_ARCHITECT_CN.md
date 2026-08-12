@@ -35,6 +35,9 @@ dor auto-predict \
 - `TABULAR`：在 `features.raw_columns` 显式列出数值特征。
 - `TIMESERIES_LONG`：每行一个时间点，声明 group、time 和 channel 列；按 group 压缩为样本。
 - `TIMESERIES_NPZ`：`X` 为 `[sample,time,channel]`，其他 split/label 数组通过 `metadata_keys` 映射。
+- `MULTIRATE_NPZ`：各传感器保留独立 `[sample,time]` 数组与采样率，不用伪插值制造统一采样率；UCI Hydraulic 官方 ZIP 可由 `dor uci-hydraulic-prepare` 转换。
+
+请求中设置 `"representations": {"temporal_pyramid": true}` 后，固定统计/频带、顺序敏感 temporal-pyramid 和完整组合会作为不同视图进入同一验证预算。它仍不是 MiniRocket/InceptionTime，也不能恢复被窗口化丢失的精确事件语义。
 
 所有训练特征必须有限；首版不隐式插补。run/asset 标识应进入 `leakage_guard.group_columns`。
 
@@ -44,5 +47,9 @@ dor auto-predict \
 - `PORTFOLIO_ONLY`：检测可训练，但没有故障标签证明某个 detector 最优。
 - `ALTERNATIVES`：多个候选在 practical margin 内不可区分。
 - `UNSUPPORTED`：标签、类别覆盖、数据质量或可辨识性不足。
+
+定位可声明单一 `label_column`，也可声明多个二值 `target_columns`。后者使用 One-vs-Rest 并发部件模型，在独立 calibration split 上按部件设置经验假阳性阈值，推理输出 prediction set。辨识若存在 calibration split，会同时输出点估计和绝对误差分位上下界；没有独立 calibration 时不生成区间。
+
+每次设计另生成 `end_to_end_test_audit.json` 和 `mechanism_stress_audit.json`。前者只在选模结束后读取 test 并应用实际检测门控；后者打乱有出处的机理特征，结果不反向参与本次选模。
 
 详细机制、比较、实验和不可宣称内容见每次输出的 `audit_report.md`。
