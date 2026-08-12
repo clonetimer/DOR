@@ -15,6 +15,7 @@ from .stack import stack_info
 from .auto_design import predict_pipeline, run_auto_design
 from .dataset_registry import build_benchmark_plan, catalog_summary, default_catalog_path, load_catalog
 from .public_adapters import prepare_uci_hydraulic
+from .research_registry import default_method_catalog_path, load_method_catalog, method_catalog_summary
 
 
 def main() -> int:
@@ -30,6 +31,8 @@ def main() -> int:
 
     dc=sp.add_parser('dataset-catalog',help='validate and summarize the evidence-qualified public diagnostic dataset catalog')
     dc.add_argument('--catalog',default=str(default_catalog_path()))
+    rcatalog=sp.add_parser('method-catalog',help='validate and summarize the recent primary-source method evidence catalog')
+    rcatalog.add_argument('--catalog',default=str(default_method_catalog_path()))
     bp=sp.add_parser('benchmark-plan',help='check whether a public dataset can evaluate requested diagnostic stages without overclaiming')
     bp.add_argument('--catalog',default=str(default_catalog_path()))
     bp.add_argument('--dataset-id',required=True); bp.add_argument('--stages',nargs='+',required=True); bp.add_argument('--output',default=None)
@@ -78,6 +81,8 @@ def main() -> int:
         print(json.dumps({'state':'OK','output':str(output.resolve())},indent=2)); return 0
     if args.command=='dataset-catalog':
         print(json.dumps(catalog_summary(load_catalog(args.catalog)),indent=2)); return 0
+    if args.command=='method-catalog':
+        print(json.dumps(method_catalog_summary(load_method_catalog(args.catalog)),indent=2)); return 0
     if args.command=='benchmark-plan':
         result=build_benchmark_plan(load_catalog(args.catalog),args.dataset_id,args.stages)
         if args.output: write_json(args.output,result)

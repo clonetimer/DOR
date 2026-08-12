@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any, Iterable, Mapping, Sequence
 import csv
 import hashlib
+import io
 import json
 import math
 import time
@@ -149,6 +150,30 @@ def _validate_request(request: Mapping[str, Any]) -> None:
         raise ValueError("budget.max_candidates must be positive")
     if float(budget.get("max_wall_seconds", 7200)) <= 0:
         raise ValueError("budget.max_wall_seconds must be positive")
+    for key in ("max_parameters", "max_model_bytes"):
+        if key in budget and int(budget[key]) < 1:
+            raise ValueError(f"budget.{key} must be positive")
+    if "max_inference_latency_ms" in budget and float(budget["max_inference_latency_ms"]) <= 0:
+        raise ValueError("budget.max_inference_latency_ms must be positive")
+    selection = request.get("selection") or {}
+    for key in ("worst_slice_weight", "missing_sensor_weight"):
+        value = float(selection.get(key, 0.0))
+        if not 0.0 <= value <= 1.0:
+            raise ValueError(f"selection.{key} must be in [0,1]")
+    for key in ("min_worst_slice_score", "min_missing_sensor_score"):
+        if key in selection and not 0.0 <= float(selection[key]) <= 1.0:
+            raise ValueError(f"selection.{key} must be in [0,1]")
+    if int((request.get("evaluation") or {}).get("min_slice_rows", 3)) < 1:
+        raise ValueError("evaluation.min_slice_rows must be positive")
+    seeds = (request.get("search") or {}).get("seeds")
+    if seeds is not None and not seeds:
+        raise ValueError("search.seeds must not be empty")
+    robustness = request.get("robustness") or {}
+    groups = robustness.get("sensor_groups") or {}
+    if not isinstance(groups, Mapping) or any(not str(k).strip() or not v for k, v in groups.items()):
+        raise ValueError("robustness.sensor_groups must map non-empty group names to feature lists")
+    if int(robustness.get("max_missing_groups", 0)) < 0:
+        raise ValueError("robustness.max_missing_groups must be non-negative")
 
 
 def _validate_manifest(manifest: Mapping[str, Any]) -> None:
@@ -288,7 +313,8 @@ def _load_frame(manifest: Mapping[str, Any], data_path: str | Path, *, inference
         raise ValueError("TIMESERIES_LONG requires group_columns, channel_columns and time_column")
     split_col = str((manifest.get("split") or {}).get("column"))
     labels = _declared_supervision_columns(manifest)
-    metadata_cols = [] if inference else [split_col] + labels
+    evaluation_cols = list(map(str, (manifest.get("evaluation") or {}).get("slice_columns") or []))
+    metadata_cols = [] if inference else [split_col] + labels + evaluation_cols
     required = group_cols + channel_cols + [time_col] + metadata_cols
     missing = sorted(set(required) - set(df.columns))
     if missing:
@@ -545,6 +571,164 @@ def _fit_model(stage: str, family: str, seed: int, x: np.ndarray, y: np.ndarray 
     return _regressor(family, seed).fit(x, target)
 
 
+def _model_parameter_estimate(model: Any) -> int:
+    """Return an auditable structural-size proxy, not a neural parameter claim."""
+    seen: set[int] = set()
+
+    def count(value: Any) -> int:
+        if id(value) in seen:
+            return 0
+        seen.add(id(value))
+        total = 0
+        tree = getattr(value, "tree_", None)
+        if tree is not None:
+            total += int(tree.node_count)
+        for name in ("coef_", "intercept_", "components_", "mean_", "scale_", "var_", "thresholds_"):
+            array = getattr(value, name, None)
+            if array is not None:
+                total += int(np.asarray(array).size)
+        for child in getattr(value, "steps", []):
+            total += count(child[1])
+        for name in ("estimators_",):
+            children = getattr(value, name, None)
+            if children is not None:
+                total += sum(count(child) for child in np.asarray(children, dtype=object).ravel())
+        for name in ("model", "scaler", "pca"):
+            child = getattr(value, name, None)
+            if child is not None:
+                total += count(child)
+        return total
+
+    return max(1, count(model))
+
+
+def _resource_profile(stage: str, model: Any, x: np.ndarray) -> dict[str, Any]:
+    stream = io.BytesIO()
+    joblib.dump(model, stream)
+
+    def infer() -> None:
+        if stage == "DETECTION":
+            model.score(x)
+        else:
+            model.predict(x)
+
+    timings: list[float] = []
+    for _ in range(3):
+        tick = time.perf_counter()
+        infer()
+        timings.append((time.perf_counter() - tick) * 1000.0 / max(1, len(x)))
+    return {
+        "model_bytes": len(stream.getvalue()),
+        "parameter_estimate": _model_parameter_estimate(model),
+        "parameter_estimate_semantics": "stored numeric coefficients plus tree nodes; cross-family structural-size proxy",
+        "inference_latency_ms_per_row": float(np.median(timings)),
+        "latency_batch_rows": int(len(x)),
+        "latency_repeats": 3,
+    }
+
+
+def _resolve_sensor_groups(
+    raw_features: Sequence[str], mechanism_records: Sequence[Mapping[str, Any]], request: Mapping[str, Any]
+) -> dict[str, list[str]]:
+    configured = (request.get("robustness") or {}).get("sensor_groups") or {}
+    result: dict[str, list[str]] = {}
+    assigned: dict[str, str] = {}
+    for group, patterns in configured.items():
+        resolved: list[str] = []
+        for pattern in map(str, patterns):
+            hits = [c for c in raw_features if c == pattern or c.startswith(f"{pattern}__")]
+            if not hits:
+                raise ValueError(f"robustness sensor group {group!r} pattern {pattern!r} matches no raw feature")
+            resolved.extend(hits)
+        base = _unique(resolved)
+        for column in base:
+            if column in assigned:
+                raise ValueError(f"raw feature {column!r} belongs to multiple sensor groups")
+            assigned[column] = str(group)
+        affected = set(base)
+        changed = True
+        while changed:
+            changed = False
+            for rec in mechanism_records:
+                if set(map(str, rec.get("source_columns") or [])) & affected and str(rec["feature_id"]) not in affected:
+                    affected.add(str(rec["feature_id"])); changed = True
+        result[str(group)] = sorted(affected)
+    return result
+
+
+def _slice_scores(
+    stage: str, model: Any, x: np.ndarray, y: np.ndarray, cfg: Mapping[str, Any], metric: str,
+    metadata: pd.DataFrame, columns: Sequence[str], min_rows: int,
+) -> dict[str, float]:
+    scores: dict[str, float] = {}
+    for column in columns:
+        for value in sorted(metadata[column].astype(str).unique()):
+            mask = metadata[column].astype(str).to_numpy() == value
+            if int(mask.sum()) < min_rows:
+                continue
+            score = _score_candidate(stage, model, x[mask], y[mask], cfg, metric)
+            if np.isfinite(score):
+                scores[f"{column}={value}"] = float(score)
+    return scores
+
+
+def _evaluate_candidate(
+    *, stage: str, candidate_id: str, view: str, family: str, seed: int, rung: str,
+    model: Any, x_validation: np.ndarray, y_validation: np.ndarray | None,
+    stage_cfg: Mapping[str, Any], metric: str, validation_metadata: pd.DataFrame,
+    slice_columns: Sequence[str], sensor_groups: Mapping[str, Sequence[str]],
+    feature_columns: Sequence[str], feature_fallbacks: Mapping[str, float], request: Mapping[str, Any],
+    fit_seconds: float,
+) -> dict[str, Any]:
+    score = float("nan") if y_validation is None else _score_candidate(stage, model, x_validation, y_validation, stage_cfg, metric)
+    min_rows = int((request.get("evaluation") or {}).get("min_slice_rows", 3))
+    slices = {} if y_validation is None else _slice_scores(
+        stage, model, x_validation, y_validation, stage_cfg, metric,
+        validation_metadata, slice_columns, min_rows,
+    )
+    sensor_scores: dict[str, float] = {}
+    if y_validation is not None:
+        for group, affected in sensor_groups.items():
+            indices = [i for i, column in enumerate(feature_columns) if column in affected]
+            if not indices:
+                continue
+            stressed = x_validation.copy()
+            for index in indices:
+                stressed[:, index] = float(feature_fallbacks[feature_columns[index]])
+            value = _score_candidate(stage, model, stressed, y_validation, stage_cfg, metric)
+            if np.isfinite(value):
+                sensor_scores[str(group)] = float(value)
+    worst_slice = min(slices.values()) if slices else None
+    worst_sensor = min(sensor_scores.values()) if sensor_scores else None
+    selection = request.get("selection") or {}
+    utility = score
+    if np.isfinite(utility) and worst_slice is not None:
+        utility -= float(selection.get("worst_slice_weight", 0.0)) * max(0.0, score - worst_slice)
+    if np.isfinite(utility) and worst_sensor is not None:
+        utility -= float(selection.get("missing_sensor_weight", 0.0)) * max(0.0, score - worst_sensor)
+    resources = _resource_profile(stage, model, x_validation)
+    budget = request.get("budget") or {}
+    violations: list[str] = []
+    if resources["model_bytes"] > int(budget.get("max_model_bytes", resources["model_bytes"])):
+        violations.append("max_model_bytes")
+    if resources["parameter_estimate"] > int(budget.get("max_parameters", resources["parameter_estimate"])):
+        violations.append("max_parameters")
+    if resources["inference_latency_ms_per_row"] > float(budget.get("max_inference_latency_ms", resources["inference_latency_ms_per_row"])):
+        violations.append("max_inference_latency_ms")
+    if "min_worst_slice_score" in selection and (worst_slice is None or worst_slice < float(selection["min_worst_slice_score"])):
+        violations.append("min_worst_slice_score")
+    if "min_missing_sensor_score" in selection and (worst_sensor is None or worst_sensor < float(selection["min_missing_sensor_score"])):
+        violations.append("min_missing_sensor_score")
+    return {
+        "stage": stage, "candidate_id": candidate_id, "view": view, "family": family,
+        "seed": seed, "score": score, "selection_score": utility,
+        "primary_metric": metric, "rung": rung, "fit_seconds": fit_seconds,
+        "slice_scores": slices, "worst_slice_score": worst_slice,
+        "missing_sensor_scores": sensor_scores, "worst_missing_sensor_score": worst_sensor,
+        "resources": resources, "eligible": not violations, "constraint_violations": violations,
+    }
+
+
 def _stage_target(df: pd.DataFrame, stage: str, cfg: Mapping[str, Any]) -> np.ndarray | None:
     if stage == "DETECTION" and not cfg.get("label_column"):
         return None
@@ -557,22 +741,33 @@ def _stage_target(df: pd.DataFrame, stage: str, cfg: Mapping[str, Any]) -> np.nd
 
 def _select_stage(stage: str, records: list[dict[str, Any]], practical_margin: float, stability: float, labelled: bool) -> dict[str, Any]:
     by_id: dict[str, list[float]] = {}
+    rejected: dict[str, list[str]] = {}
+    all_ids = {str(row["candidate_id"]) for row in records}
     for row in records:
-        by_id.setdefault(str(row["candidate_id"]), []).append(float(row["score"]))
+        cid = str(row["candidate_id"])
+        if not bool(row.get("eligible", True)):
+            rejected.setdefault(cid, []).extend(map(str, row.get("constraint_violations") or []))
+    for row in records:
+        cid = str(row["candidate_id"])
+        if cid in rejected:
+            continue
+        by_id.setdefault(cid, []).append(float(row.get("selection_score", row["score"])))
     medians = {k: float(np.nanmedian(v)) for k, v in by_id.items() if np.isfinite(v).any()}
     if not medians:
-        ids = sorted(by_id)
-        return {"status": "PORTFOLIO" if stage == "DETECTION" and not labelled else "UNSUPPORTED", "selected_candidate_id": None, "retained_candidate_ids": ids, "candidate_median_scores": {}, "reason": "no labelled validation metric available"}
+        eligible_ids = sorted(by_id)
+        if not eligible_ids and all_ids:
+            return {"status": "UNSUPPORTED", "selected_candidate_id": None, "retained_candidate_ids": [], "candidate_median_scores": {}, "rejected_candidates": {k: sorted(set(v)) for k, v in rejected.items()}, "reason": "all candidates violated declared deployment or robustness constraints"}
+        return {"status": "PORTFOLIO" if stage == "DETECTION" and not labelled else "UNSUPPORTED", "selected_candidate_id": None, "retained_candidate_ids": eligible_ids, "candidate_median_scores": {}, "rejected_candidates": {k: sorted(set(v)) for k, v in rejected.items()}, "reason": "no labelled validation metric available"}
     order = sorted(medians, key=medians.get, reverse=True)
     if len(order) == 1:
-        return {"status": "FIXED", "selected_candidate_id": order[0], "retained_candidate_ids": [order[0]], "candidate_median_scores": medians, "reason": "only one qualified candidate"}
+        return {"status": "FIXED", "selected_candidate_id": order[0], "retained_candidate_ids": [order[0]], "candidate_median_scores": medians, "rejected_candidates": {k: sorted(set(v)) for k, v in rejected.items()}, "reason": "only one constraint-qualified candidate"}
     best, runner = order[:2]
     wins = [a - b >= practical_margin for a in by_id[best] for b in by_id[runner] if np.isfinite(a) and np.isfinite(b)]
     stable = float(np.mean(wins)) if wins else 0.0
     if medians[best] - medians[runner] >= practical_margin and stable >= stability:
-        return {"status": "SELECTED", "selected_candidate_id": best, "retained_candidate_ids": [best], "candidate_median_scores": medians, "reason": f"validation margin and restart stability passed ({stable:.3f})"}
+        return {"status": "SELECTED", "selected_candidate_id": best, "retained_candidate_ids": [best], "candidate_median_scores": medians, "rejected_candidates": {k: sorted(set(v)) for k, v in rejected.items()}, "reason": f"constraint-qualified utility margin and restart stability passed ({stable:.3f})"}
     retained = [cid for cid in order if medians[best] - medians[cid] < practical_margin]
-    return {"status": "ALTERNATIVES", "selected_candidate_id": None, "retained_candidate_ids": retained, "candidate_median_scores": medians, "reason": "validation evidence does not distinguish a stable practical winner"}
+    return {"status": "ALTERNATIVES", "selected_candidate_id": None, "retained_candidate_ids": retained, "candidate_median_scores": medians, "rejected_candidates": {k: sorted(set(v)) for k, v in rejected.items()}, "reason": "constraint-qualified validation evidence does not distinguish a stable practical winner"}
 
 
 def _pipeline_dag(qualifications: Sequence[StageQualification]) -> dict[str, Any]:
@@ -710,7 +905,7 @@ def _audit_markdown(summary: Mapping[str, Any]) -> str:
 
 ## 3. 公平比较矩阵
 
-所有候选使用相同 train/validation 行、特征视图、随机种子集合和选择指标。RAW、MECHANISM、RAW_PLUS_MECHANISM 分开登记；参数/FLOPs匹配与端到端延迟仍须在具体设备验收中补测。
+所有候选使用相同 train/validation 行、随机种子集合和选择指标。RAW、MECHANISM、RAW_PLUS_MECHANISM 分开登记；候选同时记录最差工况、缺失传感器、模型字节、结构复杂度代理和开发机批量时延。目标设备端到端时延、内存和能耗仍须现场补测。
 
 ## 4. 最终架构方案
 
@@ -775,6 +970,7 @@ def _write_component_registry(path: Path) -> None:
         {"component_id": "DOR-AUTO-CASCADE", "canonical_name": "Conditional diagnostic cascade", "component_family": "routing", "architecture_level": "topology", "parent_component": "multi-stage classifier", "nearest_prior_art": "hierarchical/conditional classification", "computation_delta": "detection gates localization/classification/identification", "input_output": "stage outputs -> conditional stage inputs", "action_axis": "stage depth", "interaction_range": "pipeline", "state_rule": "abnormal gate", "inductive_bias": "healthy samples need no downstream diagnosis", "expressive_boundary": "upstream misses truncate downstream", "failure_modes": "error propagation; threshold shift", "innovation_class": "architecture_combination", "evidence_level": "E1", "adoption_level": "A3", "last_verified_date": "2026-08-12", "notes": "End-to-end evaluation required"},
         {"component_id": "DOR-AUTO-MULTILABEL-LOC", "canonical_name": "Calibrated multi-label component localization", "component_family": "prediction_head", "architecture_level": "head/calibration", "parent_component": "one-vs-rest classification", "nearest_prior_art": "multi-label classification and conformal-style threshold calibration", "computation_delta": "one binary head and calibration threshold per component", "input_output": "[B,F] -> component prediction set", "action_axis": "component label", "interaction_range": "per-sample", "inductive_bias": "component faults may co-occur", "expressive_boundary": "empirical calibration is not distribution-shift coverage", "failure_modes": "rare negative labels; label shift", "innovation_class": "architecture_combination", "evidence_level": "E1", "adoption_level": "A3", "source_urls": "https://proceedings.mlr.press/v162/fisch22a.html", "last_verified_date": "2026-08-13", "notes": "No novelty claim"},
         {"component_id": "DOR-AUTO-ID-INTERVAL", "canonical_name": "Split-calibrated identification interval", "component_family": "uncertainty_calibration", "architecture_level": "output", "parent_component": "absolute residual interval", "nearest_prior_art": "split conformal regression", "computation_delta": "per-target held-out residual quantile", "input_output": "point estimate -> lower/upper", "action_axis": "target", "interaction_range": "calibration population", "inductive_bias": "exchangeable calibration and deployment samples", "expressive_boundary": "coverage is not guaranteed under arbitrary shift", "failure_modes": "small calibration set; distribution drift", "innovation_class": "training_or_calibration", "evidence_level": "E1", "adoption_level": "A3", "last_verified_date": "2026-08-13", "notes": "No novelty claim"},
+        {"component_id": "DOR-AUTO-CONSTRAINT-GATE", "canonical_name": "Worst-slice, sensor-dropout and resource admission gate", "component_family": "evaluation_and_routing", "architecture_level": "selection/system", "parent_component": "validation model selection", "nearest_prior_art": "robust model selection under deployment constraints", "computation_delta": "aggregate utility penalties plus hard bytes/complexity/latency thresholds", "input_output": "candidate validation/resource records -> eligible candidate set", "action_axis": "condition/sensor/system", "interaction_range": "candidate portfolio", "inductive_bias": "weak deployment regimes and constraints dominate average-only gains", "expressive_boundary": "declared slices and development-host latency only", "failure_modes": "unobserved regimes; timing noise; fallback information loss", "innovation_class": "evaluation_or_system_protocol", "evidence_level": "E1", "adoption_level": "A2", "source_urls": "https://proceedings.neurips.cc/paper_files/paper/2024/hash/c3f3c690b7a99fba16d0efd35cb83b2c-Abstract-Datasets_and_Benchmarks_Track.html;https://ieeexplore.ieee.org/document/11018134", "last_verified_date": "2026-08-13", "notes": "No novelty claim; target hardware acceptance remains external"},
     ]
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8-sig", newline="") as f:
@@ -822,6 +1018,17 @@ def run_auto_design(
     masks = _role_masks(frame, manifest)
     qualifications = _qualify_stages(frame, manifest, request, masks)
     views = _views(raw_features, mechanism_features, request)
+    slice_columns = list(map(str, (manifest.get("evaluation") or {}).get("slice_columns") or []))
+    missing_slices = [c for c in slice_columns if c not in frame.columns]
+    if missing_slices:
+        raise ValueError(f"evaluation slice columns are missing: {missing_slices}")
+    raw_feature_fallbacks = {
+        column: float(frame.loc[masks["train"], column].median()) for column in raw_features
+    }
+    feature_fallbacks = {
+        column: float(frame.loc[masks["train"], column].median()) for column in used_features
+    }
+    sensor_groups = _resolve_sensor_groups(raw_features, mechanism_records, request)
     max_candidates = int((request.get("budget") or {}).get("max_candidates", 24))
     max_seconds = float((request.get("budget") or {}).get("max_wall_seconds", 7200))
     seeds = list(map(int, (request.get("search") or {}).get("seeds") or [101, 102, 103]))
@@ -852,42 +1059,56 @@ def run_auto_design(
         remaining = max(0, max_candidates - candidate_count)
         candidate_specs = candidate_specs[:remaining]
         first_seed = seeds[0]
-        provisional: dict[str, tuple[float, str, str]] = {}
+        provisional: dict[str, tuple[float, str, str, bool]] = {}
         for view, family in candidate_specs:
             cid = f"{q.stage.lower()}__{view.lower()}__{family}"
             if time.monotonic() - started > max_seconds:
                 break
             xtr = frame.loc[masks["train"], views[view]].to_numpy(dtype=float)
             ytr = None if y is None else y[masks["train"]]
+            tick = time.perf_counter()
             model = _fit_model(q.stage, family, first_seed, xtr, ytr, stage_cfg)
-            score = float("nan")
-            if y is not None:
-                xv = frame.loc[masks["validation"], views[view]].to_numpy(dtype=float)
-                score = _score_candidate(q.stage, model, xv, y[masks["validation"]], stage_cfg, q.primary_metric)
-            rec = {"stage": q.stage, "candidate_id": cid, "view": view, "family": family, "seed": first_seed, "score": score, "primary_metric": q.primary_metric, "rung": "SCREEN"}
+            fit_seconds = time.perf_counter() - tick
+            xv = frame.loc[masks["validation"], views[view]].to_numpy(dtype=float)
+            yv = None if y is None else y[masks["validation"]]
+            rec = _evaluate_candidate(
+                stage=q.stage, candidate_id=cid, view=view, family=family, seed=first_seed,
+                rung="SCREEN", model=model, x_validation=xv, y_validation=yv,
+                stage_cfg=stage_cfg, metric=q.primary_metric,
+                validation_metadata=frame.loc[masks["validation"]], slice_columns=slice_columns,
+                sensor_groups=sensor_groups, feature_columns=views[view],
+                feature_fallbacks=feature_fallbacks, request=request, fit_seconds=fit_seconds,
+            )
             records.append(rec); validation_records.append(rec)
-            provisional[cid] = (score, view, family)
+            provisional[cid] = (float(rec["selection_score"]), view, family, bool(rec["eligible"]))
             candidate_count += 1
 
-        finite_scores = sorted((score for score, _, _ in provisional.values() if np.isfinite(score)), reverse=True)
+        finite_scores = sorted((score for score, _, _, eligible in provisional.values() if eligible and np.isfinite(score)), reverse=True)
         if finite_scores:
             cutoff = finite_scores[min(len(finite_scores) - 1, max(0, math.ceil(len(finite_scores) / 2) - 1))]
-            survivors = {cid for cid, (score, _, _) in provisional.items() if np.isfinite(score) and score >= cutoff - practical_margin}
+            survivors = {cid for cid, (score, _, _, eligible) in provisional.items() if eligible and np.isfinite(score) and score >= cutoff - practical_margin}
         else:
-            survivors = set(provisional)
+            survivors = {cid for cid, (_, _, _, eligible) in provisional.items() if eligible}
         for cid in sorted(survivors):
-            _, view, family = provisional[cid]
+            _, view, family, _ = provisional[cid]
             xtr = frame.loc[masks["train"], views[view]].to_numpy(dtype=float)
             ytr = None if y is None else y[masks["train"]]
             for seed in seeds[1:]:
                 if time.monotonic() - started > max_seconds:
                     break
+                tick = time.perf_counter()
                 model = _fit_model(q.stage, family, seed, xtr, ytr, stage_cfg)
-                score = float("nan")
-                if y is not None:
-                    xv = frame.loc[masks["validation"], views[view]].to_numpy(dtype=float)
-                    score = _score_candidate(q.stage, model, xv, y[masks["validation"]], stage_cfg, q.primary_metric)
-                rec = {"stage": q.stage, "candidate_id": cid, "view": view, "family": family, "seed": seed, "score": score, "primary_metric": q.primary_metric, "rung": "CONFIRM"}
+                fit_seconds = time.perf_counter() - tick
+                xv = frame.loc[masks["validation"], views[view]].to_numpy(dtype=float)
+                yv = None if y is None else y[masks["validation"]]
+                rec = _evaluate_candidate(
+                    stage=q.stage, candidate_id=cid, view=view, family=family, seed=seed,
+                    rung="CONFIRM", model=model, x_validation=xv, y_validation=yv,
+                    stage_cfg=stage_cfg, metric=q.primary_metric,
+                    validation_metadata=frame.loc[masks["validation"]], slice_columns=slice_columns,
+                    sensor_groups=sensor_groups, feature_columns=views[view],
+                    feature_fallbacks=feature_fallbacks, request=request, fit_seconds=fit_seconds,
+                )
                 records.append(rec); validation_records.append(rec)
             # Refit a deployment model after selection evidence is measured.  Validation
             # may join final fitting, but calibration/test remain isolated.
@@ -898,7 +1119,24 @@ def run_auto_design(
             final_model = _fit_model(q.stage, family, final_seed, xf, yf, stage_cfg)
             artifact = model_root / f"{_safe_name(cid)}.joblib"
             joblib.dump(final_model, artifact)
-            model_index.append({"candidate_id": cid, "stage": q.stage, "view": view, "family": family, "feature_columns": views[view], "artifact": str(artifact.relative_to(out / "pipeline_bundle")), "sha256": _sha256(artifact)})
+            xv = frame.loc[masks["validation"], views[view]].to_numpy(dtype=float)
+            deployment_resources = _resource_profile(q.stage, final_model, xv)
+            deployment_resources["artifact_bytes"] = int(artifact.stat().st_size)
+            deployment_violations: list[str] = []
+            budget = request.get("budget") or {}
+            if deployment_resources["artifact_bytes"] > int(budget.get("max_model_bytes", deployment_resources["artifact_bytes"])):
+                deployment_violations.append("max_model_bytes")
+            if deployment_resources["parameter_estimate"] > int(budget.get("max_parameters", deployment_resources["parameter_estimate"])):
+                deployment_violations.append("max_parameters")
+            if deployment_resources["inference_latency_ms_per_row"] > float(budget.get("max_inference_latency_ms", deployment_resources["inference_latency_ms_per_row"])):
+                deployment_violations.append("max_inference_latency_ms")
+            if deployment_violations:
+                for row in records:
+                    if row["candidate_id"] == cid:
+                        row["eligible"] = False
+                        row["constraint_violations"] = sorted(set(row["constraint_violations"] + deployment_violations))
+            screen = next(row for row in records if row["candidate_id"] == cid)
+            model_index.append({"candidate_id": cid, "stage": q.stage, "view": view, "family": family, "feature_columns": views[view], "artifact": str(artifact.relative_to(out / "pipeline_bundle")), "sha256": _sha256(artifact), "screen_resources": screen["resources"], "deployment_resources": deployment_resources})
         labelled = y is not None and q.status == "QUALIFIED"
         stage_selections[q.stage] = _select_stage(q.stage, records, practical_margin, stability, labelled)
         _write_json(state_path, {"contract": "DOR-AUTO-SEARCH-STATE/1.0", "status": "RUNNING", "bindings": binding, "completed_candidates": [m["candidate_id"] for m in model_index]})
@@ -974,6 +1212,8 @@ def run_auto_design(
         "manifest": manifest, "device_card": card, "pipeline_dag": dag,
         "stage_qualification": [q.to_dict() for q in qualifications], "stage_selections": stage_selections,
         "models": model_index, "raw_feature_columns": raw_features, "mechanism_feature_columns": mechanism_features,
+        "raw_feature_fallbacks": raw_feature_fallbacks,
+        "robustness": {"sensor_groups": (request.get("robustness") or {}).get("sensor_groups") or {}, "max_missing_groups": int((request.get("robustness") or {}).get("max_missing_groups", 0)), "inference_fallback_scope": "TABULAR raw columns"},
         "prohibited_claims": [
             "finite validation selection is not global NAS optimality",
             "deterministic mechanism features are not new observations",
@@ -985,7 +1225,7 @@ def run_auto_design(
     _write_json(out / "mechanism_stress_audit.json", _mechanism_stress_audit(frame, masks, manifest, request, model_index, mechanism_features))
     _write_json(out / "end_to_end_test_audit.json", _test_audit(frame, masks, manifest, out / "pipeline_bundle", model_index, alpha))
     qualification_payload = {
-        "contract": "DOR-AUTO-DESIGN-QUALIFICATION/1.0", "status": "QUALIFIED" if any(q.status in {"QUALIFIED", "PORTFOLIO_ONLY"} for q in qualifications) else "UNSUPPORTED",
+        "contract": "DOR-AUTO-DESIGN-QUALIFICATION/1.0", "status": "QUALIFIED" if model_index else "UNSUPPORTED",
         "stages": [q.to_dict() for q in qualifications], "role_counts": {k: int(v.sum()) for k, v in masks.items()},
         "leakage_guard_passed": True,
     }
@@ -1012,8 +1252,28 @@ def predict_pipeline(bundle_dir: str | Path, data_path: str | Path, output_path:
     _require_contract(bundle, BUNDLE_CONTRACT, "pipeline bundle")
     manifest, card = bundle["manifest"], bundle["device_card"]
     frame, raw = _load_frame(manifest, data_path, inference=True)
+    missing_raw = [c for c in bundle.get("raw_feature_columns") or raw if c not in frame.columns]
+    missing_groups: set[str] = set()
+    group_patterns = (bundle.get("robustness") or {}).get("sensor_groups") or {}
+    for column in missing_raw:
+        owners = [
+            str(group) for group, patterns in group_patterns.items()
+            if any(column == str(pattern) or column.startswith(f"{pattern}__") for pattern in patterns)
+        ]
+        if len(owners) != 1:
+            raise ValueError(f"missing raw feature {column!r} is not covered by exactly one declared sensor group")
+        missing_groups.add(owners[0])
+        fallback = (bundle.get("raw_feature_fallbacks") or {}).get(column)
+        if fallback is None:
+            raise ValueError(f"missing raw feature {column!r} lacks a training fallback")
+        frame[column] = float(fallback)
+    maximum = int((bundle.get("robustness") or {}).get("max_missing_groups", 0))
+    if len(missing_groups) > maximum:
+        raise ValueError(f"missing sensor groups {sorted(missing_groups)} exceed declared maximum {maximum}")
     frame, mechanism, _ = _compile_mechanism_features(frame, card)
     result = pd.DataFrame(index=frame.index)
+    result["missing_sensor_group_count"] = len(missing_groups)
+    result["missing_sensor_groups"] = "|".join(sorted(missing_groups))
     for col in manifest.get("identifiers") or []:
         if str(col) in frame.columns:
             result[str(col)] = frame[str(col)].values

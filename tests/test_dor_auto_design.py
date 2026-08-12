@@ -187,3 +187,65 @@ def test_timeseries_npz_contract(tmp_path: Path):
     assert result["qualification"]["stages"][0]["status"] == "PORTFOLIO_ONLY"
     candidates = json.loads((tmp_path / "out" / "validation_results.json").read_text())["records"]
     assert any(x["view"] == "RAW_TEMPORAL_PYRAMID" for x in candidates)
+
+
+def test_selection_audits_slices_resources_and_missing_sensor_fallback(tmp_path: Path):
+    rng = np.random.default_rng(22)
+    n = 120
+    fault = np.where(np.arange(n) % 2, "F", "N")
+    signal = (fault == "F").astype(float)
+    frame = pd.DataFrame({
+        "sample_id": np.arange(n), "run_id": [f"r{i}" for i in range(n)],
+        "split": ["train"] * 60 + ["val"] * 40 + ["cal"] * 10 + ["test"] * 10,
+        "regime": np.where(np.arange(n) % 3, "loaded", "idle"),
+        "x1": signal + rng.normal(0, .1, n), "x2": -signal + rng.normal(0, .1, n),
+        "fault": fault,
+    })
+    data = tmp_path / "data.csv"; frame.to_csv(data, index=False)
+    manifest_value = _manifest()
+    manifest_value["supervision"] = {"classification": {"label_column": "fault"}}
+    manifest_value["evaluation"] = {"slice_columns": ["regime"]}
+    request_value = _request(); request_value["stages"] = ["CLASSIFICATION"]
+    request_value["robustness"] = {"sensor_groups": {"primary": ["x1"], "secondary": ["x2"]}, "max_missing_groups": 1}
+    request_value["selection"].update({"worst_slice_weight": .5, "missing_sensor_weight": .5})
+    request_value["budget"].update({"max_model_bytes": 1_000_000, "max_parameters": 100_000, "max_inference_latency_ms": 10})
+    out = tmp_path / "out"
+    run_auto_design(
+        _write_json(tmp_path / "card.json", _card()),
+        _write_json(tmp_path / "manifest.json", manifest_value), data,
+        _write_json(tmp_path / "request.json", request_value), out,
+    )
+    record = json.loads((out / "validation_results.json").read_text())["records"][0]
+    assert record["eligible"] is True
+    assert record["worst_slice_score"] is not None
+    assert record["worst_missing_sensor_score"] is not None
+    assert record["resources"]["model_bytes"] > 0
+    inference = tmp_path / "missing.csv"; frame.drop(columns=["x2"]).to_csv(inference, index=False)
+    predict_pipeline(out / "pipeline_bundle", inference, tmp_path / "pred.csv")
+    prediction = pd.read_csv(tmp_path / "pred.csv")
+    assert set(prediction["missing_sensor_group_count"]) == {1}
+    assert set(prediction["missing_sensor_groups"]) == {"secondary"}
+
+
+def test_resource_constraint_rejects_every_candidate(tmp_path: Path):
+    n = 40
+    frame = pd.DataFrame({
+        "sample_id": np.arange(n), "run_id": [f"r{i}" for i in range(n)],
+        "split": ["train"] * 20 + ["val"] * 20,
+        "x1": np.arange(n) % 2, "x2": -(np.arange(n) % 2),
+        "fault": np.where(np.arange(n) % 2, "F", "N"),
+    })
+    data = tmp_path / "data.csv"; frame.to_csv(data, index=False)
+    manifest_value = _manifest(); manifest_value["supervision"] = {"classification": {"label_column": "fault"}}
+    request_value = _request(); request_value["stages"] = ["CLASSIFICATION"]
+    request_value["budget"]["max_model_bytes"] = 1
+    result = run_auto_design(
+        _write_json(tmp_path / "card.json", _card()),
+        _write_json(tmp_path / "manifest.json", manifest_value), data,
+        _write_json(tmp_path / "request.json", request_value), tmp_path / "out",
+    )
+    assert result["status"] == "UNSUPPORTED"
+    decision = result["stage_selections"]["CLASSIFICATION"]
+    assert decision["status"] == "UNSUPPORTED"
+    assert decision["retained_candidate_ids"] == []
+    assert "max_model_bytes" in next(iter(decision["rejected_candidates"].values()))

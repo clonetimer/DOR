@@ -18,6 +18,7 @@
         "max_candidates": {"type": "integer", "minimum": 1, "default": 24},
         "max_wall_seconds": {"type": "number", "exclusiveMinimum": 0, "default": 7200},
         "max_parameters": {"type": "integer", "minimum": 1},
+        "max_model_bytes": {"type": "integer", "minimum": 1},
         "max_inference_latency_ms": {"type": "number", "exclusiveMinimum": 0}
       }
     },
@@ -32,9 +33,29 @@
       "type": "object",
       "properties": {
         "practical_margin": {"type": "number", "minimum": 0, "exclusiveMaximum": 1, "default": 0.02},
-        "restart_stability": {"type": "number", "minimum": 0, "maximum": 1, "default": 0.75}
+        "restart_stability": {"type": "number", "minimum": 0, "maximum": 1, "default": 0.75},
+        "worst_slice_weight": {"type": "number", "minimum": 0, "maximum": 1, "default": 0},
+        "missing_sensor_weight": {"type": "number", "minimum": 0, "maximum": 1, "default": 0},
+        "min_worst_slice_score": {"type": "number", "minimum": 0, "maximum": 1},
+        "min_missing_sensor_score": {"type": "number", "minimum": 0, "maximum": 1}
       }
     },
+    "evaluation": {
+      "type": "object",
+      "properties": {"min_slice_rows": {"type": "integer", "minimum": 1, "default": 3}}
+    },
+    "robustness": {
+      "type": "object",
+      "properties": {
+        "sensor_groups": {
+          "type": "object",
+          "additionalProperties": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}}
+        },
+        "max_missing_groups": {"type": "integer", "minimum": 0, "default": 0}
+      }
+    },
+    "representations": {"type": "object"},
+    "calibration": {"type": "object"},
     "candidates": {"type": "object"},
     "metrics": {"type": "object"}
   },

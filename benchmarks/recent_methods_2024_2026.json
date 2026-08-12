@@ -1,0 +1,139 @@
+{
+  "contract": "DOR-RECENT-INDUSTRIAL-DIAGNOSTIC-METHOD-CATALOG/1.0",
+  "search_window": {"from": "2024-08-13", "to": "2026-08-13"},
+  "last_verified_on": "2026-08-13",
+  "methods": [
+    {
+      "method_id": "tsb-ad-2024",
+      "title": "The Elephant in the Room: Towards A Reliable Time-Series Anomaly Detection Benchmark",
+      "published_on": "2024-12-10", "venue": "NeurIPS 2024 Datasets and Benchmarks", "status": "PEER_REVIEWED",
+      "primary_url": "https://proceedings.neurips.cc/paper_files/paper/2024/hash/c3f3c690b7a99fba16d0efd35cb83b2c-Abstract-Datasets_and_Benchmarks_Track.html",
+      "task": ["anomaly detection", "benchmarking"], "innovation_class": "evaluation_protocol",
+      "mechanism_delta": "1070-series benchmark with consistent algorithms, data and metrics; recommends VUS-PR and exposes flawed protocols",
+      "evidence_level": "E1", "dor_decision": "ADOPT_PRINCIPLE",
+      "dor_impact": "retain simple baselines, prohibit cherry-picked metrics and add event/range-aware evaluation before deployment claims",
+      "risks": ["benchmark aggregation does not identify one universally best detector"]
+    },
+    {
+      "method_id": "units-neurips-2024",
+      "title": "UniTS: A Unified Multi-Task Time Series Model",
+      "published_on": "2024-12-10", "venue": "NeurIPS 2024", "status": "PEER_REVIEWED",
+      "primary_url": "https://proceedings.neurips.cc/paper_files/paper/2024/hash/fe248e22b241ae5a9adf11493c8c12bc-Abstract-Conference.html",
+      "task": ["classification", "forecasting", "anomaly detection", "imputation"], "innovation_class": "architecture_combination",
+      "mechanism_delta": "task tokenization and a shared sequence model across multiple time-series tasks",
+      "evidence_level": "E1", "dor_decision": "PLANNED_OPTIONAL_CANDIDATE",
+      "dor_impact": "only admit behind modality, compute and cross-domain validation gates; never replace low-complexity baselines by default",
+      "risks": ["general time-series benchmarks are not industrial-device field validation", "larger inference cost"]
+    },
+    {
+      "method_id": "path-2024",
+      "title": "PATH: A Discrete-sequence Dataset for Evaluating Online Unsupervised Anomaly Detection Approaches",
+      "published_on": "2024-11-21", "venue": "arXiv", "status": "PREPRINT",
+      "primary_url": "https://arxiv.org/abs/2411.13951",
+      "task": ["online anomaly detection", "contaminated training"], "innovation_class": "dataset_and_evaluation",
+      "mechanism_delta": "physically inspired discrete multivariate powertrain sequences with clean and contaminated folds",
+      "evidence_level": "E0", "dor_decision": "ADOPT_BENCHMARK",
+      "dor_impact": "add contamination, variable-state and threshold-sensitivity audits",
+      "risks": ["simulated powertrain evidence is not field evidence"]
+    },
+    {
+      "method_id": "dcase-task2-2025",
+      "title": "First-Shot Unsupervised Anomalous Sound Detection for Machine Condition Monitoring",
+      "published_on": "2025-06-11", "venue": "DCASE 2025 Challenge", "status": "OFFICIAL_CHALLENGE_REPORT",
+      "primary_url": "https://arxiv.org/abs/2506.10097",
+      "task": ["machine sound anomaly detection", "domain shift"], "innovation_class": "task_and_evaluation",
+      "mechanism_delta": "first-shot evaluation on new machine types under source/target-domain shift and noisy factory backgrounds",
+      "evidence_level": "E1", "dor_decision": "ADOPT_BENCHMARK_AFTER_AUDIO_ADAPTER",
+      "dor_impact": "raw-audio adapter and domain-held-out gate are required before claiming modality coverage",
+      "risks": ["anomaly score does not localize a physical component"]
+    },
+    {
+      "method_id": "unifault-2025",
+      "title": "UniFault: A Fault Diagnosis Foundation Model from Bearing Data",
+      "published_on": "2025-04-02", "venue": "arXiv", "status": "PREPRINT",
+      "primary_url": "https://arxiv.org/abs/2504.01373",
+      "task": ["fault classification", "few-shot transfer"], "innovation_class": "architecture_and_pretraining",
+      "mechanism_delta": "bearing-data harmonization plus cross-domain temporal fusion pretraining",
+      "evidence_level": "E0", "dor_decision": "RESEARCH_ONLY",
+      "dor_impact": "a possible future encoder candidate only after independent specimen-held-out and resource-matched reproduction",
+      "risks": ["bearing-centric corpus", "preprint self-report", "harmonization may discard channel semantics"]
+    },
+    {
+      "method_id": "mantis-2025",
+      "title": "Mantis: Lightweight Calibrated Foundation Model for User-Friendly Time Series Classification",
+      "published_on": "2025-06-09", "venue": "ICML 2025 FMSD Workshop", "status": "WORKSHOP_PAPER",
+      "primary_url": "https://openreview.net/forum?id=FDDkR53rim",
+      "task": ["time-series classification", "transfer"], "innovation_class": "architecture_and_pretraining",
+      "mechanism_delta": "contrastive vision-transformer time-series pretraining with multivariate adapters and calibration",
+      "evidence_level": "E1", "dor_decision": "PLANNED_OPTIONAL_CANDIDATE",
+      "dor_impact": "compare only under identical train data, parameter/model-size and latency budgets",
+      "risks": ["workshop evidence", "classification focus does not cover causal diagnosis"]
+    },
+    {
+      "method_id": "tsad-c-uai-2025",
+      "title": "Contaminated Multivariate Time-Series Anomaly Detection with Spatio-Temporal Graph Conditional Diffusion Models",
+      "published_on": "2025-07-21", "venue": "UAI 2025 / PMLR 286", "status": "PEER_REVIEWED",
+      "primary_url": "https://proceedings.mlr.press/v286/ho25a.html",
+      "task": ["anomaly detection", "contaminated training"], "innovation_class": "training_and_architecture",
+      "mechanism_delta": "training-set decontamination followed by spatiotemporal graph conditional diffusion scoring",
+      "evidence_level": "E1", "dor_decision": "PLANNED_STRESS_BASELINE",
+      "dor_impact": "normal-only trust must be audited; contaminated-training benchmark becomes a qualification gate",
+      "risks": ["diffusion compute cost", "decontamination errors can remove rare normal regimes"]
+    },
+    {
+      "method_id": "m2-stgn-ieee-2025",
+      "title": "M2-STGN: A Missing Data-Tolerant Learning Model for Condition Monitoring of Wind Turbines",
+      "published_on": "2025-05-29", "venue": "IEEE Transactions on Instrumentation and Measurement", "status": "PEER_REVIEWED",
+      "primary_url": "https://ieeexplore.ieee.org/document/11018134",
+      "task": ["fault diagnosis", "missing sensor data", "SCADA"], "innovation_class": "architecture_combination",
+      "mechanism_delta": "multiscale graph attention, masked temporal attention and temporal convolution for incomplete SCADA",
+      "evidence_level": "E1", "dor_decision": "ADOPT_REQUIREMENT_NOT_MODEL",
+      "dor_impact": "missing-sensor stress and fallback behavior are now part of candidate admission",
+      "risks": ["two wind datasets do not prove cross-device universality", "complexity must be resource matched"]
+    },
+    {
+      "method_id": "industrial-asd-ieee-2025",
+      "title": "Unsupervised Anomalous Sound Detection in Industrial Machine Facilities",
+      "published_on": "2025-10-19", "venue": "IEEE SENSORS 2025", "status": "PEER_REVIEWED",
+      "primary_url": "https://ieeexplore.ieee.org/document/11330926",
+      "task": ["industrial acoustic anomaly detection", "noise robustness"], "innovation_class": "representation_and_classical_model",
+      "mechanism_delta": "autoencoder representations plus Gaussian mixture scoring under high noise and reverberation",
+      "evidence_level": "E1", "dor_decision": "PLANNED_AUDIO_BASELINE",
+      "dor_impact": "audio support must include simple AE/GMM-like baselines and explicit SNR slices",
+      "risks": ["venue experiment scope may be site-specific"]
+    },
+    {
+      "method_id": "factorynet-2026",
+      "title": "FactoryNet: A Large-Scale Dataset toward Industrial Time-Series Foundation Models",
+      "published_on": "2026-05-09", "venue": "arXiv", "status": "PREPRINT",
+      "primary_url": "https://arxiv.org/abs/2605.09081",
+      "task": ["industrial foundation models", "cross-embodiment transfer", "sim-to-real"], "innovation_class": "dataset_and_schema",
+      "mechanism_delta": "Setpoint-Effort-Feedback-Context schema across real, simulated and counterfactual manufacturing episodes",
+      "evidence_level": "E0", "dor_decision": "RESEARCH_ONLY",
+      "dor_impact": "supports future cross-embodiment stress tests, but license and independent review gates remain open",
+      "risks": ["preprint", "license absent from verified card", "synthetic counterfactuals are not observed failures"]
+    },
+    {
+      "method_id": "tsfm-zero-shot-failure-2026",
+      "title": "Exploring Zero-Shot Foundation Models for Multivariate Time Series Anomaly Detection",
+      "published_on": "2026-07-14", "venue": "arXiv", "status": "PREPRINT",
+      "primary_url": "https://arxiv.org/abs/2607.12454",
+      "task": ["zero-shot anomaly detection", "industrial control"], "innovation_class": "negative_evaluation",
+      "mechanism_delta": "tests naive forecasting and embedding routes on SWaT and reports anomaly overgeneralization/boundary bias",
+      "evidence_level": "E0", "dor_decision": "ADOPT_NEGATIVE_GATE",
+      "dor_impact": "foundation models cannot enter the default registry from reputation or zero-shot claims alone",
+      "risks": ["single industrial-control benchmark", "preprint"]
+    },
+    {
+      "method_id": "adaptive-conformal-tsfm-2026",
+      "title": "Adaptive Conformal Anomaly Detection with Time Series Foundation Models for Signal Monitoring",
+      "published_on": "2026-04-22", "venue": "arXiv", "status": "PREPRINT",
+      "primary_url": "https://arxiv.org/abs/2604.20122",
+      "task": ["anomaly detection", "calibration under shift"], "innovation_class": "calibration",
+      "mechanism_delta": "weighted adaptive quantiles and false-alarm p-values around foundation-model outputs",
+      "evidence_level": "E0", "dor_decision": "RESEARCH_ONLY",
+      "dor_impact": "motivates adaptive calibration experiments but does not replace held-out deployment validation",
+      "risks": ["preprint self-report", "coverage assumptions can fail under arbitrary shift"]
+    }
+  ]
+}

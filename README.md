@@ -22,6 +22,8 @@ dor auto-predict --bundle design_output/pipeline_bundle --data deployment.csv --
 
 当前“最合适”严格表示声明预算、候选集合与 validation 合同内的稳定最佳或等价集合，不表示全局 NAS 最优。缺少定位、分类或辨识监督时相应阶段返回 `UNSUPPORTED`，不会隐式生成伪标签。详见 `docs/AUTO_DIAGNOSTIC_ARCHITECT_CN.md` 和实施台账 `docs/IMPLEMENTATION_LEDGER_AUTO_DESIGN_CN.md`。
 
+2026-08-13 更新后，候选选择还可执行最差工况、缺失传感器、模型字节、结构复杂度代理与开发机推理时延门禁。近两年数据/论文证据、明确差距和 G1—G10 计划见 `docs/RECENT_2024_2026_EVIDENCE_GAP_AND_UPDATE_PLAN_CN.md`；原始音频/视觉、污染训练、基础模型和生命周期闭环仍属于未完成项。
+
 公开 benchmark 在运行前可先审查其证据范围与泄漏约束：
 
 ```bash

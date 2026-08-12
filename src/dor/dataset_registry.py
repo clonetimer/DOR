@@ -43,6 +43,11 @@ def validate_catalog(value: dict[str, Any]) -> None:
             raise ValueError(f"{prefix}.official_landing_page must be HTTPS")
         if not item.get("primary_references"):
             raise ValueError(f"{prefix}.primary_references must not be empty")
+        access_status = (item.get("access") or {}).get("status")
+        if access_status not in {"PUBLIC", "RESTRICTED"}:
+            raise ValueError(f"{prefix}.access.status is invalid")
+        if item.get("recency_scope") and not item.get("published_on"):
+            raise ValueError(f"{prefix}.published_on is required for recency-scoped entries")
         stage_evidence = item.get("stage_evidence", {})
         dor_support = item.get("dor_support", {})
         for stage in STAGES:
@@ -112,6 +117,8 @@ def build_benchmark_plan(
         blockers.append("dataset adapter is not implemented")
     elif item["adapter"]["status"] == "DERIVED_ONLY":
         limitations.append("only a derived feature view is integrated; raw-signal claims are prohibited")
+    if item["access"]["status"] != "PUBLIC":
+        blockers.append("dataset files are not publicly accessible")
     state = "BLOCKED" if blockers else (
         "LIMITED" if limitations or any(x["decision"] != "ELIGIBLE" for x in stage_plan) else "ELIGIBLE"
     )
@@ -142,6 +149,8 @@ def catalog_summary(catalog: dict[str, Any]) -> dict[str, Any]:
                 "dataset_id": item["dataset_id"],
                 "name": item["name"],
                 "device_domain": item["device_domain"],
+                "published_on": item.get("published_on"),
+                "access_status": item["access"]["status"],
                 "adapter_status": item["adapter"]["status"],
             }
             for item in catalog["datasets"]

@@ -19,7 +19,7 @@ package-dir = {"" = "src"}
 where = ["src"]
 
 [tool.setuptools.data-files]
-"share/dor" = ["benchmarks/public_datasets.json"]
+"share/dor" = ["benchmarks/public_datasets.json", "benchmarks/recent_methods_2024_2026.json"]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]

@@ -14,7 +14,7 @@ CATALOG = Path(__file__).parents[1] / "benchmarks" / "public_datasets.json"
 def test_bundled_public_catalog_is_valid_and_traceable():
     catalog = load_catalog(CATALOG)
     summary = catalog_summary(catalog)
-    assert summary["dataset_count"] >= 7
+    assert summary["dataset_count"] >= 16
     assert all(x["adapter_status"] in {"READY", "DERIVED_ONLY", "PLANNED"} for x in summary["datasets"])
 
 
@@ -43,3 +43,11 @@ def test_catalog_fails_closed_on_duplicate_id():
     broken["datasets"].append(copy.deepcopy(broken["datasets"][0]))
     with pytest.raises(ValueError, match="duplicate dataset_id"):
         validate_catalog(broken)
+
+
+def test_recent_restricted_metadata_record_is_not_benchmark_eligible():
+    plan = build_benchmark_plan(
+        load_catalog(CATALOG), "spherical-roller-multidefect-2025-restricted", ["detection"]
+    )
+    assert plan["state"] == "BLOCKED"
+    assert "dataset files are not publicly accessible" in plan["blockers"]

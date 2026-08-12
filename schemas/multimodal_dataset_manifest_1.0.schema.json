@@ -28,6 +28,12 @@
         "classification": {"type": "object"}, "identification": {"type": "object"}
       }
     },
+    "evaluation": {
+      "type": "object",
+      "properties": {
+        "slice_columns": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}}
+      }
+    },
     "leakage_guard": {"type": "object"}
   },
   "additionalProperties": true

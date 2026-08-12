@@ -38,14 +38,22 @@
 | AD-019 | 完成 | 新增 test-only 非 teacher-forced 级联审计与机理特征打乱压力审计 | `end_to_end_test_audit.json`、`mechanism_stress_audit.json` |
 | AD-020 | 完成 | 加入可选 temporal-pyramid 顺序敏感视图，与统计视图在相同预算内竞争 | NPZ 时序测试验证候选视图存在；不宣称 MiniRocket 已实现 |
 | AD-021 | 完成 | 下载官方 UCI Hydraulic ZIP 到临时目录，核验 SHA-256，以 PS1/FS1/TS1 覆盖 100/10/1 Hz 做 2,205 周期真实源冒烟并清理大文件 | source hash `24128aad...f1f2`；设计 `QUALIFIED`；220 calibration / 225 test；三传感器范围不可外推为完整 17 传感器比较 |
+| AD-022 | 完成 | 严格按 2024-08-13—2026-08-13 检索官方/主来源，新增 9 项近期数据记录和 12 项方法记录，区分预印本、workshop、同行评审与官方挑战 | `benchmarks/public_datasets.json` 共 16 项；`benchmarks/recent_methods_2024_2026.json` 共 12 项；`dor method-catalog` |
+| AD-023 | 完成 | 新增受限访问 fail-closed；公开 metadata 页但无公开文件不得生成可执行 benchmark 结论 | spherical roller 受限记录测试；`benchmark-plan` 输出 `BLOCKED` |
+| AD-024 | 完成 | 候选选择加入明示工况切片、最差切片效用惩罚与最低分门槛 | `validation_results.json` 记录 `slice_scores`、`worst_slice_score`、`selection_score` |
+| AD-025 | 完成 | 新增显式 sensor groups、逐组缺失压力测试、最差缺失得分与最低门槛 | `missing_sensor_scores`、`worst_missing_sensor_score`；不把回退当恢复信息 |
+| AD-026 | 完成 | TABULAR bundle 新增训练中位数回退、最大缺失传感器组限制与推理审计列 | `missing_sensor_group_count`、`missing_sensor_groups`；未声明缺失仍 fail closed |
+| AD-027 | 完成 | 执行原已声明但未生效的资源约束，并新增模型字节门槛 | 候选记录 model bytes、结构复杂度代理、批量每行时延、fit time 与淘汰原因 |
+| AD-028 | 完成 | 形成需求差距、组件机制卡、公平比较矩阵、架构方案、实验停止条件和 G1—G10 更新计划 | `docs/RECENT_2024_2026_EVIDENCE_GAP_AND_UPDATE_PLAN_CN.md` |
+| AD-029 | 完成 | 新增最差工况/缺失传感器/资源淘汰、受限访问和近期方法目录测试，并执行四组件独立环境回归 | DOR 49、M2N 36、FEC 73、ISGN 95 全通过；顶层无引擎路径的裸 `pytest` 仅在收集期报缺少嵌入包，随后按各组件 `PYTHONPATH` 完成验证 |
 
 ## 当前能力边界
 
 - 时序首版采用可审计统计/频带表示，没有将 CNN/TCN/GRU/Transformer 冒充为已验证候选。
-- 定位首版为单标签部件分类；并发多部件定位继续由已有 ontology/evidence localizer 处理。
+- 定位支持单标签与显式多标签部件监督；ontology/evidence localizer 仍承担独立的语义定位/根因候选通道。
 - 辨识只处理有显式参数变化监督且目标变化满秩的回归任务。
 - FEC 校准仍由既有运行链负责；自动设计器严格隔离 calibration/test，但本开发预览不自动执行所有阶段的 FEC 校准。
-- “最合适”仅指声明候选、预算和 validation 合同内的稳定最佳或等价集合。
+- “最合适”仅指声明候选、预算、validation、工况切片、缺失传感器和资源合同内的稳定最佳或等价集合。
 
 ## 后续真实设备关闭门槛
 
