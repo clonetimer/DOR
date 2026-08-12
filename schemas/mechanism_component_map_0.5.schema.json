@@ -1,0 +1,13 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"DOR-MECHANISM-COMPONENT-MAP/0.5",
+  "title":"DOR Mechanism-to-Component Map v0.5",
+  "type":"object",
+  "required":["contract","map_id","bindings"],
+  "properties":{
+    "contract":{"const":"DOR-MECHANISM-COMPONENT-MAP/0.5"},
+    "map_id":{"type":"string","minLength":1},
+    "bindings":{"type":"array","items":{"type":"object","required":["mechanism_id","component_ids","sensor_ids","provenance"],"properties":{"mechanism_id":{"type":"string","minLength":1},"component_ids":{"type":"array","minItems":1,"items":{"type":"string"}},"sensor_ids":{"type":"array","items":{"type":"string"}},"relation":{"type":"string"},"provenance":{"type":"string","minLength":1}},"additionalProperties":true}}
+  },
+  "additionalProperties":true
+}

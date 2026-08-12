@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dor.local/schemas/reference_applicability_0.4.schema.json",
+  "title": "DOR ReferenceApplicability 0.4",
+  "type": "object",
+  "required": ["contract", "policy", "id_column", "levels", "calibration_reference_counts", "test_rows", "summary", "safety"],
+  "properties": {
+    "contract": {"const": "DOR-REFERENCE-APPLICABILITY/0.4"},
+    "policy": {"enum": ["EXACT", "HIERARCHICAL"]},
+    "id_column": {"type": ["string", "null"]},
+    "levels": {"type": "array", "minItems": 1},
+    "test_rows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["row_id", "status", "selected_level", "selected_columns", "selected_key", "n_reference", "sharing_basis", "reason"],
+        "properties": {
+          "row_id": {"type": "string"},
+          "status": {"enum": ["EXACT_SUPPORTED", "HIERARCHY_SUPPORTED", "POWER_LIMITED", "CONTEXT_UNSUPPORTED"]},
+          "selected_level": {"type": ["string", "null"]},
+          "selected_columns": {"type": "array", "items": {"type": "string"}},
+          "selected_key": {"type": "array", "items": {"type": "string"}},
+          "n_reference": {"type": "integer", "minimum": 0},
+          "sharing_basis": {"type": "string"},
+          "reason": {"type": "string"}
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": ["n_test_rows", "status_counts", "selected_level_counts", "supported_rows", "unsupported_rows"]
+    },
+    "safety": {
+      "type": "object",
+      "required": ["test_labels_used", "test_scores_used", "implicit_pooling", "coarser_reference_requires_declared_fallback_and_sharing_basis", "coverage_claim"],
+      "properties": {
+        "test_labels_used": {"const": false},
+        "test_scores_used": {"const": false},
+        "implicit_pooling": {"const": false},
+        "coarser_reference_requires_declared_fallback_and_sharing_basis": {"const": true},
+        "coverage_claim": {"type": "string"}
+      }
+    }
+  }
+}

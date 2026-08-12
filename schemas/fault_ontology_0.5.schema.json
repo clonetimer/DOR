@@ -1,0 +1,307 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "DOR-FAULT-ONTOLOGY/0.5",
+  "title": "DOR Fault Ontology v0.5",
+  "type": "object",
+  "required": [
+    "contract",
+    "ontology_id",
+    "domain",
+    "components",
+    "sensors",
+    "faults",
+    "provenance"
+  ],
+  "properties": {
+    "contract": {
+      "const": "DOR-FAULT-ONTOLOGY/0.5"
+    },
+    "ontology_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "domain": {
+      "type": "string",
+      "minLength": 1
+    },
+    "scope_note": {
+      "type": "string"
+    },
+    "components": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "component_id",
+          "component_type",
+          "kind"
+        ],
+        "properties": {
+          "component_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "component_type": {
+            "type": "string",
+            "minLength": 1
+          },
+          "kind": {
+            "enum": [
+              "PHYSICAL",
+              "SENSOR",
+              "ACTUATOR",
+              "SOFTWARE",
+              "VIRTUAL"
+            ]
+          },
+          "subsystem": {
+            "type": "string"
+          },
+          "parent_component_id": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "sensors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "sensor_id",
+          "sensor_type",
+          "health_component_id",
+          "observes_components"
+        ],
+        "properties": {
+          "sensor_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sensor_type": {
+            "type": "string",
+            "minLength": 1
+          },
+          "health_component_id": {
+            "type": "string"
+          },
+          "observes_components": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "commands": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "command_id",
+          "target_component_id"
+        ],
+        "properties": {
+          "command_id": {
+            "type": "string"
+          },
+          "target_component_id": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "topology_edges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "source",
+          "target",
+          "relation"
+        ],
+        "properties": {
+          "source": {
+            "type": "string"
+          },
+          "target": {
+            "type": "string"
+          },
+          "relation": {
+            "enum": [
+              "POWER_FLOW",
+              "FLUID_FLOW",
+              "MECHANICAL",
+              "THERMAL",
+              "CONTROL",
+              "SIGNAL",
+              "FEEDBACK",
+              "CONTAINS",
+              "OBSERVES"
+            ]
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "faults": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "fault_id",
+          "target_component_id",
+          "fault_mode",
+          "category",
+          "expected_evidence"
+        ],
+        "properties": {
+          "fault_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "target_component_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "fault_mode": {
+            "type": "string",
+            "minLength": 1
+          },
+          "category": {
+            "enum": [
+              "COMPONENT",
+              "SENSOR",
+              "COMMAND",
+              "PARAMETRIC",
+              "DISCRETE",
+              "SOFTWARE"
+            ]
+          },
+          "expected_evidence": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/signature"
+            }
+          },
+          "contradictions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/contradiction"
+            }
+          },
+          "exclusion_group": {
+            "type": "string",
+            "minLength": 1
+          },
+          "severity": {},
+          "notes": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "required": [
+        "sources"
+      ],
+      "properties": {
+        "sources": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "$defs": {
+    "signature": {
+      "type": "object",
+      "required": [
+        "scope_type",
+        "scope_id",
+        "expected_state"
+      ],
+      "properties": {
+        "scope_type": {
+          "enum": [
+            "SENSOR",
+            "COMPONENT",
+            "MECHANISM",
+            "COMMAND"
+          ]
+        },
+        "scope_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "expected_state": {
+          "enum": [
+            "ABNORMAL",
+            "NORMAL",
+            "HIGH",
+            "LOW",
+            "STUCK",
+            "OFFSET",
+            "NO_RESPONSE",
+            "FAILED_OFF",
+            "OPEN",
+            "CLOSED",
+            "DEGRADED",
+            "CLASS"
+          ]
+        },
+        "expected_value": {},
+        "weight": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 10
+        }
+      },
+      "additionalProperties": true
+    },
+    "contradiction": {
+      "type": "object",
+      "required": [
+        "scope_type",
+        "scope_id",
+        "state"
+      ],
+      "properties": {
+        "scope_type": {
+          "enum": [
+            "SENSOR",
+            "COMPONENT",
+            "MECHANISM",
+            "COMMAND"
+          ]
+        },
+        "scope_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "state": {
+          "type": "string",
+          "minLength": 1
+        },
+        "expected_value": {},
+        "weight": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 10
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

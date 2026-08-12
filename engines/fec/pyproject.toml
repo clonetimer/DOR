@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fec-toolkit"
+version = "2.4.0"
+description = "FEC PHM evidence substrate with context-conditioned anomaly/class score calibration bridges"
+requires-python = ">=3.10"
+dependencies = ["numpy>=2.0"]
+
+[project.scripts]
+fec = "fec.cli:main"
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+validation = ["scikit-learn>=1.5"]
+edl = ["scikit-learn>=1.5", "torch>=2.0"]
+
+[tool.setuptools.packages.find]
+include = ["fec*"]

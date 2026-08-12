@@ -1,0 +1,2 @@
+evidence_id,scope_type,scope_id,state,strength,validity,timestamp,provenance
+sensor_stuck,SENSOR,E261,STUCK,1.0,VALID,118.0,published ADAPT sensor-stuck example

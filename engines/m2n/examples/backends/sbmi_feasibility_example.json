@@ -1,0 +1,16 @@
+{
+  "slots": [
+    {"slot_id": "slot_0", "candidates": ["a", "b", "c"]},
+    {"slot_id": "slot_1", "candidates": ["a", "b", "c"]},
+    {"slot_id": "slot_2", "candidates": ["a", "b", "c"]},
+    {"slot_id": "slot_3", "candidates": ["a", "b", "c"]}
+  ],
+  "parameter_priors": [
+    {"name": "gain", "low": 0.1, "high": 10.0, "distribution": "log_uniform"}
+  ],
+  "simulator_available": true,
+  "randomized_component_simulation": true,
+  "observation_summary_defined": true,
+  "simulation_budget": 10000,
+  "exact_enumeration_limit": 32
+}

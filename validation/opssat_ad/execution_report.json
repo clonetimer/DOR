@@ -1,0 +1,107 @@
+{
+  "contract": "DOR-EXECUTION-REPORT/0.4",
+  "plan_id": "dor04-dac4d256e7055e22",
+  "task": "ANOMALY_DETECTION",
+  "dry_run": false,
+  "resume": true,
+  "steps": [
+    {
+      "step_id": "S20",
+      "action": "reuse SHA-bound M2N DiagnosticModelBundle",
+      "returncode": 0,
+      "reused": true,
+      "bundle": "/mnt/data/dor04_real_opssat/m2n/diagnostic_model_bundle.json"
+    },
+    {
+      "command": [
+        "/opt/pyvenv/bin/fec",
+        "anomaly-calibrate",
+        "--calibration-scores",
+        "/mnt/data/dor04_real_opssat/m2n/scores/raw__pca_reconstruction/calibration_scores.csv",
+        "--reference",
+        "/mnt/data/dor04_real_opssat/fec/raw__pca_reconstruction/channel_exact/reference.json",
+        "--score-contract",
+        "/mnt/data/dor04_real_opssat/m2n/score_contracts/raw__pca_reconstruction.json",
+        "--alpha",
+        "0.1",
+        "--min-group-size",
+        "20",
+        "--context-columns",
+        "channel",
+        "--provenance",
+        "DOR dor04-dac4d256e7055e22 candidate=raw__pca_reconstruction reference_level=channel_exact sharing_basis=exact telemetry channel"
+      ],
+      "returncode": 0,
+      "log": "/mnt/data/dor04_real_opssat/logs/S30_fec_calibrate_00_00.log",
+      "stdout_tail": "{\n  \"state\": \"OK\",\n  \"reference\": \"/mnt/data/dor04_real_opssat/fec/raw__pca_reconstruction/channel_exact/reference.json\",\n  \"mode\": \"CONTEXT_CONDITIONAL_ANOMALY_SCORE\",\n  \"note\": \"This calibrates scalar detector scores only; it does not produce fault classes or root cause.\"\n}\n",
+      "step_id": "S30",
+      "candidate_id": "raw__pca_reconstruction",
+      "reference_level": "channel_exact"
+    },
+    {
+      "command": [
+        "/opt/pyvenv/bin/fec",
+        "anomaly-infer",
+        "--scores",
+        "/mnt/data/dor04_real_opssat/m2n/scores/raw__pca_reconstruction/test_scores.csv",
+        "--reference",
+        "/mnt/data/dor04_real_opssat/fec/raw__pca_reconstruction/channel_exact/reference.json",
+        "--output",
+        "/mnt/data/dor04_real_opssat/fec/raw__pca_reconstruction/channel_exact/test_calibrated.csv"
+      ],
+      "returncode": 0,
+      "log": "/mnt/data/dor04_real_opssat/logs/S40_fec_infer_00_00.log",
+      "stdout_tail": "{\n  \"state\": \"OK\",\n  \"output\": \"/mnt/data/dor04_real_opssat/fec/raw__pca_reconstruction/channel_exact/test_calibrated.csv\",\n  \"mode\": \"CONTEXT_CONDITIONAL_ANOMALY_SCORE\",\n  \"note\": \"Rows with unseen/sparse context fail closed as CONTEXT_UNSUPPORTED.\"\n}\n",
+      "step_id": "S40",
+      "candidate_id": "raw__pca_reconstruction",
+      "reference_level": "channel_exact"
+    },
+    {
+      "step_id": "S45",
+      "candidate_id": "raw__pca_reconstruction",
+      "action": "DOR select finest admitted declared reference level per test row",
+      "returncode": 0,
+      "output": "/mnt/data/dor04_real_opssat/fec/raw__pca_reconstruction/test_selected_reference.csv"
+    },
+    {
+      "step_id": "S50",
+      "action": "DOR arbitration",
+      "returncode": 0,
+      "output": "/mnt/data/dor04_real_opssat/diagnosis.csv"
+    },
+    {
+      "step_id": "S60",
+      "action": "bundle/provenance",
+      "returncode": 0,
+      "output": "/mnt/data/dor04_real_opssat/diagnosis_bundle.json"
+    }
+  ],
+  "status": "COMPLETED",
+  "artifacts": [
+    {
+      "path": "diagnostic_plan.json",
+      "sha256": "3e7e6fde2cc9ee7c63f76fcfe40f5e1b15302a4137bb2e5d52480ac044e1cb05",
+      "size_bytes": 8809
+    },
+    {
+      "path": "m2n/diagnostic_model_bundle.json",
+      "sha256": "f8dd519d9a8fbda85f4f959ca02b54a6c4e900c1db82674121fa91bb8644147f",
+      "size_bytes": 2894
+    },
+    {
+      "path": "diagnosis.csv",
+      "sha256": "176c1ec566940d553212bcd8087fb9c361c8db82f1c502d33ba7a40b2b5710db",
+      "size_bytes": 224976
+    },
+    {
+      "path": "diagnosis_summary.json",
+      "sha256": "d0a886959592fce1c6e33864d97aa420c71c0c2a83ef8814f7e53673b88d3fc2",
+      "size_bytes": 976
+    },
+    {
+      "path": "diagnosis_bundle.json",
+      "sha256": "711040d92643f75c5ba5213b136b723daba871955e1ddfa316189dc00bd60a01",
+      "size_bytes": 9546
+    }
+  ]
+}

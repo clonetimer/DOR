@@ -1,0 +1,39 @@
+{
+  "contract": "M2N-DIAGNOSTIC-MODEL-REQUEST/1.0",
+  "task": "FAULT_CLASSIFICATION",
+  "data": {
+    "split_column": "split",
+    "train_values": ["train"],
+    "validation_values": ["val"],
+    "calibration_values": ["cal"],
+    "test_values": ["test"],
+    "id_columns": ["sample_id"]
+  },
+  "features": {
+    "raw_columns": ["sensor_1", "sensor_2"],
+    "mechanism_columns": ["m2n_residual_1"],
+    "views": ["RAW", "MECHANISM", "RAW_PLUS_MECHANISM"]
+  },
+  "supervision": {
+    "label_column": "fault_label"
+  },
+  "qualification": {
+    "min_train_rows": 30,
+    "min_validation_rows": 20,
+    "min_calibration_rows": 20,
+    "min_validation_rows_per_class": 2
+  },
+  "candidate_policy": {
+    "families": ["logistic_regression", "rbf_svm", "random_forest", "hist_gradient_boosting", "mlp"],
+    "svm_max_train_rows": 30000
+  },
+  "training": {
+    "restarts": [101, 102, 103],
+    "final_seed": 9001
+  },
+  "selection": {
+    "primary_metric": "macro_f1",
+    "practical_margin": 0.02,
+    "restart_stability": 0.75
+  }
+}

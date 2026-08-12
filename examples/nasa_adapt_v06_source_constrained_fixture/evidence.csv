@@ -1,0 +1,3 @@
+evidence_id,scope_type,scope_id,state,strength,validity,timestamp,provenance
+EY260_local,COMPONENT,EY260,ABNORMAL,1.0,VALID,10.0,synthetic timing for v0.6 contract test
+E261_low,SENSOR,E261,LOW,0.95,VALID,11.0,source-constrained downstream relation; synthetic timing

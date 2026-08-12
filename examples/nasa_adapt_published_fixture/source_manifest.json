@@ -1,0 +1,13 @@
+{
+  "artifact_role": "published_source_semantic_fixture",
+  "not_full_dataset": true,
+  "official_dataset_page": "https://data.nasa.gov/dataset/adapt-dataset",
+  "official_resources": [
+    "dataset_text.zip",
+    "Experiment_Log.xls",
+    "AdaptHTMLdiagrams.zip"
+  ],
+  "full_telemetry_bundled": false,
+  "truth_or_test_results_used_to_tune_fixture": false,
+  "next_required_use": "DOR 0.6 full topology/time/fault-injection validation"
+}

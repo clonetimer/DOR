@@ -1,0 +1,304 @@
+{
+  "contract": "DOR-DIAGNOSIS-BUNDLE/0.4",
+  "plan_id": "dor04-dac4d256e7055e22",
+  "task": "ANOMALY_DETECTION",
+  "task_qualification": {
+    "task": "ANOMALY_DETECTION",
+    "status": "CONDITIONALLY_QUALIFIED",
+    "reasons": [],
+    "warnings": [
+      "6 test rows have no admitted calibration reference: POWER_LIMITED=6, CONTEXT_UNSUPPORTED=0; DOR must fail closed there"
+    ],
+    "required_next_actions": [
+      "collect independent calibration reference or revise the declared context hierarchy using domain justification; do not discover pooling from held-out test outcomes"
+    ],
+    "checks": {
+      "data_sha256": {
+        "expected": "1539b5131796c0cb723561a8be8d1ec56ea8e4be858008ff647aef25e110a8df",
+        "actual": "1539b5131796c0cb723561a8be8d1ec56ea8e4be858008ff647aef25e110a8df",
+        "match": true
+      },
+      "row_count": 2123,
+      "required_columns": {
+        "required": [
+          "channel",
+          "fault_label",
+          "segment",
+          "split"
+        ],
+        "missing": []
+      },
+      "role_counts": {
+        "train": 876,
+        "validation": 510,
+        "calibration": 208,
+        "test": 529
+      },
+      "unassigned_rows": 0,
+      "leakage_guard": {
+        "group_columns": [
+          "segment"
+        ],
+        "cross_role_group_count": 0
+      },
+      "anomaly_supervision": {
+        "train_non_normal": 0,
+        "calibration_non_normal": 0,
+        "validation_anomaly_rows": 321
+      },
+      "reference_applicability": {
+        "n_test_rows": 529,
+        "status_counts": {
+          "HIERARCHY_SUPPORTED": 0,
+          "POWER_LIMITED": 6,
+          "EXACT_SUPPORTED": 523,
+          "CONTEXT_UNSUPPORTED": 0
+        },
+        "selected_level_counts": {
+          "channel_exact": 523
+        },
+        "supported_rows": 523,
+        "unsupported_rows": 6
+      },
+      "context_levels": [
+        {
+          "level_id": "channel_exact",
+          "columns": [
+            "channel"
+          ],
+          "min_group_size": 20,
+          "fallback_allowed": false,
+          "sharing_basis": "exact telemetry channel"
+        }
+      ]
+    }
+  },
+  "engine_admissions": [
+    {
+      "engine": "ISGN",
+      "status": "SKIP",
+      "reasons": [
+        "mechanism route is NOT_PROVIDED; full DOR chain does not require fabricated mechanism discovery",
+        "OPSSAT P1 uses official segment-level telemetry features; no certified satellite mechanism bundle is declared for this detection task."
+      ],
+      "consumes": [
+        "DatasetManifest"
+      ],
+      "produces": [
+        "explicit skip/admission provenance"
+      ]
+    },
+    {
+      "engine": "M2N",
+      "status": "RUN",
+      "reasons": [
+        "task/data roles satisfy DOR admission; M2N may qualify finite model families using train/validation only"
+      ],
+      "consumes": [
+        "DatasetManifest",
+        "M2N diagnostic request",
+        "data"
+      ],
+      "produces": [
+        "DiagnosticModelBundle",
+        "score packs"
+      ]
+    },
+    {
+      "engine": "FEC",
+      "status": "RUN",
+      "reasons": [
+        "independent calibration role exists; DOR v0.4 may use only exact or explicitly declared ancestor context levels and remains fail-closed otherwise"
+      ],
+      "consumes": [
+        "retained M2N score packs"
+      ],
+      "produces": [
+        "context-conditioned calibrated evidence"
+      ]
+    },
+    {
+      "engine": "DOR",
+      "status": "RUN",
+      "reasons": [
+        "DOR will arbitrate only FEC-supported evidence and preserve alternatives/abstention"
+      ],
+      "consumes": [
+        "FEC outputs"
+      ],
+      "produces": [
+        "DiagnosisBundle"
+      ]
+    }
+  ],
+  "model_selection": {
+    "status": "SELECTED",
+    "selected_candidate_id": "raw__pca_reconstruction",
+    "runner_up_candidate_id": "raw__one_class_svm",
+    "primary_metric": "roc_auc",
+    "candidate_median_scores": [
+      [
+        "raw__pca_reconstruction",
+        0.8800870296197398
+      ],
+      [
+        "raw__one_class_svm",
+        0.7758822462872308
+      ],
+      [
+        "raw__isolation_forest",
+        0.7209283159438922
+      ]
+    ],
+    "minimum_pairwise_margin": 0.10420478333250904,
+    "pairwise_practical_win_fraction": 1.0,
+    "reasons": [
+      "best candidate exceeds every alternative by the configured practical margin across stable restart comparisons"
+    ]
+  },
+  "retained_candidate_ids": [
+    "raw__pca_reconstruction"
+  ],
+  "calibration": {
+    "policy": "EXACT",
+    "context_levels": [
+      {
+        "level_id": "channel_exact",
+        "columns": [
+          "channel"
+        ],
+        "min_group_size": 20,
+        "fallback_allowed": false,
+        "sharing_basis": "exact telemetry channel"
+      }
+    ],
+    "alpha": 0.1,
+    "missing_context_policy": "ABSTAIN",
+    "reference_applicability": "reference_applicability.json",
+    "references": [
+      "fec/raw__pca_reconstruction/channel_exact/reference.json"
+    ],
+    "selected_reference_outputs": [
+      "fec/raw__pca_reconstruction/test_selected_reference.csv"
+    ]
+  },
+  "diagnosis_status": "SUPPORTED",
+  "diagnosis_summary": {
+    "contract": "DOR-DIAGNOSIS-BUNDLE/0.4",
+    "task": "ANOMALY_DETECTION",
+    "n": 529,
+    "supported_fraction": 0.9886578449905482,
+    "abstain_fraction": 0.011342155009451797,
+    "abnormal_fraction_among_supported": 0.22179732313575526,
+    "prohibited_claims": [
+      "scalar anomaly score or calibrated p-value is not a fault-class probability",
+      "ABNORMAL is detection evidence, not physical root cause",
+      "unsupported context is an explicit abstention, not NORMAL"
+    ],
+    "posthoc_test_audit": {
+      "sequence": "computed only after diagnosis.csv was written; excluded from selection/calibration/arbitration",
+      "n_test_rows": 529,
+      "labels_available": true,
+      "supported_rows": 523,
+      "empirical_supported_accuracy": 0.8623326959847036,
+      "abnormal_f1_supported_rows": 0.6814159292035398,
+      "balanced_accuracy_supported_rows": 0.8027845036319612,
+      "confusion_supported_rows": {
+        "tp": 77,
+        "fp": 39,
+        "fn": 33,
+        "tn": 374
+      }
+    }
+  },
+  "test_audit": {
+    "sequence": "computed only after diagnosis.csv was written; excluded from selection/calibration/arbitration",
+    "n_test_rows": 529,
+    "labels_available": true,
+    "supported_rows": 523,
+    "empirical_supported_accuracy": 0.8623326959847036,
+    "abnormal_f1_supported_rows": 0.6814159292035398,
+    "balanced_accuracy_supported_rows": 0.8027845036319612,
+    "confusion_supported_rows": {
+      "tp": 77,
+      "fp": 39,
+      "fn": 33,
+      "tn": 374
+    }
+  },
+  "artifacts": [
+    {
+      "path": "dataset_manifest.json",
+      "sha256": "12fd4d580db89a81be3514eb0dc766c1462cbe1d01c9a74428049596309e3fd0",
+      "size_bytes": 2108
+    },
+    {
+      "path": "m2n_request_effective.json",
+      "sha256": "6dbe9b9e0ae4540541369e4b2fc5dfc5b35d79fefad51c660061edb836cd90ba",
+      "size_bytes": 1428
+    },
+    {
+      "path": "task_qualification.json",
+      "sha256": "ec49b1fe664b6766bbaf6f063ae9e1fe63afc0209dd2c5fd3bdef7f1b682ece1",
+      "size_bytes": 1860
+    },
+    {
+      "path": "engine_admissions.json",
+      "sha256": "df01cb057dc6c458665d97d43799d2e9bf7bb5a67d921e0dfe26896c5a783a04",
+      "size_bytes": 1421
+    },
+    {
+      "path": "diagnostic_plan.json",
+      "sha256": "3e7e6fde2cc9ee7c63f76fcfe40f5e1b15302a4137bb2e5d52480ac044e1cb05",
+      "size_bytes": 8809
+    },
+    {
+      "path": "reference_applicability.json",
+      "sha256": "58fa44167883889901f09b57a839394384d45d380160c2f472cef8c3c967f91e",
+      "size_bytes": 204909
+    },
+    {
+      "path": "reference_applicability.csv",
+      "sha256": "a89ba4f210382259a46e2a7c10f0f391712024bbaa5d2ea46dcccc3b0d56aa40",
+      "size_bytes": 88397
+    },
+    {
+      "path": "m2n/diagnostic_model_bundle.json",
+      "sha256": "f8dd519d9a8fbda85f4f959ca02b54a6c4e900c1db82674121fa91bb8644147f",
+      "size_bytes": 2894
+    },
+    {
+      "path": "fec/raw__pca_reconstruction/channel_exact/reference.json",
+      "sha256": "a1ac43791a48e05eaecdee3d39e128943a69035670ffefe7b3cdfc2901f1519d",
+      "size_bytes": 8100
+    },
+    {
+      "path": "fec/raw__pca_reconstruction/channel_exact/test_calibrated.csv",
+      "sha256": "8e02eac4cadd8bb1f9f86d6cace9ec3753a4c5c149f81f9a0b3e33ba07363974",
+      "size_bytes": 79215
+    },
+    {
+      "path": "fec/raw__pca_reconstruction/test_selected_reference.csv",
+      "sha256": "7fe3ea4b9bd088df5ceb0f1236be324ed1db2a7cfaa3a8ca55fc7e307267a81f",
+      "size_bytes": 163330
+    },
+    {
+      "path": "diagnosis.csv",
+      "sha256": "176c1ec566940d553212bcd8087fb9c361c8db82f1c502d33ba7a40b2b5710db",
+      "size_bytes": 224976
+    },
+    {
+      "path": "diagnosis_summary.json",
+      "sha256": "d0a886959592fce1c6e33864d97aa420c71c0c2a83ef8814f7e53673b88d3fc2",
+      "size_bytes": 976
+    }
+  ],
+  "prohibited_claims": [
+    "test labels do not alter M2N selection, context keys, calibration thresholds, or DOR rules",
+    "scalar anomaly evidence is not a fault-class or root-cause probability",
+    "class prediction sets are not physical root-cause probabilities",
+    "ISGN skip/defer is a valid qualified path and must not be replaced by fabricated mechanism discovery",
+    "DOR hierarchy admission is not a new conformal theorem; any coarser reference claim remains conditional on exchangeability within the declared ancestor group",
+    "held-out test labels/scores do not discover or approve context pooling"
+  ]
+}

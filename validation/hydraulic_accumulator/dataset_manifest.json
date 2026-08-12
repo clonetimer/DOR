@@ -1,0 +1,91 @@
+{
+  "contract": "DOR-DATASET-MANIFEST/0.4",
+  "dataset_id": "UCI-Hydraulic-Accumulator-stable",
+  "domain": "industrial_hydraulic",
+  "task": "FAULT_CLASSIFICATION",
+  "data": {
+    "path": "/mnt/data/dor04_work/DOR_Diagnostic_Stack_v0.4.0_DEV_RC1/examples/hydraulic_accumulator/hydraulic_accumulator_features.csv",
+    "sha256": "e46e804802a7258903f3f2d7ed51efac0cda2ed3d21ae5da993e1e7cb693c88d",
+    "row_count": 1449
+  },
+  "identifiers": [
+    "sample_id",
+    "split_group"
+  ],
+  "split": {
+    "column": "split",
+    "train_values": [
+      "train"
+    ],
+    "validation_values": [
+      "val"
+    ],
+    "calibration_values": [
+      "cal"
+    ],
+    "test_values": [
+      "test"
+    ]
+  },
+  "supervision": {
+    "label_column": "fault_label",
+    "normal_label": "130",
+    "class_frame": [
+      "90",
+      "100",
+      "115",
+      "130"
+    ]
+  },
+  "context": {
+    "columns": [
+      "cooler",
+      "pump"
+    ],
+    "policy": "HIERARCHICAL",
+    "fallback_policy": "DECLARED_ANCESTOR_ONLY",
+    "semantics": "nuisance operating-condition hierarchy for DOR v0.4 development; finest key is cooler+pump",
+    "levels": [
+      {
+        "level_id": "exact",
+        "columns": [
+          "cooler",
+          "pump"
+        ],
+        "min_group_size": 20,
+        "fallback_allowed": false,
+        "sharing_basis": "exact declared nuisance operating condition"
+      },
+      {
+        "level_id": "pump_regime",
+        "columns": [
+          "pump"
+        ],
+        "min_group_size": 40,
+        "fallback_allowed": true,
+        "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes"
+      }
+    ]
+  },
+  "calibration": {
+    "alpha": 0.1,
+    "min_group_size": 20,
+    "missing_context_policy": "ABSTAIN"
+  },
+  "leakage_guard": {
+    "group_columns": [
+      "split_group"
+    ],
+    "description": "nuisance-condition groups are disjoint across train/validation/calibration/test"
+  },
+  "mechanism": {
+    "status": "DEFERRED",
+    "reason": "Current feature view contains provisional engineering/virtual quantities but no ISGN-certified mechanism discovery claim; DOR must not fabricate one."
+  },
+  "provenance": {
+    "stable_only": true,
+    "source_master_sha256": "4b6116cb8af32b0dc3b0896a2fe485452d6ab0ef690bb1b5627ae0b367303dd2",
+    "prior_prototype_contract": "DOR-DATASET-MANIFEST-PROTOTYPE/0.2",
+    "dor04_context_hierarchy": "predeclared development hypothesis before v0.4 test audit; test outcomes cannot approve or modify it"
+  }
+}

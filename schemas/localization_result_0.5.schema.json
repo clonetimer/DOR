@@ -1,0 +1,247 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "DOR-LOCALIZATION-RESULT/0.5",
+  "title": "DOR Fault Localization Result v0.5",
+  "type": "object",
+  "required": [
+    "contract",
+    "status",
+    "reason",
+    "fault_hypotheses",
+    "component_candidates",
+    "evidence_summary",
+    "policy",
+    "safety"
+  ],
+  "properties": {
+    "contract": {
+      "const": "DOR-LOCALIZATION-RESULT/0.5"
+    },
+    "status": {
+      "enum": [
+        "SUPPORTED",
+        "ALTERNATIVES",
+        "UNKNOWN",
+        "ABSTAIN"
+      ]
+    },
+    "reason": {
+      "type": "string"
+    },
+    "fault_hypotheses": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/hypothesis"
+      }
+    },
+    "all_scored_hypotheses": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/hypothesis"
+      }
+    },
+    "component_candidates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "component_id",
+          "score",
+          "retained_fault_ids"
+        ],
+        "properties": {
+          "component_id": {
+            "type": "string"
+          },
+          "score": {
+            "type": "number",
+            "minimum": 0
+          },
+          "retained_fault_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "supported_fault_set": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "candidate_fault_sets": {
+      "type": "array",
+      "maxItems": 32,
+      "items": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    },
+    "ambiguous_exclusion_groups": {
+      "type": "object"
+    },
+    "evidence_summary": {
+      "type": "object",
+      "required": [
+        "total",
+        "valid",
+        "invalid_or_unsupported"
+      ],
+      "properties": {
+        "total": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "valid": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "invalid_or_unsupported": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": true
+    },
+    "policy": {
+      "type": "object",
+      "required": [
+        "min_support",
+        "retain_margin",
+        "max_contradiction_fraction",
+        "candidate_set_cap"
+      ],
+      "properties": {
+        "min_support": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "retain_margin": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "max_contradiction_fraction": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "candidate_set_cap": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "additionalProperties": true
+    },
+    "safety": {
+      "type": "object",
+      "required": [
+        "root_cause_claimed",
+        "propagation_inferred",
+        "invalid_evidence_used_for_scoring",
+        "generic_component_or_mechanism_evidence_cannot_by_itself_identify_fault_mode",
+        "concurrent_faults_are_not_relabelled_as_alternatives"
+      ],
+      "properties": {
+        "root_cause_claimed": {
+          "const": false
+        },
+        "propagation_inferred": {
+          "const": false
+        },
+        "invalid_evidence_used_for_scoring": {
+          "const": false
+        },
+        "generic_component_or_mechanism_evidence_cannot_by_itself_identify_fault_mode": {
+          "const": true
+        },
+        "concurrent_faults_are_not_relabelled_as_alternatives": {
+          "const": true
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "$defs": {
+    "hypothesis": {
+      "type": "object",
+      "required": [
+        "fault_id",
+        "target_component_id",
+        "fault_mode",
+        "category",
+        "score",
+        "explicit_support",
+        "scope_bonus",
+        "contradiction_fraction",
+        "matched_evidence",
+        "contradicting_evidence",
+        "missing_expected",
+        "eligible"
+      ],
+      "properties": {
+        "fault_id": {
+          "type": "string"
+        },
+        "target_component_id": {
+          "type": "string"
+        },
+        "fault_mode": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string"
+        },
+        "score": {
+          "type": "number",
+          "minimum": 0
+        },
+        "explicit_support": {
+          "type": "number",
+          "minimum": 0
+        },
+        "scope_bonus": {
+          "type": "number",
+          "minimum": 0
+        },
+        "contradiction_fraction": {
+          "type": "number",
+          "minimum": 0
+        },
+        "matched_evidence": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "contradicting_evidence": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "missing_expected": {
+          "type": "array"
+        },
+        "eligible": {
+          "type": "boolean"
+        },
+        "exclusion_group": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

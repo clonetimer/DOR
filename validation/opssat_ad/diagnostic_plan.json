@@ -1,0 +1,347 @@
+{
+  "plan_id": "dor04-dac4d256e7055e22",
+  "task": "ANOMALY_DETECTION",
+  "qualification": {
+    "task": "ANOMALY_DETECTION",
+    "status": "CONDITIONALLY_QUALIFIED",
+    "reasons": [],
+    "warnings": [
+      "6 test rows have no admitted calibration reference: POWER_LIMITED=6, CONTEXT_UNSUPPORTED=0; DOR must fail closed there"
+    ],
+    "required_next_actions": [
+      "collect independent calibration reference or revise the declared context hierarchy using domain justification; do not discover pooling from held-out test outcomes"
+    ],
+    "checks": {
+      "data_sha256": {
+        "expected": "1539b5131796c0cb723561a8be8d1ec56ea8e4be858008ff647aef25e110a8df",
+        "actual": "1539b5131796c0cb723561a8be8d1ec56ea8e4be858008ff647aef25e110a8df",
+        "match": true
+      },
+      "row_count": 2123,
+      "required_columns": {
+        "required": [
+          "channel",
+          "fault_label",
+          "segment",
+          "split"
+        ],
+        "missing": []
+      },
+      "role_counts": {
+        "train": 876,
+        "validation": 510,
+        "calibration": 208,
+        "test": 529
+      },
+      "unassigned_rows": 0,
+      "leakage_guard": {
+        "group_columns": [
+          "segment"
+        ],
+        "cross_role_group_count": 0
+      },
+      "anomaly_supervision": {
+        "train_non_normal": 0,
+        "calibration_non_normal": 0,
+        "validation_anomaly_rows": 321
+      },
+      "reference_applicability": {
+        "n_test_rows": 529,
+        "status_counts": {
+          "HIERARCHY_SUPPORTED": 0,
+          "POWER_LIMITED": 6,
+          "EXACT_SUPPORTED": 523,
+          "CONTEXT_UNSUPPORTED": 0
+        },
+        "selected_level_counts": {
+          "channel_exact": 523
+        },
+        "supported_rows": 523,
+        "unsupported_rows": 6
+      },
+      "context_levels": [
+        {
+          "level_id": "channel_exact",
+          "columns": [
+            "channel"
+          ],
+          "min_group_size": 20,
+          "fallback_allowed": false,
+          "sharing_basis": "exact telemetry channel"
+        }
+      ]
+    }
+  },
+  "engine_admissions": [
+    {
+      "engine": "ISGN",
+      "status": "SKIP",
+      "reasons": [
+        "mechanism route is NOT_PROVIDED; full DOR chain does not require fabricated mechanism discovery",
+        "OPSSAT P1 uses official segment-level telemetry features; no certified satellite mechanism bundle is declared for this detection task."
+      ],
+      "consumes": [
+        "DatasetManifest"
+      ],
+      "produces": [
+        "explicit skip/admission provenance"
+      ]
+    },
+    {
+      "engine": "M2N",
+      "status": "RUN",
+      "reasons": [
+        "task/data roles satisfy DOR admission; M2N may qualify finite model families using train/validation only"
+      ],
+      "consumes": [
+        "DatasetManifest",
+        "M2N diagnostic request",
+        "data"
+      ],
+      "produces": [
+        "DiagnosticModelBundle",
+        "score packs"
+      ]
+    },
+    {
+      "engine": "FEC",
+      "status": "RUN",
+      "reasons": [
+        "independent calibration role exists; DOR v0.4 may use only exact or explicitly declared ancestor context levels and remains fail-closed otherwise"
+      ],
+      "consumes": [
+        "retained M2N score packs"
+      ],
+      "produces": [
+        "context-conditioned calibrated evidence"
+      ]
+    },
+    {
+      "engine": "DOR",
+      "status": "RUN",
+      "reasons": [
+        "DOR will arbitrate only FEC-supported evidence and preserve alternatives/abstention"
+      ],
+      "consumes": [
+        "FEC outputs"
+      ],
+      "produces": [
+        "DiagnosisBundle"
+      ]
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "S00",
+      "engine": "DOR",
+      "action": "TASK_QUALIFICATION",
+      "status": "COMPLETED",
+      "depends_on": [],
+      "inputs": [
+        "DatasetManifest",
+        "M2N request",
+        "data"
+      ],
+      "outputs": [
+        "task_qualification.json"
+      ],
+      "parameters": {},
+      "command_template": []
+    },
+    {
+      "step_id": "S05",
+      "engine": "DOR",
+      "action": "REFERENCE_APPLICABILITY",
+      "status": "COMPLETED",
+      "depends_on": [
+        "S00"
+      ],
+      "inputs": [
+        "DatasetManifest",
+        "data-role context values"
+      ],
+      "outputs": [
+        "reference_applicability.json",
+        "reference_applicability.csv"
+      ],
+      "parameters": {
+        "levels": [
+          {
+            "level_id": "channel_exact",
+            "columns": [
+              "channel"
+            ],
+            "min_group_size": 20,
+            "fallback_allowed": false,
+            "sharing_basis": "exact telemetry channel"
+          }
+        ],
+        "fallback_policy": "DECLARED_ANCESTOR_ONLY"
+      },
+      "command_template": []
+    },
+    {
+      "step_id": "S10",
+      "engine": "ISGN",
+      "action": "MECHANISM_ADMISSION",
+      "status": "SKIPPED",
+      "depends_on": [
+        "S00"
+      ],
+      "inputs": [
+        "DatasetManifest"
+      ],
+      "outputs": [
+        "mechanism_admission.json"
+      ],
+      "parameters": {},
+      "command_template": []
+    },
+    {
+      "step_id": "S20",
+      "engine": "M2N",
+      "action": "DIAGNOSTIC_MODEL_DESIGN",
+      "status": "PLANNED",
+      "depends_on": [
+        "S00",
+        "S10"
+      ],
+      "inputs": [
+        "m2n_request_effective.json",
+        "/mnt/data/dor04_work/DOR_Diagnostic_Stack_v0.4.0_DEV_RC1/examples/opssat_ad/opssat_p1_features.csv"
+      ],
+      "outputs": [
+        "m2n/diagnostic_model_bundle.json"
+      ],
+      "parameters": {},
+      "command_template": [
+        "m2n",
+        "diagnostic-design",
+        "--request",
+        "${m2n_request}",
+        "--data",
+        "${data}",
+        "--out",
+        "${m2n_out}"
+      ]
+    },
+    {
+      "step_id": "S30",
+      "engine": "FEC",
+      "action": "CALIBRATE_RETAINED_SCORE_PACKS_BY_LEVEL",
+      "status": "PLANNED",
+      "depends_on": [
+        "S20",
+        "S05"
+      ],
+      "inputs": [
+        "m2n retained calibration score packs",
+        "declared context levels"
+      ],
+      "outputs": [
+        "fec/*/*/reference.json"
+      ],
+      "parameters": {
+        "levels": [
+          {
+            "level_id": "channel_exact",
+            "columns": [
+              "channel"
+            ],
+            "min_group_size": 20,
+            "fallback_allowed": false,
+            "sharing_basis": "exact telemetry channel"
+          }
+        ],
+        "alpha": 0.1,
+        "missing_context_policy": "ABSTAIN"
+      },
+      "command_template": []
+    },
+    {
+      "step_id": "S40",
+      "engine": "FEC",
+      "action": "INFER_RETAINED_SCORE_PACKS_BY_LEVEL",
+      "status": "PLANNED",
+      "depends_on": [
+        "S30"
+      ],
+      "inputs": [
+        "m2n retained test score packs",
+        "FEC level references"
+      ],
+      "outputs": [
+        "fec/*/*/test_calibrated.csv"
+      ],
+      "parameters": {},
+      "command_template": []
+    },
+    {
+      "step_id": "S45",
+      "engine": "DOR",
+      "action": "SELECT_DECLARED_REFERENCE_LEVEL",
+      "status": "PLANNED",
+      "depends_on": [
+        "S40",
+        "S05"
+      ],
+      "inputs": [
+        "FEC per-level outputs",
+        "reference_applicability.json"
+      ],
+      "outputs": [
+        "fec/*/test_selected_reference.csv"
+      ],
+      "parameters": {},
+      "command_template": []
+    },
+    {
+      "step_id": "S50",
+      "engine": "DOR",
+      "action": "DIAGNOSTIC_ARBITRATION",
+      "status": "PLANNED",
+      "depends_on": [
+        "S45"
+      ],
+      "inputs": [
+        "FEC outputs after DOR reference selection"
+      ],
+      "outputs": [
+        "diagnosis.csv",
+        "diagnosis_summary.json"
+      ],
+      "parameters": {},
+      "command_template": []
+    },
+    {
+      "step_id": "S60",
+      "engine": "DOR",
+      "action": "BUNDLE_AND_PROVENANCE",
+      "status": "PLANNED",
+      "depends_on": [
+        "S50"
+      ],
+      "inputs": [
+        "all prior artifacts"
+      ],
+      "outputs": [
+        "diagnosis_bundle.json",
+        "execution_report.json"
+      ],
+      "parameters": {},
+      "command_template": []
+    }
+  ],
+  "provenance": {
+    "manifest_contract": "DOR-DATASET-MANIFEST/0.4",
+    "manifest_sha256": "12fd4d580db89a81be3514eb0dc766c1462cbe1d01c9a74428049596309e3fd0",
+    "request_sha256": "6dbe9b9e0ae4540541369e4b2fc5dfc5b35d79fefad51c660061edb836cd90ba",
+    "data_sha256": "1539b5131796c0cb723561a8be8d1ec56ea8e4be858008ff647aef25e110a8df",
+    "output_dir": "/mnt/data/dor04_real_opssat",
+    "test_data_excluded_from_model_selection": true,
+    "context_discovery_from_test_labels": false,
+    "context_discovery_from_test_scores": false,
+    "implicit_context_pooling": false
+  },
+  "contract": "DOR-DIAGNOSTIC-PLAN/0.4"
+}

@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "isgn-toolkit"
+version = "2.2.0"
+description = "ISGN: recover and certify missing industrial mechanisms from partial physics and operational data"
+requires-python = ">=3.10"
+dependencies = ["numpy", "torch", "scipy", "scikit-learn", "lxml"]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+pysindy = ["pysindy>=2.1,<3"]
+fusion = ["pysindy>=2.1,<3", "sympy>=1.12"]
+symbolic = ["sympy>=1.12"]
+
+[project.scripts]
+isgn = "isgn.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

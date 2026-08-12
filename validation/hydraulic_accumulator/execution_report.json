@@ -1,0 +1,151 @@
+{
+  "contract": "DOR-EXECUTION-REPORT/0.4",
+  "plan_id": "dor04-5e62abf8daf85486",
+  "task": "FAULT_CLASSIFICATION",
+  "dry_run": false,
+  "resume": true,
+  "steps": [
+    {
+      "step_id": "S20",
+      "action": "reuse SHA-bound M2N DiagnosticModelBundle",
+      "returncode": 0,
+      "reused": true,
+      "bundle": "/mnt/data/dor04_real_hydraulic/m2n/diagnostic_model_bundle.json"
+    },
+    {
+      "command": [
+        "/opt/pyvenv/bin/fec",
+        "class-context-calibrate",
+        "--calibration-scores",
+        "/mnt/data/dor04_real_hydraulic/m2n/scores/raw_plus_mechanism__hist_gradient_boosting/calibration_scores.csv",
+        "--reference",
+        "/mnt/data/dor04_real_hydraulic/fec/raw_plus_mechanism__hist_gradient_boosting/exact/reference.json",
+        "--score-contract",
+        "/mnt/data/dor04_real_hydraulic/m2n/score_contracts/raw_plus_mechanism__hist_gradient_boosting.json",
+        "--context-columns",
+        "cooler,pump",
+        "--alpha",
+        "0.1",
+        "--min-group-size",
+        "20",
+        "--provenance",
+        "DOR dor04-5e62abf8daf85486 candidate=raw_plus_mechanism__hist_gradient_boosting reference_level=exact sharing_basis=exact declared nuisance operating condition"
+      ],
+      "returncode": 0,
+      "log": "/mnt/data/dor04_real_hydraulic/logs/S30_fec_calibrate_00_00.log",
+      "stdout_tail": "{\n  \"state\": \"OK\",\n  \"reference\": \"/mnt/data/dor04_real_hydraulic/fec/raw_plus_mechanism__hist_gradient_boosting/exact/reference.json\",\n  \"mode\": \"CONTEXT_CONDITIONAL_CLASS_CONFORMAL\",\n  \"note\": \"Exact declared context/mask groups only; unseen/sparse groups abstain.\"\n}\n",
+      "step_id": "S30",
+      "candidate_id": "raw_plus_mechanism__hist_gradient_boosting",
+      "reference_level": "exact"
+    },
+    {
+      "command": [
+        "/opt/pyvenv/bin/fec",
+        "class-context-infer",
+        "--scores",
+        "/mnt/data/dor04_real_hydraulic/m2n/scores/raw_plus_mechanism__hist_gradient_boosting/test_scores.csv",
+        "--reference",
+        "/mnt/data/dor04_real_hydraulic/fec/raw_plus_mechanism__hist_gradient_boosting/exact/reference.json",
+        "--output",
+        "/mnt/data/dor04_real_hydraulic/fec/raw_plus_mechanism__hist_gradient_boosting/exact/test_calibrated.csv"
+      ],
+      "returncode": 0,
+      "log": "/mnt/data/dor04_real_hydraulic/logs/S40_fec_infer_00_00.log",
+      "stdout_tail": "{\n  \"state\": \"OK\",\n  \"output\": \"/mnt/data/dor04_real_hydraulic/fec/raw_plus_mechanism__hist_gradient_boosting/exact/test_calibrated.csv\",\n  \"mode\": \"CONTEXT_CONDITIONAL_CLASS_CONFORMAL\",\n  \"note\": \"Prediction sets are statistical support sets, not physical root-cause probabilities.\"\n}\n",
+      "step_id": "S40",
+      "candidate_id": "raw_plus_mechanism__hist_gradient_boosting",
+      "reference_level": "exact"
+    },
+    {
+      "command": [
+        "/opt/pyvenv/bin/fec",
+        "class-context-calibrate",
+        "--calibration-scores",
+        "/mnt/data/dor04_real_hydraulic/m2n/scores/raw_plus_mechanism__hist_gradient_boosting/calibration_scores.csv",
+        "--reference",
+        "/mnt/data/dor04_real_hydraulic/fec/raw_plus_mechanism__hist_gradient_boosting/pump_regime/reference.json",
+        "--score-contract",
+        "/mnt/data/dor04_real_hydraulic/m2n/score_contracts/raw_plus_mechanism__hist_gradient_boosting.json",
+        "--context-columns",
+        "pump",
+        "--alpha",
+        "0.1",
+        "--min-group-size",
+        "40",
+        "--provenance",
+        "DOR dor04-5e62abf8daf85486 candidate=raw_plus_mechanism__hist_gradient_boosting reference_level=pump_regime sharing_basis=DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes"
+      ],
+      "returncode": 0,
+      "log": "/mnt/data/dor04_real_hydraulic/logs/S30_fec_calibrate_00_01.log",
+      "stdout_tail": "{\n  \"state\": \"OK\",\n  \"reference\": \"/mnt/data/dor04_real_hydraulic/fec/raw_plus_mechanism__hist_gradient_boosting/pump_regime/reference.json\",\n  \"mode\": \"CONTEXT_CONDITIONAL_CLASS_CONFORMAL\",\n  \"note\": \"Exact declared context/mask groups only; unseen/sparse groups abstain.\"\n}\n",
+      "step_id": "S30",
+      "candidate_id": "raw_plus_mechanism__hist_gradient_boosting",
+      "reference_level": "pump_regime"
+    },
+    {
+      "command": [
+        "/opt/pyvenv/bin/fec",
+        "class-context-infer",
+        "--scores",
+        "/mnt/data/dor04_real_hydraulic/m2n/scores/raw_plus_mechanism__hist_gradient_boosting/test_scores.csv",
+        "--reference",
+        "/mnt/data/dor04_real_hydraulic/fec/raw_plus_mechanism__hist_gradient_boosting/pump_regime/reference.json",
+        "--output",
+        "/mnt/data/dor04_real_hydraulic/fec/raw_plus_mechanism__hist_gradient_boosting/pump_regime/test_calibrated.csv"
+      ],
+      "returncode": 0,
+      "log": "/mnt/data/dor04_real_hydraulic/logs/S40_fec_infer_00_01.log",
+      "stdout_tail": "{\n  \"state\": \"OK\",\n  \"output\": \"/mnt/data/dor04_real_hydraulic/fec/raw_plus_mechanism__hist_gradient_boosting/pump_regime/test_calibrated.csv\",\n  \"mode\": \"CONTEXT_CONDITIONAL_CLASS_CONFORMAL\",\n  \"note\": \"Prediction sets are statistical support sets, not physical root-cause probabilities.\"\n}\n",
+      "step_id": "S40",
+      "candidate_id": "raw_plus_mechanism__hist_gradient_boosting",
+      "reference_level": "pump_regime"
+    },
+    {
+      "step_id": "S45",
+      "candidate_id": "raw_plus_mechanism__hist_gradient_boosting",
+      "action": "DOR select finest admitted declared reference level per test row",
+      "returncode": 0,
+      "output": "/mnt/data/dor04_real_hydraulic/fec/raw_plus_mechanism__hist_gradient_boosting/test_selected_reference.csv"
+    },
+    {
+      "step_id": "S50",
+      "action": "DOR arbitration",
+      "returncode": 0,
+      "output": "/mnt/data/dor04_real_hydraulic/diagnosis.csv"
+    },
+    {
+      "step_id": "S60",
+      "action": "bundle/provenance",
+      "returncode": 0,
+      "output": "/mnt/data/dor04_real_hydraulic/diagnosis_bundle.json"
+    }
+  ],
+  "status": "COMPLETED",
+  "artifacts": [
+    {
+      "path": "diagnostic_plan.json",
+      "sha256": "b030f175ef275c1fa9ae9b580a498cc71e1956c9ba700c052b53b52c1ee854e2",
+      "size_bytes": 10391
+    },
+    {
+      "path": "m2n/diagnostic_model_bundle.json",
+      "sha256": "02febbe43443f4f908923f6f4bc543052c4c52fe05814a47f9b375eb384d3360",
+      "size_bytes": 12622
+    },
+    {
+      "path": "diagnosis.csv",
+      "sha256": "4c7fa41fbf5c7b862e5abb3d50e0c5fec4a1982d8799a2466168aad45b76b459",
+      "size_bytes": 25657
+    },
+    {
+      "path": "diagnosis_summary.json",
+      "sha256": "0799c0d88082995596d8c7265015933d661534345f34d62cd478c8ef30122799",
+      "size_bytes": 940
+    },
+    {
+      "path": "diagnosis_bundle.json",
+      "sha256": "4d7fec53a625daa451c75884dee9e45b3c0390e9d712795794e5b827b9a7c72b",
+      "size_bytes": 11851
+    }
+  ]
+}

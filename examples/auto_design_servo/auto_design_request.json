@@ -1,0 +1,13 @@
+{
+  "contract": "DOR-AUTO-DIAGNOSTIC-DESIGN-REQUEST/1.0",
+  "stages": ["DETECTION", "LOCALIZATION", "CLASSIFICATION", "IDENTIFICATION"],
+  "budget": {"max_candidates": 16, "max_wall_seconds": 120},
+  "search": {"seeds": [101, 102], "final_seed": 9001},
+  "selection": {"practical_margin": 0.02, "restart_stability": 0.75},
+  "candidates": {
+    "detection": {"families": ["pca_reconstruction"]},
+    "localization": {"families": ["logistic_regression"]},
+    "classification": {"families": ["logistic_regression"]},
+    "identification": {"families": ["ridge"]}
+  }
+}

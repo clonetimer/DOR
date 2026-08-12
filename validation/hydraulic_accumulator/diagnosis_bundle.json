@@ -1,0 +1,371 @@
+{
+  "contract": "DOR-DIAGNOSIS-BUNDLE/0.4",
+  "plan_id": "dor04-5e62abf8daf85486",
+  "task": "FAULT_CLASSIFICATION",
+  "task_qualification": {
+    "task": "FAULT_CLASSIFICATION",
+    "status": "CONDITIONALLY_QUALIFIED",
+    "reasons": [],
+    "warnings": [
+      "160 test rows require an explicitly declared coarser reference level; any validity claim is conditional on exchangeability within that ancestor group"
+    ],
+    "required_next_actions": [],
+    "checks": {
+      "data_sha256": {
+        "expected": "e46e804802a7258903f3f2d7ed51efac0cda2ed3d21ae5da993e1e7cb693c88d",
+        "actual": "e46e804802a7258903f3f2d7ed51efac0cda2ed3d21ae5da993e1e7cb693c88d",
+        "match": true
+      },
+      "row_count": 1449,
+      "required_columns": {
+        "required": [
+          "cooler",
+          "fault_label",
+          "pump",
+          "sample_id",
+          "split",
+          "split_group"
+        ],
+        "missing": []
+      },
+      "role_counts": {
+        "train": 729,
+        "validation": 240,
+        "calibration": 240,
+        "test": 240
+      },
+      "unassigned_rows": 0,
+      "leakage_guard": {
+        "group_columns": [
+          "split_group"
+        ],
+        "cross_role_group_count": 0
+      },
+      "classification_supervision": {
+        "train_classes": [
+          "100",
+          "115",
+          "130",
+          "90"
+        ],
+        "validation_classes": [
+          "100",
+          "115",
+          "130",
+          "90"
+        ]
+      },
+      "reference_applicability": {
+        "n_test_rows": 240,
+        "status_counts": {
+          "EXACT_SUPPORTED": 80,
+          "CONTEXT_UNSUPPORTED": 0,
+          "POWER_LIMITED": 0,
+          "HIERARCHY_SUPPORTED": 160
+        },
+        "selected_level_counts": {
+          "pump_regime": 160,
+          "exact": 80
+        },
+        "supported_rows": 240,
+        "unsupported_rows": 0
+      },
+      "context_levels": [
+        {
+          "level_id": "exact",
+          "columns": [
+            "cooler",
+            "pump"
+          ],
+          "min_group_size": 20,
+          "fallback_allowed": false,
+          "sharing_basis": "exact declared nuisance operating condition"
+        },
+        {
+          "level_id": "pump_regime",
+          "columns": [
+            "pump"
+          ],
+          "min_group_size": 40,
+          "fallback_allowed": true,
+          "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes"
+        }
+      ]
+    }
+  },
+  "engine_admissions": [
+    {
+      "engine": "ISGN",
+      "status": "SKIP",
+      "reasons": [
+        "mechanism route is DEFERRED; full DOR chain does not require fabricated mechanism discovery",
+        "Current feature view contains provisional engineering/virtual quantities but no ISGN-certified mechanism discovery claim; DOR must not fabricate one."
+      ],
+      "consumes": [
+        "DatasetManifest"
+      ],
+      "produces": [
+        "explicit skip/admission provenance"
+      ]
+    },
+    {
+      "engine": "M2N",
+      "status": "RUN",
+      "reasons": [
+        "task/data roles satisfy DOR admission; M2N may qualify finite model families using train/validation only"
+      ],
+      "consumes": [
+        "DatasetManifest",
+        "M2N diagnostic request",
+        "data"
+      ],
+      "produces": [
+        "DiagnosticModelBundle",
+        "score packs"
+      ]
+    },
+    {
+      "engine": "FEC",
+      "status": "RUN",
+      "reasons": [
+        "independent calibration role exists; DOR v0.4 may use only exact or explicitly declared ancestor context levels and remains fail-closed otherwise"
+      ],
+      "consumes": [
+        "retained M2N score packs"
+      ],
+      "produces": [
+        "context-conditioned calibrated evidence"
+      ]
+    },
+    {
+      "engine": "DOR",
+      "status": "RUN",
+      "reasons": [
+        "DOR will arbitrate only FEC-supported evidence and preserve alternatives/abstention"
+      ],
+      "consumes": [
+        "FEC outputs"
+      ],
+      "produces": [
+        "DiagnosisBundle"
+      ]
+    }
+  ],
+  "model_selection": {
+    "status": "SELECTED",
+    "selected_candidate_id": "raw_plus_mechanism__hist_gradient_boosting",
+    "runner_up_candidate_id": "raw__hist_gradient_boosting",
+    "primary_metric": "macro_f1",
+    "candidate_median_scores": [
+      [
+        "raw_plus_mechanism__hist_gradient_boosting",
+        0.9052393637816654
+      ],
+      [
+        "raw__hist_gradient_boosting",
+        0.8762229596137339
+      ],
+      [
+        "raw__random_forest",
+        0.8739163750314509
+      ],
+      [
+        "mechanism__hist_gradient_boosting",
+        0.8690462235208324
+      ],
+      [
+        "raw_plus_mechanism__random_forest",
+        0.8666629437558224
+      ],
+      [
+        "mechanism__random_forest",
+        0.8250205254515599
+      ],
+      [
+        "raw_plus_mechanism__logistic_regression",
+        0.821767793622066
+      ],
+      [
+        "raw__logistic_regression",
+        0.8217637894085856
+      ],
+      [
+        "mechanism__logistic_regression",
+        0.6679162898755302
+      ],
+      [
+        "raw__rbf_svm",
+        0.5327421116894802
+      ],
+      [
+        "raw_plus_mechanism__rbf_svm",
+        0.5262663225773894
+      ],
+      [
+        "mechanism__rbf_svm",
+        0.4385464974627819
+      ]
+    ],
+    "minimum_pairwise_margin": 0.029016404167931498,
+    "pairwise_practical_win_fraction": 1.0,
+    "reasons": [
+      "best candidate exceeds every alternative by the configured practical margin across stable restart comparisons"
+    ]
+  },
+  "retained_candidate_ids": [
+    "raw_plus_mechanism__hist_gradient_boosting"
+  ],
+  "calibration": {
+    "policy": "HIERARCHICAL",
+    "context_levels": [
+      {
+        "level_id": "exact",
+        "columns": [
+          "cooler",
+          "pump"
+        ],
+        "min_group_size": 20,
+        "fallback_allowed": false,
+        "sharing_basis": "exact declared nuisance operating condition"
+      },
+      {
+        "level_id": "pump_regime",
+        "columns": [
+          "pump"
+        ],
+        "min_group_size": 40,
+        "fallback_allowed": true,
+        "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes"
+      }
+    ],
+    "alpha": 0.1,
+    "missing_context_policy": "ABSTAIN",
+    "reference_applicability": "reference_applicability.json",
+    "references": [
+      "fec/raw_plus_mechanism__hist_gradient_boosting/exact/reference.json",
+      "fec/raw_plus_mechanism__hist_gradient_boosting/pump_regime/reference.json"
+    ],
+    "selected_reference_outputs": [
+      "fec/raw_plus_mechanism__hist_gradient_boosting/test_selected_reference.csv"
+    ]
+  },
+  "diagnosis_status": "SUPPORTED",
+  "diagnosis_summary": {
+    "contract": "DOR-DIAGNOSIS-BUNDLE/0.4",
+    "task": "FAULT_CLASSIFICATION",
+    "n": 240,
+    "supported_fraction": 0.975,
+    "alternatives_fraction": 0.0,
+    "abstain_fraction": 0.025,
+    "prohibited_claims": [
+      "portfolio union does not inherit a new formal coverage guarantee",
+      "class set is not physical root-cause probability"
+    ],
+    "empirical_set_coverage_all_rows": 0.9583333333333334,
+    "empirical_set_coverage_supported_rows": 0.9829059829059829,
+    "mean_prediction_set_size_supported_rows": 1.0,
+    "posthoc_test_audit": {
+      "sequence": "computed only after diagnosis.csv was written; excluded from selection/calibration/arbitration",
+      "n_test_rows": 240,
+      "labels_available": true,
+      "empirical_set_coverage_all_rows": 0.9583333333333334,
+      "empirical_set_coverage_supported_rows": 0.9829059829059829,
+      "mean_prediction_set_size_supported_rows": 1.0,
+      "singleton_supported_accuracy": 0.9829059829059829
+    }
+  },
+  "test_audit": {
+    "sequence": "computed only after diagnosis.csv was written; excluded from selection/calibration/arbitration",
+    "n_test_rows": 240,
+    "labels_available": true,
+    "empirical_set_coverage_all_rows": 0.9583333333333334,
+    "empirical_set_coverage_supported_rows": 0.9829059829059829,
+    "mean_prediction_set_size_supported_rows": 1.0,
+    "singleton_supported_accuracy": 0.9829059829059829
+  },
+  "artifacts": [
+    {
+      "path": "dataset_manifest.json",
+      "sha256": "f3c23f9c8a73aa90f100a0f4137922932c832878366e0855335a0f0c6e812e62",
+      "size_bytes": 2685
+    },
+    {
+      "path": "m2n_request_effective.json",
+      "sha256": "dc98631ed53fb47e7daa864069bcdbc58cb748ecc7ccf0a6c1c88b5dc319c8c6",
+      "size_bytes": 6166
+    },
+    {
+      "path": "task_qualification.json",
+      "sha256": "b45e06607b8d3243eb4d8b0e59e9d22039dd617b7cd2b6d71b679f5126c420c4",
+      "size_bytes": 2347
+    },
+    {
+      "path": "engine_admissions.json",
+      "sha256": "e764eab20ebdf4ff6d61a4b22edd2667ff8e0e4739e79b2a76e575fbcc388b60",
+      "size_bytes": 1432
+    },
+    {
+      "path": "diagnostic_plan.json",
+      "sha256": "b030f175ef275c1fa9ae9b580a498cc71e1956c9ba700c052b53b52c1ee854e2",
+      "size_bytes": 10391
+    },
+    {
+      "path": "reference_applicability.json",
+      "sha256": "edd29306c394b1519009d079aede6d83941e40653d18347793d6f44ef35133f1",
+      "size_bytes": 132275
+    },
+    {
+      "path": "reference_applicability.csv",
+      "sha256": "03241a92c1aae91ee70318767c2a0b810ecbc7e3a1efcb86ebd874646600d54f",
+      "size_bytes": 78080
+    },
+    {
+      "path": "m2n/diagnostic_model_bundle.json",
+      "sha256": "02febbe43443f4f908923f6f4bc543052c4c52fe05814a47f9b375eb384d3360",
+      "size_bytes": 12622
+    },
+    {
+      "path": "fec/raw_plus_mechanism__hist_gradient_boosting/exact/reference.json",
+      "sha256": "03de022ccc85c2a59c4975e34f35c1437136952a949c70cdec4120ee47b52a26",
+      "size_bytes": 1483
+    },
+    {
+      "path": "fec/raw_plus_mechanism__hist_gradient_boosting/pump_regime/reference.json",
+      "sha256": "76abecb07d9f22c4fc4e46ba7f390365c255e48d88a0f2a59ee1473389abe104",
+      "size_bytes": 1426
+    },
+    {
+      "path": "fec/raw_plus_mechanism__hist_gradient_boosting/exact/test_calibrated.csv",
+      "sha256": "710f3079720e5c186e13ec493ead4df40b262fb6013b13b12ae6c3f4cd84baab",
+      "size_bytes": 42071
+    },
+    {
+      "path": "fec/raw_plus_mechanism__hist_gradient_boosting/pump_regime/test_calibrated.csv",
+      "sha256": "5fa643d9b3b37d9f01f5f6eac7b69bbd659daf48ff37dc2bb752de7f1686d718",
+      "size_bytes": 42006
+    },
+    {
+      "path": "fec/raw_plus_mechanism__hist_gradient_boosting/test_selected_reference.csv",
+      "sha256": "a85798621b9f7c4af4031906a6c3d82f371c26a4aef195ff7b2d0730b03fefef",
+      "size_bytes": 118259
+    },
+    {
+      "path": "diagnosis.csv",
+      "sha256": "4c7fa41fbf5c7b862e5abb3d50e0c5fec4a1982d8799a2466168aad45b76b459",
+      "size_bytes": 25657
+    },
+    {
+      "path": "diagnosis_summary.json",
+      "sha256": "0799c0d88082995596d8c7265015933d661534345f34d62cd478c8ef30122799",
+      "size_bytes": 940
+    }
+  ],
+  "prohibited_claims": [
+    "test labels do not alter M2N selection, context keys, calibration thresholds, or DOR rules",
+    "scalar anomaly evidence is not a fault-class or root-cause probability",
+    "class prediction sets are not physical root-cause probabilities",
+    "ISGN skip/defer is a valid qualified path and must not be replaced by fabricated mechanism discovery",
+    "DOR hierarchy admission is not a new conformal theorem; any coarser reference claim remains conditional on exchangeability within the declared ancestor group",
+    "held-out test labels/scores do not discover or approve context pooling"
+  ]
+}

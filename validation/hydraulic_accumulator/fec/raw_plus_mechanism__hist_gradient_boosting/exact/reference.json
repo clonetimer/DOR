@@ -1,0 +1,73 @@
+{
+  "contract": "FEC-CONTEXT-CLASS-CONFORMAL-REFERENCE/1.0",
+  "class_frame": [
+    "130",
+    "115",
+    "100",
+    "90"
+  ],
+  "context_columns": [
+    "cooler",
+    "pump"
+  ],
+  "mask_columns": [],
+  "alpha": 0.1,
+  "min_group_size": 20,
+  "groups": [
+    {
+      "context": [
+        "20",
+        "0"
+      ],
+      "mask": [
+        1
+      ],
+      "n_reference": 80,
+      "supported": true,
+      "threshold": 0.3662325421387198,
+      "alpha": 0.1
+    },
+    {
+      "context": [
+        "20",
+        "1"
+      ],
+      "mask": [
+        1
+      ],
+      "n_reference": 80,
+      "supported": true,
+      "threshold": 0.41856922750560155,
+      "alpha": 0.1
+    },
+    {
+      "context": [
+        "20",
+        "2"
+      ],
+      "mask": [
+        1
+      ],
+      "n_reference": 40,
+      "supported": true,
+      "threshold": 0.055662283186560635,
+      "alpha": 0.1
+    },
+    {
+      "context": [
+        "3",
+        "1"
+      ],
+      "mask": [
+        1
+      ],
+      "n_reference": 40,
+      "supported": true,
+      "threshold": 0.00893739316102904,
+      "alpha": 0.1
+    }
+  ],
+  "calibration_score_sha256": "450d83f748b4c4504f64e25d36803cef864b1675d56d45e33b17074764ebb774",
+  "source_score_contract_sha256": "44c0aa6d2eaf06cd904b15fb4c607a3e6a6e2b2e2748ff200625bc73d647fb86",
+  "provenance": "DOR dor04-5e62abf8daf85486 candidate=raw_plus_mechanism__hist_gradient_boosting reference_level=exact sharing_basis=exact declared nuisance operating condition"
+}

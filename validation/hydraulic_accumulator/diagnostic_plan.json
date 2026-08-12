@@ -1,0 +1,387 @@
+{
+  "plan_id": "dor04-5e62abf8daf85486",
+  "task": "FAULT_CLASSIFICATION",
+  "qualification": {
+    "task": "FAULT_CLASSIFICATION",
+    "status": "CONDITIONALLY_QUALIFIED",
+    "reasons": [],
+    "warnings": [
+      "160 test rows require an explicitly declared coarser reference level; any validity claim is conditional on exchangeability within that ancestor group"
+    ],
+    "required_next_actions": [],
+    "checks": {
+      "data_sha256": {
+        "expected": "e46e804802a7258903f3f2d7ed51efac0cda2ed3d21ae5da993e1e7cb693c88d",
+        "actual": "e46e804802a7258903f3f2d7ed51efac0cda2ed3d21ae5da993e1e7cb693c88d",
+        "match": true
+      },
+      "row_count": 1449,
+      "required_columns": {
+        "required": [
+          "cooler",
+          "fault_label",
+          "pump",
+          "sample_id",
+          "split",
+          "split_group"
+        ],
+        "missing": []
+      },
+      "role_counts": {
+        "train": 729,
+        "validation": 240,
+        "calibration": 240,
+        "test": 240
+      },
+      "unassigned_rows": 0,
+      "leakage_guard": {
+        "group_columns": [
+          "split_group"
+        ],
+        "cross_role_group_count": 0
+      },
+      "classification_supervision": {
+        "train_classes": [
+          "100",
+          "115",
+          "130",
+          "90"
+        ],
+        "validation_classes": [
+          "100",
+          "115",
+          "130",
+          "90"
+        ]
+      },
+      "reference_applicability": {
+        "n_test_rows": 240,
+        "status_counts": {
+          "EXACT_SUPPORTED": 80,
+          "CONTEXT_UNSUPPORTED": 0,
+          "POWER_LIMITED": 0,
+          "HIERARCHY_SUPPORTED": 160
+        },
+        "selected_level_counts": {
+          "pump_regime": 160,
+          "exact": 80
+        },
+        "supported_rows": 240,
+        "unsupported_rows": 0
+      },
+      "context_levels": [
+        {
+          "level_id": "exact",
+          "columns": [
+            "cooler",
+            "pump"
+          ],
+          "min_group_size": 20,
+          "fallback_allowed": false,
+          "sharing_basis": "exact declared nuisance operating condition"
+        },
+        {
+          "level_id": "pump_regime",
+          "columns": [
+            "pump"
+          ],
+          "min_group_size": 40,
+          "fallback_allowed": true,
+          "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes"
+        }
+      ]
+    }
+  },
+  "engine_admissions": [
+    {
+      "engine": "ISGN",
+      "status": "SKIP",
+      "reasons": [
+        "mechanism route is DEFERRED; full DOR chain does not require fabricated mechanism discovery",
+        "Current feature view contains provisional engineering/virtual quantities but no ISGN-certified mechanism discovery claim; DOR must not fabricate one."
+      ],
+      "consumes": [
+        "DatasetManifest"
+      ],
+      "produces": [
+        "explicit skip/admission provenance"
+      ]
+    },
+    {
+      "engine": "M2N",
+      "status": "RUN",
+      "reasons": [
+        "task/data roles satisfy DOR admission; M2N may qualify finite model families using train/validation only"
+      ],
+      "consumes": [
+        "DatasetManifest",
+        "M2N diagnostic request",
+        "data"
+      ],
+      "produces": [
+        "DiagnosticModelBundle",
+        "score packs"
+      ]
+    },
+    {
+      "engine": "FEC",
+      "status": "RUN",
+      "reasons": [
+        "independent calibration role exists; DOR v0.4 may use only exact or explicitly declared ancestor context levels and remains fail-closed otherwise"
+      ],
+      "consumes": [
+        "retained M2N score packs"
+      ],
+      "produces": [
+        "context-conditioned calibrated evidence"
+      ]
+    },
+    {
+      "engine": "DOR",
+      "status": "RUN",
+      "reasons": [
+        "DOR will arbitrate only FEC-supported evidence and preserve alternatives/abstention"
+      ],
+      "consumes": [
+        "FEC outputs"
+      ],
+      "produces": [
+        "DiagnosisBundle"
+      ]
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "S00",
+      "engine": "DOR",
+      "action": "TASK_QUALIFICATION",
+      "status": "COMPLETED",
+      "depends_on": [],
+      "inputs": [
+        "DatasetManifest",
+        "M2N request",
+        "data"
+      ],
+      "outputs": [
+        "task_qualification.json"
+      ],
+      "parameters": {},
+      "command_template": []
+    },
+    {
+      "step_id": "S05",
+      "engine": "DOR",
+      "action": "REFERENCE_APPLICABILITY",
+      "status": "COMPLETED",
+      "depends_on": [
+        "S00"
+      ],
+      "inputs": [
+        "DatasetManifest",
+        "data-role context values"
+      ],
+      "outputs": [
+        "reference_applicability.json",
+        "reference_applicability.csv"
+      ],
+      "parameters": {
+        "levels": [
+          {
+            "level_id": "exact",
+            "columns": [
+              "cooler",
+              "pump"
+            ],
+            "min_group_size": 20,
+            "fallback_allowed": false,
+            "sharing_basis": "exact declared nuisance operating condition"
+          },
+          {
+            "level_id": "pump_regime",
+            "columns": [
+              "pump"
+            ],
+            "min_group_size": 40,
+            "fallback_allowed": true,
+            "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes"
+          }
+        ],
+        "fallback_policy": "DECLARED_ANCESTOR_ONLY"
+      },
+      "command_template": []
+    },
+    {
+      "step_id": "S10",
+      "engine": "ISGN",
+      "action": "MECHANISM_ADMISSION",
+      "status": "SKIPPED",
+      "depends_on": [
+        "S00"
+      ],
+      "inputs": [
+        "DatasetManifest"
+      ],
+      "outputs": [
+        "mechanism_admission.json"
+      ],
+      "parameters": {},
+      "command_template": []
+    },
+    {
+      "step_id": "S20",
+      "engine": "M2N",
+      "action": "DIAGNOSTIC_MODEL_DESIGN",
+      "status": "PLANNED",
+      "depends_on": [
+        "S00",
+        "S10"
+      ],
+      "inputs": [
+        "m2n_request_effective.json",
+        "/mnt/data/dor04_work/DOR_Diagnostic_Stack_v0.4.0_DEV_RC1/examples/hydraulic_accumulator/hydraulic_accumulator_features.csv"
+      ],
+      "outputs": [
+        "m2n/diagnostic_model_bundle.json"
+      ],
+      "parameters": {},
+      "command_template": [
+        "m2n",
+        "diagnostic-design",
+        "--request",
+        "${m2n_request}",
+        "--data",
+        "${data}",
+        "--out",
+        "${m2n_out}"
+      ]
+    },
+    {
+      "step_id": "S30",
+      "engine": "FEC",
+      "action": "CALIBRATE_RETAINED_SCORE_PACKS_BY_LEVEL",
+      "status": "PLANNED",
+      "depends_on": [
+        "S20",
+        "S05"
+      ],
+      "inputs": [
+        "m2n retained calibration score packs",
+        "declared context levels"
+      ],
+      "outputs": [
+        "fec/*/*/reference.json"
+      ],
+      "parameters": {
+        "levels": [
+          {
+            "level_id": "exact",
+            "columns": [
+              "cooler",
+              "pump"
+            ],
+            "min_group_size": 20,
+            "fallback_allowed": false,
+            "sharing_basis": "exact declared nuisance operating condition"
+          },
+          {
+            "level_id": "pump_regime",
+            "columns": [
+              "pump"
+            ],
+            "min_group_size": 40,
+            "fallback_allowed": true,
+            "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes"
+          }
+        ],
+        "alpha": 0.1,
+        "missing_context_policy": "ABSTAIN"
+      },
+      "command_template": []
+    },
+    {
+      "step_id": "S40",
+      "engine": "FEC",
+      "action": "INFER_RETAINED_SCORE_PACKS_BY_LEVEL",
+      "status": "PLANNED",
+      "depends_on": [
+        "S30"
+      ],
+      "inputs": [
+        "m2n retained test score packs",
+        "FEC level references"
+      ],
+      "outputs": [
+        "fec/*/*/test_calibrated.csv"
+      ],
+      "parameters": {},
+      "command_template": []
+    },
+    {
+      "step_id": "S45",
+      "engine": "DOR",
+      "action": "SELECT_DECLARED_REFERENCE_LEVEL",
+      "status": "PLANNED",
+      "depends_on": [
+        "S40",
+        "S05"
+      ],
+      "inputs": [
+        "FEC per-level outputs",
+        "reference_applicability.json"
+      ],
+      "outputs": [
+        "fec/*/test_selected_reference.csv"
+      ],
+      "parameters": {},
+      "command_template": []
+    },
+    {
+      "step_id": "S50",
+      "engine": "DOR",
+      "action": "DIAGNOSTIC_ARBITRATION",
+      "status": "PLANNED",
+      "depends_on": [
+        "S45"
+      ],
+      "inputs": [
+        "FEC outputs after DOR reference selection"
+      ],
+      "outputs": [
+        "diagnosis.csv",
+        "diagnosis_summary.json"
+      ],
+      "parameters": {},
+      "command_template": []
+    },
+    {
+      "step_id": "S60",
+      "engine": "DOR",
+      "action": "BUNDLE_AND_PROVENANCE",
+      "status": "PLANNED",
+      "depends_on": [
+        "S50"
+      ],
+      "inputs": [
+        "all prior artifacts"
+      ],
+      "outputs": [
+        "diagnosis_bundle.json",
+        "execution_report.json"
+      ],
+      "parameters": {},
+      "command_template": []
+    }
+  ],
+  "provenance": {
+    "manifest_contract": "DOR-DATASET-MANIFEST/0.4",
+    "manifest_sha256": "f3c23f9c8a73aa90f100a0f4137922932c832878366e0855335a0f0c6e812e62",
+    "request_sha256": "dc98631ed53fb47e7daa864069bcdbc58cb748ecc7ccf0a6c1c88b5dc319c8c6",
+    "data_sha256": "e46e804802a7258903f3f2d7ed51efac0cda2ed3d21ae5da993e1e7cb693c88d",
+    "output_dir": "/mnt/data/dor04_real_hydraulic",
+    "test_data_excluded_from_model_selection": true,
+    "context_discovery_from_test_labels": false,
+    "context_discovery_from_test_scores": false,
+    "implicit_context_pooling": false
+  },
+  "contract": "DOR-DIAGNOSTIC-PLAN/0.4"
+}

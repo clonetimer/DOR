@@ -1,0 +1,8 @@
+{
+  "n_cases": 29,
+  "status_counts": {
+    "SUPPORTED": 29
+  },
+  "exact_fault_set_match_rate": 1.0,
+  "truth_used_for_reasoning": false
+}

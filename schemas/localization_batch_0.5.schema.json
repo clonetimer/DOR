@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "DOR-LOCALIZATION-BATCH/0.5",
+  "title": "DOR Fault Localization Batch v0.5",
+  "type": "object",
+  "required": [
+    "contract",
+    "case_column",
+    "n_cases",
+    "status_counts",
+    "cases",
+    "safety"
+  ],
+  "properties": {
+    "contract": {
+      "const": "DOR-LOCALIZATION-BATCH/0.5"
+    },
+    "case_column": {
+      "type": "string",
+      "minLength": 1
+    },
+    "n_cases": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "status_counts": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": 0
+      }
+    },
+    "cases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "case_id",
+          "result"
+        ],
+        "properties": {
+          "case_id": {
+            "type": "string"
+          },
+          "result": {
+            "type": "object",
+            "required": [
+              "contract",
+              "status",
+              "reason",
+              "fault_hypotheses",
+              "component_candidates",
+              "evidence_summary",
+              "safety"
+            ],
+            "properties": {
+              "contract": {
+                "const": "DOR-LOCALIZATION-RESULT/0.5"
+              },
+              "status": {
+                "enum": [
+                  "SUPPORTED",
+                  "ALTERNATIVES",
+                  "UNKNOWN",
+                  "ABSTAIN"
+                ]
+              },
+              "reason": {
+                "type": "string"
+              },
+              "fault_hypotheses": {
+                "type": "array"
+              },
+              "component_candidates": {
+                "type": "array"
+              },
+              "evidence_summary": {
+                "type": "object"
+              },
+              "safety": {
+                "type": "object",
+                "properties": {
+                  "root_cause_claimed": {
+                    "const": false
+                  },
+                  "propagation_inferred": {
+                    "const": false
+                  }
+                },
+                "required": [
+                  "root_cause_claimed",
+                  "propagation_inferred"
+                ]
+              }
+            },
+            "additionalProperties": true
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "safety": {
+      "type": "object",
+      "required": [
+        "test_truth_used_for_reasoning",
+        "root_cause_claimed",
+        "propagation_inferred"
+      ],
+      "properties": {
+        "test_truth_used_for_reasoning": {
+          "const": false
+        },
+        "root_cause_claimed": {
+          "const": false
+        },
+        "propagation_inferred": {
+          "const": false
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

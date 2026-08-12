@@ -1,0 +1,85 @@
+{
+  "contract": "DOR-ROOT-CAUSE-RESULT/0.6",
+  "status": "SUPPORTED",
+  "reason": "a unique minimal root-cause set has timestamped local support and provenance-bound temporally compatible propagation coverage",
+  "root_cause_set": [
+    "EY260_failed_open"
+  ],
+  "candidate_root_sets": [
+    {
+      "fault_ids": [
+        "EY260_failed_open"
+      ],
+      "component_ids": [
+        "EY260"
+      ],
+      "coverage_fraction": 1.0,
+      "score": 2.0,
+      "covered_evidence": [
+        "E261_low",
+        "EY260_local"
+      ]
+    }
+  ],
+  "root_candidates": [
+    {
+      "fault_id": "EY260_failed_open",
+      "target_component_id": "EY260",
+      "localization_score": 1.0,
+      "root_support_time": 10.0,
+      "covered_evidence": [
+        "E261_low",
+        "EY260_local"
+      ],
+      "coverage_fraction": 1.0,
+      "downstream_explanations": [
+        {
+          "evidence_id": "E261_low",
+          "component_id": "E261_node",
+          "evidence_time": 11.0,
+          "root_support_time": 10.0,
+          "lag": 1.0,
+          "path": [
+            {
+              "source": "EY260",
+              "target": "E261_node",
+              "relation": "POWER_FLOW",
+              "provenance": "NASA benchmarking paper describes E261 as downstream voltage of relay EY260"
+            }
+          ]
+        }
+      ],
+      "temporal_contradictions": [],
+      "unprovenanced_paths": [],
+      "root_candidate_eligible": true,
+      "exclusion_group": "EY260_health"
+    }
+  ],
+  "unexplained_evidence": [],
+  "evidence_summary": {
+    "explainable_anomaly_count": 2,
+    "explainable_anomaly_ids": [
+      "E261_low",
+      "EY260_local"
+    ]
+  },
+  "localization_input": {
+    "contract": "DOR-LOCALIZATION-RESULT/0.5",
+    "status": "SUPPORTED"
+  },
+  "policy": {
+    "coverage_required": 1.0,
+    "max_root_set_size": 3,
+    "minimal_cardinality_preferred": true
+  },
+  "safety": {
+    "root_cause_claimed": true,
+    "propagation_inferred": true,
+    "earliest_anomaly_is_not_root_cause_rule": true,
+    "topology_only_is_not_sufficient": true,
+    "timestamped_fault_specific_support_required": true,
+    "provenance_bound_path_required": true,
+    "test_truth_used_for_reasoning": false,
+    "concurrent_root_causes_allowed": true
+  }
+}

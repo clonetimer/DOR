@@ -1,0 +1,58 @@
+[
+  {
+    "engine": "ISGN",
+    "status": "SKIP",
+    "reasons": [
+      "mechanism route is DEFERRED; full DOR chain does not require fabricated mechanism discovery",
+      "Current feature view contains provisional engineering/virtual quantities but no ISGN-certified mechanism discovery claim; DOR must not fabricate one."
+    ],
+    "consumes": [
+      "DatasetManifest"
+    ],
+    "produces": [
+      "explicit skip/admission provenance"
+    ]
+  },
+  {
+    "engine": "M2N",
+    "status": "RUN",
+    "reasons": [
+      "task/data roles satisfy DOR admission; M2N may qualify finite model families using train/validation only"
+    ],
+    "consumes": [
+      "DatasetManifest",
+      "M2N diagnostic request",
+      "data"
+    ],
+    "produces": [
+      "DiagnosticModelBundle",
+      "score packs"
+    ]
+  },
+  {
+    "engine": "FEC",
+    "status": "RUN",
+    "reasons": [
+      "independent calibration role exists; DOR v0.4 may use only exact or explicitly declared ancestor context levels and remains fail-closed otherwise"
+    ],
+    "consumes": [
+      "retained M2N score packs"
+    ],
+    "produces": [
+      "context-conditioned calibrated evidence"
+    ]
+  },
+  {
+    "engine": "DOR",
+    "status": "RUN",
+    "reasons": [
+      "DOR will arbitrate only FEC-supported evidence and preserve alternatives/abstention"
+    ],
+    "consumes": [
+      "FEC outputs"
+    ],
+    "produces": [
+      "DiagnosisBundle"
+    ]
+  }
+]

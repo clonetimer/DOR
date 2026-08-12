@@ -1,0 +1,71 @@
+{
+  "task": "ANOMALY_DETECTION",
+  "status": "CONDITIONALLY_QUALIFIED",
+  "reasons": [],
+  "warnings": [
+    "6 test rows have no admitted calibration reference: POWER_LIMITED=6, CONTEXT_UNSUPPORTED=0; DOR must fail closed there"
+  ],
+  "required_next_actions": [
+    "collect independent calibration reference or revise the declared context hierarchy using domain justification; do not discover pooling from held-out test outcomes"
+  ],
+  "checks": {
+    "data_sha256": {
+      "expected": "1539b5131796c0cb723561a8be8d1ec56ea8e4be858008ff647aef25e110a8df",
+      "actual": "1539b5131796c0cb723561a8be8d1ec56ea8e4be858008ff647aef25e110a8df",
+      "match": true
+    },
+    "row_count": 2123,
+    "required_columns": {
+      "required": [
+        "channel",
+        "fault_label",
+        "segment",
+        "split"
+      ],
+      "missing": []
+    },
+    "role_counts": {
+      "train": 876,
+      "validation": 510,
+      "calibration": 208,
+      "test": 529
+    },
+    "unassigned_rows": 0,
+    "leakage_guard": {
+      "group_columns": [
+        "segment"
+      ],
+      "cross_role_group_count": 0
+    },
+    "anomaly_supervision": {
+      "train_non_normal": 0,
+      "calibration_non_normal": 0,
+      "validation_anomaly_rows": 321
+    },
+    "reference_applicability": {
+      "n_test_rows": 529,
+      "status_counts": {
+        "HIERARCHY_SUPPORTED": 0,
+        "POWER_LIMITED": 6,
+        "EXACT_SUPPORTED": 523,
+        "CONTEXT_UNSUPPORTED": 0
+      },
+      "selected_level_counts": {
+        "channel_exact": 523
+      },
+      "supported_rows": 523,
+      "unsupported_rows": 6
+    },
+    "context_levels": [
+      {
+        "level_id": "channel_exact",
+        "columns": [
+          "channel"
+        ],
+        "min_group_size": 20,
+        "fallback_allowed": false,
+        "sharing_basis": "exact telemetry channel"
+      }
+    ]
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "contract": "DOR-DIAGNOSIS-BUNDLE/0.4",
+  "task": "FAULT_CLASSIFICATION",
+  "n": 240,
+  "supported_fraction": 0.975,
+  "alternatives_fraction": 0.0,
+  "abstain_fraction": 0.025,
+  "prohibited_claims": [
+    "portfolio union does not inherit a new formal coverage guarantee",
+    "class set is not physical root-cause probability"
+  ],
+  "empirical_set_coverage_all_rows": 0.9583333333333334,
+  "empirical_set_coverage_supported_rows": 0.9829059829059829,
+  "mean_prediction_set_size_supported_rows": 1.0,
+  "posthoc_test_audit": {
+    "sequence": "computed only after diagnosis.csv was written; excluded from selection/calibration/arbitration",
+    "n_test_rows": 240,
+    "labels_available": true,
+    "empirical_set_coverage_all_rows": 0.9583333333333334,
+    "empirical_set_coverage_supported_rows": 0.9829059829059829,
+    "mean_prediction_set_size_supported_rows": 1.0,
+    "singleton_supported_accuracy": 0.9829059829059829
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "m2n://schemas/diagnostic_model_request.schema.json",
+  "title": "M2N Diagnostic Model Request v1.0",
+  "type": "object",
+  "required": ["contract", "task", "data", "features", "supervision"],
+  "properties": {
+    "contract": {"const": "M2N-DIAGNOSTIC-MODEL-REQUEST/1.0"},
+    "task": {"enum": ["FAULT_CLASSIFICATION", "ANOMALY_DETECTION"]},
+    "data": {
+      "type": "object",
+      "required": ["split_column", "train_values", "validation_values"],
+      "properties": {
+        "split_column": {"type": "string", "minLength": 1},
+        "train_values": {"type": "array", "minItems": 1},
+        "validation_values": {"type": "array", "minItems": 1},
+        "calibration_values": {"type": "array"},
+        "test_values": {"type": "array"},
+        "id_columns": {"type": "array", "items": {"type": "string"}},
+        "include_test_labels": {"type": "boolean"}
+      }
+    },
+    "features": {
+      "type": "object",
+      "properties": {
+        "raw_columns": {"type": "array", "items": {"type": "string"}},
+        "mechanism_columns": {"type": "array", "items": {"type": "string"}},
+        "views": {
+          "type": "array",
+          "items": {"enum": ["RAW", "MECHANISM", "RAW_PLUS_MECHANISM"]}
+        }
+      }
+    },
+    "supervision": {
+      "type": "object",
+      "properties": {
+        "label_column": {"type": "string"},
+        "normal_label": {"type": ["string", "number", "boolean"]},
+        "trusted_normal_train": {"type": "boolean"}
+      }
+    },
+    "qualification": {"type": "object"},
+    "candidate_policy": {"type": "object"},
+    "training": {"type": "object"},
+    "selection": {"type": "object"}
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "m2n://schemas/device_card.schema.json",
+  "title": "M2N Device Card v2.2",
+  "type": "object",
+  "required": ["schema_version", "template", "data", "mechanism", "knowledge", "supervision"],
+  "properties": {
+    "schema_version": {"enum": ["1.0", "2.0", "2.1"]},
+    "template": {"enum": ["second_order_mechanics", "separable_peak_response", "generic_mechanism_graph"]},
+    "goal": {"type": "object"},
+    "data": {"type": "object"},
+    "mechanism": {"type": "object"},
+    "knowledge": {"type": "object"},
+    "supervision": {"type": "object"},
+    "qualification": {"type": "object"},
+    "training": {"type": "object"},
+    "selection": {"type": "object"},
+    "backends": {"type": "object"},
+    "k3_policy": {"type": "object"},
+    "physics_biases": {"type": "array"},
+    "bias_policy": {"type": "object"},
+    "task_semantics": {"type": "object"}
+  },
+  "additionalProperties": true
+}

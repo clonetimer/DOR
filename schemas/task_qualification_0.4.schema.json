@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DOR TaskQualification 0.4",
+  "type": "object",
+  "required": ["task", "status", "reasons", "warnings", "required_next_actions", "checks"],
+  "properties": {
+    "task": {"type": "string"},
+    "status": {"enum": ["QUALIFIED", "CONDITIONALLY_QUALIFIED", "UNSUPPORTED"]},
+    "reasons": {"type": "array", "items": {"type": "string"}},
+    "warnings": {"type": "array", "items": {"type": "string"}},
+    "required_next_actions": {"type": "array", "items": {"type": "string"}},
+    "checks": {"type": "object"}
+  }
+}

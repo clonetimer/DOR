@@ -1,0 +1,91 @@
+{
+  "task": "FAULT_CLASSIFICATION",
+  "status": "CONDITIONALLY_QUALIFIED",
+  "reasons": [],
+  "warnings": [
+    "160 test rows require an explicitly declared coarser reference level; any validity claim is conditional on exchangeability within that ancestor group"
+  ],
+  "required_next_actions": [],
+  "checks": {
+    "data_sha256": {
+      "expected": "e46e804802a7258903f3f2d7ed51efac0cda2ed3d21ae5da993e1e7cb693c88d",
+      "actual": "e46e804802a7258903f3f2d7ed51efac0cda2ed3d21ae5da993e1e7cb693c88d",
+      "match": true
+    },
+    "row_count": 1449,
+    "required_columns": {
+      "required": [
+        "cooler",
+        "fault_label",
+        "pump",
+        "sample_id",
+        "split",
+        "split_group"
+      ],
+      "missing": []
+    },
+    "role_counts": {
+      "train": 729,
+      "validation": 240,
+      "calibration": 240,
+      "test": 240
+    },
+    "unassigned_rows": 0,
+    "leakage_guard": {
+      "group_columns": [
+        "split_group"
+      ],
+      "cross_role_group_count": 0
+    },
+    "classification_supervision": {
+      "train_classes": [
+        "100",
+        "115",
+        "130",
+        "90"
+      ],
+      "validation_classes": [
+        "100",
+        "115",
+        "130",
+        "90"
+      ]
+    },
+    "reference_applicability": {
+      "n_test_rows": 240,
+      "status_counts": {
+        "EXACT_SUPPORTED": 80,
+        "CONTEXT_UNSUPPORTED": 0,
+        "POWER_LIMITED": 0,
+        "HIERARCHY_SUPPORTED": 160
+      },
+      "selected_level_counts": {
+        "pump_regime": 160,
+        "exact": 80
+      },
+      "supported_rows": 240,
+      "unsupported_rows": 0
+    },
+    "context_levels": [
+      {
+        "level_id": "exact",
+        "columns": [
+          "cooler",
+          "pump"
+        ],
+        "min_group_size": 20,
+        "fallback_allowed": false,
+        "sharing_basis": "exact declared nuisance operating condition"
+      },
+      {
+        "level_id": "pump_regime",
+        "columns": [
+          "pump"
+        ],
+        "min_group_size": 40,
+        "fallback_allowed": true,
+        "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes"
+      }
+    ]
+  }
+}

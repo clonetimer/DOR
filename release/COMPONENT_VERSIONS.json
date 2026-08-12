@@ -1,0 +1,9 @@
+{
+  "stack_status": "DOR 0.6.0 DEV PROTO - NOT CLOSED",
+  "dor": "0.6.0",
+  "isgn": "2.2.0",
+  "m2n": "2.3.1",
+  "fec": "2.4.0",
+  "previous_closed_node": "DOR 0.5.0 DEV RC1",
+  "next_gate": "real NASA ADAPT fault-injection root-cause benchmark"
+}

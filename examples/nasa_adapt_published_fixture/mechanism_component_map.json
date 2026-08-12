@@ -1,0 +1,7 @@
+{
+  "contract": "DOR-MECHANISM-COMPONENT-MAP/0.5",
+  "map_id": "NASA_ADAPT_PUBLISHED_EXAMPLES_MECHMAP_v0.5",
+  "bindings": [
+    {"mechanism_id": "relay_command_status_response", "component_ids": ["Relay1"], "sensor_ids": ["Feedback1"], "relation": "command-response consistency", "provenance": "Published Relay1/Feedback1 Bayesian-network example"}
+  ]
+}

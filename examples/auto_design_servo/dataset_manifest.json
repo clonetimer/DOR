@@ -1,0 +1,21 @@
+{
+  "contract": "DOR-MULTIMODAL-DATASET-MANIFEST/1.0",
+  "dataset_id": "servo-smoke-fixture",
+  "modality": "TABULAR",
+  "identifiers": ["sample_id", "run_id"],
+  "features": {"raw_columns": ["x1", "x2"]},
+  "split": {
+    "column": "split",
+    "train_values": ["train"],
+    "validation_values": ["val"],
+    "calibration_values": ["cal"],
+    "test_values": ["test"]
+  },
+  "supervision": {
+    "detection": {"label_column": "fault", "normal_label": "N"},
+    "localization": {"label_column": "component"},
+    "classification": {"label_column": "fault"},
+    "identification": {"target_columns": ["severity"]}
+  },
+  "leakage_guard": {"group_columns": ["run_id"]}
+}

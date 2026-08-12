@@ -1,0 +1,3 @@
+evidence_id,scope_type,scope_id,state,strength,validity,timestamp,provenance
+cmd_close,COMMAND,Command_Relay1,CLOSED,1.0,VALID,1.0,published-component-pattern fixture
+feedback_open,SENSOR,Feedback1,OPEN,1.0,VALID,1.1,published-component-pattern fixture

@@ -1,0 +1,195 @@
+{
+  "contract": "DOR-FAULT-ONTOLOGY/0.5",
+  "ontology_id": "NASA_ADAPT_PUBLISHED_EXAMPLES_v0.5",
+  "domain": "aerospace_electrical_power_testbed",
+  "scope_note": "Partial source-derived semantic fixture for DOR development; not a complete transcription of the ADAPT EPS catalog.",
+  "components": [
+    {
+      "component_id": "Relay1",
+      "component_type": "relay",
+      "kind": "ACTUATOR",
+      "subsystem": "EPS_demo"
+    },
+    {
+      "component_id": "Feedback1_health",
+      "component_type": "position_feedback_sensor",
+      "kind": "SENSOR",
+      "subsystem": "EPS_demo"
+    },
+    {
+      "component_id": "E261_health",
+      "component_type": "voltage_sensor",
+      "kind": "SENSOR",
+      "subsystem": "ADAPT"
+    },
+    {
+      "component_id": "ST516_health",
+      "component_type": "speed_sensor",
+      "kind": "SENSOR",
+      "subsystem": "ADAPT"
+    }
+  ],
+  "sensors": [
+    {
+      "sensor_id": "Feedback1",
+      "sensor_type": "position_feedback",
+      "health_component_id": "Feedback1_health",
+      "observes_components": [
+        "Relay1"
+      ]
+    },
+    {
+      "sensor_id": "E261",
+      "sensor_type": "voltage",
+      "health_component_id": "E261_health",
+      "observes_components": []
+    },
+    {
+      "sensor_id": "ST516",
+      "sensor_type": "speed",
+      "health_component_id": "ST516_health",
+      "observes_components": []
+    }
+  ],
+  "commands": [
+    {
+      "command_id": "Command_Relay1",
+      "target_component_id": "Relay1"
+    }
+  ],
+  "topology_edges": [
+    {
+      "source": "Relay1",
+      "target": "Feedback1_health",
+      "relation": "FEEDBACK"
+    }
+  ],
+  "faults": [
+    {
+      "fault_id": "Relay1_stuckOpen",
+      "target_component_id": "Relay1",
+      "fault_mode": "stuck_open",
+      "category": "DISCRETE",
+      "expected_evidence": [
+        {
+          "scope_type": "COMMAND",
+          "scope_id": "Command_Relay1",
+          "expected_state": "CLOSED",
+          "weight": 0.5
+        },
+        {
+          "scope_type": "SENSOR",
+          "scope_id": "Feedback1",
+          "expected_state": "OPEN",
+          "weight": 1.0
+        }
+      ],
+      "contradictions": [
+        {
+          "scope_type": "SENSOR",
+          "scope_id": "Feedback1",
+          "state": "CLOSED",
+          "weight": 1.0
+        }
+      ],
+      "exclusion_group": "Relay1_operating_failure_mode"
+    },
+    {
+      "fault_id": "Relay1_stuckClosed",
+      "target_component_id": "Relay1",
+      "fault_mode": "stuck_closed",
+      "category": "DISCRETE",
+      "expected_evidence": [
+        {
+          "scope_type": "COMMAND",
+          "scope_id": "Command_Relay1",
+          "expected_state": "OPEN",
+          "weight": 0.5
+        },
+        {
+          "scope_type": "SENSOR",
+          "scope_id": "Feedback1",
+          "expected_state": "CLOSED",
+          "weight": 1.0
+        }
+      ],
+      "contradictions": [
+        {
+          "scope_type": "SENSOR",
+          "scope_id": "Feedback1",
+          "state": "OPEN",
+          "weight": 1.0
+        }
+      ],
+      "exclusion_group": "Relay1_operating_failure_mode"
+    },
+    {
+      "fault_id": "E261_sensor_stuck",
+      "target_component_id": "E261_health",
+      "fault_mode": "stuck",
+      "category": "SENSOR",
+      "expected_evidence": [
+        {
+          "scope_type": "SENSOR",
+          "scope_id": "E261",
+          "expected_state": "STUCK",
+          "weight": 1.0
+        }
+      ]
+    },
+    {
+      "fault_id": "ST516_sensor_offset",
+      "target_component_id": "ST516_health",
+      "fault_mode": "offset",
+      "category": "SENSOR",
+      "expected_evidence": [
+        {
+          "scope_type": "SENSOR",
+          "scope_id": "ST516",
+          "expected_state": "OFFSET",
+          "weight": 1.0
+        }
+      ],
+      "contradictions": [
+        {
+          "scope_type": "SENSOR",
+          "scope_id": "ST516",
+          "state": "STUCK",
+          "weight": 1.0
+        }
+      ],
+      "exclusion_group": "ST516_sensor_failure_mode"
+    },
+    {
+      "fault_id": "ST516_sensor_stuck",
+      "target_component_id": "ST516_health",
+      "fault_mode": "stuck",
+      "category": "SENSOR",
+      "expected_evidence": [
+        {
+          "scope_type": "SENSOR",
+          "scope_id": "ST516",
+          "expected_state": "STUCK",
+          "weight": 1.0
+        }
+      ],
+      "contradictions": [
+        {
+          "scope_type": "SENSOR",
+          "scope_id": "ST516",
+          "state": "OFFSET",
+          "weight": 1.0
+        }
+      ],
+      "exclusion_group": "ST516_sensor_failure_mode"
+    }
+  ],
+  "provenance": {
+    "sources": [
+      "NASA Open Data Portal: ADAPT Dataset (DASHLINK_143)",
+      "Mengshoel et al., Diagnosing Faults in Electrical Power Systems of Spacecraft and Aircraft (published ADAPT component/BN example)",
+      "Kurtoglu et al., Benchmarking Diagnostic Algorithms on an Electrical Power System Testbed (ADAPT fault catalog and published sensor-fault examples)"
+    ],
+    "source_policy": "Only relations explicitly supported by the cited published examples were encoded; this fixture is deliberately incomplete."
+  }
+}

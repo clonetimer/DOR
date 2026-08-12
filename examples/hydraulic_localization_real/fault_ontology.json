@@ -1,0 +1,27 @@
+{
+  "contract": "DOR-FAULT-ONTOLOGY/0.5",
+  "ontology_id": "UCI_HYDRAULIC_COMPONENT_STATES_v0.5",
+  "domain": "industrial_hydraulic_test_rig",
+  "scope_note": "Fault semantics are limited to the pump leakage and accumulator pressure-condition labels defined by the public dataset documentation. They are component-condition hypotheses, not causal root-cause claims.",
+  "components": [
+    {"component_id": "pump", "component_type": "hydraulic_pump", "kind": "PHYSICAL", "subsystem": "primary_working_circuit"},
+    {"component_id": "accumulator", "component_type": "hydraulic_accumulator", "kind": "PHYSICAL", "subsystem": "primary_working_circuit"}
+  ],
+  "sensors": [],
+  "commands": [],
+  "topology_edges": [],
+  "faults": [
+    {"fault_id": "pump_internal_leakage_weak", "target_component_id": "pump", "fault_mode": "internal_leakage_weak", "category": "PARAMETRIC", "exclusion_group": "pump_condition", "expected_evidence": [{"scope_type": "COMPONENT", "scope_id": "pump", "expected_state": "CLASS", "expected_value": "1", "weight": 1.0}]},
+    {"fault_id": "pump_internal_leakage_severe", "target_component_id": "pump", "fault_mode": "internal_leakage_severe", "category": "PARAMETRIC", "exclusion_group": "pump_condition", "expected_evidence": [{"scope_type": "COMPONENT", "scope_id": "pump", "expected_state": "CLASS", "expected_value": "2", "weight": 1.0}]},
+    {"fault_id": "accumulator_pressure_slightly_reduced", "target_component_id": "accumulator", "fault_mode": "pressure_115_bar", "category": "PARAMETRIC", "exclusion_group": "accumulator_condition", "expected_evidence": [{"scope_type": "COMPONENT", "scope_id": "accumulator", "expected_state": "CLASS", "expected_value": "115", "weight": 1.0}]},
+    {"fault_id": "accumulator_pressure_severely_reduced", "target_component_id": "accumulator", "fault_mode": "pressure_100_bar", "category": "PARAMETRIC", "exclusion_group": "accumulator_condition", "expected_evidence": [{"scope_type": "COMPONENT", "scope_id": "accumulator", "expected_state": "CLASS", "expected_value": "100", "weight": 1.0}]},
+    {"fault_id": "accumulator_pressure_close_to_total_failure", "target_component_id": "accumulator", "fault_mode": "pressure_90_bar", "category": "PARAMETRIC", "exclusion_group": "accumulator_condition", "expected_evidence": [{"scope_type": "COMPONENT", "scope_id": "accumulator", "expected_state": "CLASS", "expected_value": "90", "weight": 1.0}]}
+  ],
+  "provenance": {
+    "sources": [
+      "UCI Condition monitoring of hydraulic systems: description.txt / documentation.txt",
+      "DOR v0.3 pump classification output and DOR v0.4 accumulator classification output"
+    ],
+    "source_policy": "Only documented component-condition labels are mapped into fault hypotheses; no unprovided physical topology is invented."
+  }
+}

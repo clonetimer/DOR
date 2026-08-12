@@ -1,0 +1,30 @@
+case_id,status,expected_fault_set,predicted_supported_fault_set,exact_fault_set_match
+HYD_0569,SUPPORTED,"[""accumulator_pressure_severely_reduced""]","[""accumulator_pressure_severely_reduced""]",True
+HYD_0572,SUPPORTED,"[""accumulator_pressure_severely_reduced""]","[""accumulator_pressure_severely_reduced""]",True
+HYD_0575,SUPPORTED,"[""accumulator_pressure_severely_reduced""]","[""accumulator_pressure_severely_reduced""]",True
+HYD_0576,SUPPORTED,"[""accumulator_pressure_severely_reduced""]","[""accumulator_pressure_severely_reduced""]",True
+HYD_0578,SUPPORTED,"[""accumulator_pressure_severely_reduced""]","[""accumulator_pressure_severely_reduced""]",True
+HYD_1137,SUPPORTED,"[""accumulator_pressure_slightly_reduced"", ""pump_internal_leakage_weak""]","[""accumulator_pressure_slightly_reduced"", ""pump_internal_leakage_weak""]",True
+HYD_1138,SUPPORTED,"[""accumulator_pressure_slightly_reduced"", ""pump_internal_leakage_weak""]","[""accumulator_pressure_slightly_reduced"", ""pump_internal_leakage_weak""]",True
+HYD_1139,SUPPORTED,"[""accumulator_pressure_slightly_reduced"", ""pump_internal_leakage_weak""]","[""accumulator_pressure_slightly_reduced"", ""pump_internal_leakage_weak""]",True
+HYD_1140,SUPPORTED,"[""accumulator_pressure_slightly_reduced"", ""pump_internal_leakage_weak""]","[""accumulator_pressure_slightly_reduced"", ""pump_internal_leakage_weak""]",True
+HYD_1141,SUPPORTED,"[""accumulator_pressure_slightly_reduced"", ""pump_internal_leakage_weak""]","[""accumulator_pressure_slightly_reduced"", ""pump_internal_leakage_weak""]",True
+HYD_1142,SUPPORTED,"[""accumulator_pressure_slightly_reduced"", ""pump_internal_leakage_weak""]","[""accumulator_pressure_slightly_reduced"", ""pump_internal_leakage_weak""]",True
+HYD_1143,SUPPORTED,"[""accumulator_pressure_slightly_reduced"", ""pump_internal_leakage_weak""]","[""accumulator_pressure_slightly_reduced"", ""pump_internal_leakage_weak""]",True
+HYD_2125,SUPPORTED,"[""accumulator_pressure_close_to_total_failure"", ""pump_internal_leakage_weak""]","[""accumulator_pressure_close_to_total_failure"", ""pump_internal_leakage_weak""]",True
+HYD_2126,SUPPORTED,"[""accumulator_pressure_close_to_total_failure"", ""pump_internal_leakage_weak""]","[""accumulator_pressure_close_to_total_failure"", ""pump_internal_leakage_weak""]",True
+HYD_2127,SUPPORTED,"[""accumulator_pressure_close_to_total_failure"", ""pump_internal_leakage_weak""]","[""accumulator_pressure_close_to_total_failure"", ""pump_internal_leakage_weak""]",True
+HYD_2128,SUPPORTED,"[""accumulator_pressure_close_to_total_failure"", ""pump_internal_leakage_weak""]","[""accumulator_pressure_close_to_total_failure"", ""pump_internal_leakage_weak""]",True
+HYD_2129,SUPPORTED,"[""accumulator_pressure_close_to_total_failure"", ""pump_internal_leakage_weak""]","[""accumulator_pressure_close_to_total_failure"", ""pump_internal_leakage_weak""]",True
+HYD_2132,SUPPORTED,"[""accumulator_pressure_close_to_total_failure"", ""pump_internal_leakage_weak""]","[""accumulator_pressure_close_to_total_failure"", ""pump_internal_leakage_weak""]",True
+HYD_2133,SUPPORTED,"[""accumulator_pressure_close_to_total_failure"", ""pump_internal_leakage_weak""]","[""accumulator_pressure_close_to_total_failure"", ""pump_internal_leakage_weak""]",True
+HYD_2166,SUPPORTED,"[""accumulator_pressure_close_to_total_failure""]","[""accumulator_pressure_close_to_total_failure""]",True
+HYD_2167,SUPPORTED,"[""accumulator_pressure_close_to_total_failure""]","[""accumulator_pressure_close_to_total_failure""]",True
+HYD_2168,SUPPORTED,"[""accumulator_pressure_close_to_total_failure""]","[""accumulator_pressure_close_to_total_failure""]",True
+HYD_2169,SUPPORTED,"[""accumulator_pressure_close_to_total_failure""]","[""accumulator_pressure_close_to_total_failure""]",True
+HYD_2170,SUPPORTED,"[""accumulator_pressure_close_to_total_failure""]","[""accumulator_pressure_close_to_total_failure""]",True
+HYD_2171,SUPPORTED,"[""accumulator_pressure_close_to_total_failure""]","[""accumulator_pressure_close_to_total_failure""]",True
+HYD_2172,SUPPORTED,"[""accumulator_pressure_close_to_total_failure""]","[""accumulator_pressure_close_to_total_failure""]",True
+HYD_2173,SUPPORTED,"[""accumulator_pressure_close_to_total_failure""]","[""accumulator_pressure_close_to_total_failure""]",True
+HYD_2174,SUPPORTED,"[""accumulator_pressure_close_to_total_failure""]","[""accumulator_pressure_close_to_total_failure""]",True
+HYD_2175,SUPPORTED,"[""accumulator_pressure_close_to_total_failure""]","[""accumulator_pressure_close_to_total_failure""]",True

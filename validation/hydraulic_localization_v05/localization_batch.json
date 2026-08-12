@@ -1,0 +1,4627 @@
+{
+  "contract": "DOR-LOCALIZATION-BATCH/0.5",
+  "case_column": "case_id",
+  "n_cases": 29,
+  "status_counts": {
+    "SUPPORTED": 29
+  },
+  "cases": [
+    {
+      "case_id": "HYD_0569",
+      "result": {
+        "contract": "DOR-LOCALIZATION-RESULT/0.5",
+        "status": "SUPPORTED",
+        "reason": "all retained fault groups are individually resolved; concurrent faults across groups are allowed",
+        "fault_hypotheses": [
+          {
+            "fault_id": "accumulator_pressure_severely_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_100_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_0569:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          }
+        ],
+        "all_scored_hypotheses": [
+          {
+            "fault_id": "accumulator_pressure_severely_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_100_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_0569:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          },
+          {
+            "fault_id": "pump_internal_leakage_weak",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_weak",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_0569:pump:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "pump_internal_leakage_severe",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_severe",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_0569:pump:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_slightly_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_115_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_0569:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_close_to_total_failure",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_90_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_0569:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          }
+        ],
+        "component_candidates": [
+          {
+            "component_id": "accumulator",
+            "score": 1.0,
+            "retained_fault_ids": [
+              "accumulator_pressure_severely_reduced"
+            ]
+          }
+        ],
+        "supported_fault_set": [
+          "accumulator_pressure_severely_reduced"
+        ],
+        "candidate_fault_sets": [
+          [
+            "accumulator_pressure_severely_reduced"
+          ]
+        ],
+        "ambiguous_exclusion_groups": {},
+        "evidence_summary": {
+          "total": 2,
+          "valid": 2,
+          "invalid_or_unsupported": 0
+        },
+        "policy": {
+          "min_support": 0.45,
+          "retain_margin": 0.08,
+          "max_contradiction_fraction": 0.35,
+          "candidate_set_cap": 32
+        },
+        "safety": {
+          "root_cause_claimed": false,
+          "propagation_inferred": false,
+          "invalid_evidence_used_for_scoring": false,
+          "generic_component_or_mechanism_evidence_cannot_by_itself_identify_fault_mode": true,
+          "concurrent_faults_are_not_relabelled_as_alternatives": true
+        }
+      }
+    },
+    {
+      "case_id": "HYD_0572",
+      "result": {
+        "contract": "DOR-LOCALIZATION-RESULT/0.5",
+        "status": "SUPPORTED",
+        "reason": "all retained fault groups are individually resolved; concurrent faults across groups are allowed",
+        "fault_hypotheses": [
+          {
+            "fault_id": "accumulator_pressure_severely_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_100_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_0572:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          }
+        ],
+        "all_scored_hypotheses": [
+          {
+            "fault_id": "accumulator_pressure_severely_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_100_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_0572:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          },
+          {
+            "fault_id": "pump_internal_leakage_weak",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_weak",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_0572:pump:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "pump_internal_leakage_severe",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_severe",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_0572:pump:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_slightly_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_115_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_0572:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_close_to_total_failure",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_90_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_0572:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          }
+        ],
+        "component_candidates": [
+          {
+            "component_id": "accumulator",
+            "score": 1.0,
+            "retained_fault_ids": [
+              "accumulator_pressure_severely_reduced"
+            ]
+          }
+        ],
+        "supported_fault_set": [
+          "accumulator_pressure_severely_reduced"
+        ],
+        "candidate_fault_sets": [
+          [
+            "accumulator_pressure_severely_reduced"
+          ]
+        ],
+        "ambiguous_exclusion_groups": {},
+        "evidence_summary": {
+          "total": 2,
+          "valid": 2,
+          "invalid_or_unsupported": 0
+        },
+        "policy": {
+          "min_support": 0.45,
+          "retain_margin": 0.08,
+          "max_contradiction_fraction": 0.35,
+          "candidate_set_cap": 32
+        },
+        "safety": {
+          "root_cause_claimed": false,
+          "propagation_inferred": false,
+          "invalid_evidence_used_for_scoring": false,
+          "generic_component_or_mechanism_evidence_cannot_by_itself_identify_fault_mode": true,
+          "concurrent_faults_are_not_relabelled_as_alternatives": true
+        }
+      }
+    },
+    {
+      "case_id": "HYD_0575",
+      "result": {
+        "contract": "DOR-LOCALIZATION-RESULT/0.5",
+        "status": "SUPPORTED",
+        "reason": "all retained fault groups are individually resolved; concurrent faults across groups are allowed",
+        "fault_hypotheses": [
+          {
+            "fault_id": "accumulator_pressure_severely_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_100_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_0575:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          }
+        ],
+        "all_scored_hypotheses": [
+          {
+            "fault_id": "accumulator_pressure_severely_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_100_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_0575:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          },
+          {
+            "fault_id": "pump_internal_leakage_weak",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_weak",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_0575:pump:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "pump_internal_leakage_severe",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_severe",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_0575:pump:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_slightly_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_115_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_0575:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_close_to_total_failure",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_90_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_0575:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          }
+        ],
+        "component_candidates": [
+          {
+            "component_id": "accumulator",
+            "score": 1.0,
+            "retained_fault_ids": [
+              "accumulator_pressure_severely_reduced"
+            ]
+          }
+        ],
+        "supported_fault_set": [
+          "accumulator_pressure_severely_reduced"
+        ],
+        "candidate_fault_sets": [
+          [
+            "accumulator_pressure_severely_reduced"
+          ]
+        ],
+        "ambiguous_exclusion_groups": {},
+        "evidence_summary": {
+          "total": 2,
+          "valid": 2,
+          "invalid_or_unsupported": 0
+        },
+        "policy": {
+          "min_support": 0.45,
+          "retain_margin": 0.08,
+          "max_contradiction_fraction": 0.35,
+          "candidate_set_cap": 32
+        },
+        "safety": {
+          "root_cause_claimed": false,
+          "propagation_inferred": false,
+          "invalid_evidence_used_for_scoring": false,
+          "generic_component_or_mechanism_evidence_cannot_by_itself_identify_fault_mode": true,
+          "concurrent_faults_are_not_relabelled_as_alternatives": true
+        }
+      }
+    },
+    {
+      "case_id": "HYD_0576",
+      "result": {
+        "contract": "DOR-LOCALIZATION-RESULT/0.5",
+        "status": "SUPPORTED",
+        "reason": "all retained fault groups are individually resolved; concurrent faults across groups are allowed",
+        "fault_hypotheses": [
+          {
+            "fault_id": "accumulator_pressure_severely_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_100_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_0576:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          }
+        ],
+        "all_scored_hypotheses": [
+          {
+            "fault_id": "accumulator_pressure_severely_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_100_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_0576:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          },
+          {
+            "fault_id": "pump_internal_leakage_weak",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_weak",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_0576:pump:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "pump_internal_leakage_severe",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_severe",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_0576:pump:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_slightly_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_115_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_0576:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_close_to_total_failure",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_90_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_0576:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          }
+        ],
+        "component_candidates": [
+          {
+            "component_id": "accumulator",
+            "score": 1.0,
+            "retained_fault_ids": [
+              "accumulator_pressure_severely_reduced"
+            ]
+          }
+        ],
+        "supported_fault_set": [
+          "accumulator_pressure_severely_reduced"
+        ],
+        "candidate_fault_sets": [
+          [
+            "accumulator_pressure_severely_reduced"
+          ]
+        ],
+        "ambiguous_exclusion_groups": {},
+        "evidence_summary": {
+          "total": 2,
+          "valid": 2,
+          "invalid_or_unsupported": 0
+        },
+        "policy": {
+          "min_support": 0.45,
+          "retain_margin": 0.08,
+          "max_contradiction_fraction": 0.35,
+          "candidate_set_cap": 32
+        },
+        "safety": {
+          "root_cause_claimed": false,
+          "propagation_inferred": false,
+          "invalid_evidence_used_for_scoring": false,
+          "generic_component_or_mechanism_evidence_cannot_by_itself_identify_fault_mode": true,
+          "concurrent_faults_are_not_relabelled_as_alternatives": true
+        }
+      }
+    },
+    {
+      "case_id": "HYD_0578",
+      "result": {
+        "contract": "DOR-LOCALIZATION-RESULT/0.5",
+        "status": "SUPPORTED",
+        "reason": "all retained fault groups are individually resolved; concurrent faults across groups are allowed",
+        "fault_hypotheses": [
+          {
+            "fault_id": "accumulator_pressure_severely_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_100_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_0578:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          }
+        ],
+        "all_scored_hypotheses": [
+          {
+            "fault_id": "accumulator_pressure_severely_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_100_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_0578:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          },
+          {
+            "fault_id": "pump_internal_leakage_weak",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_weak",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_0578:pump:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "pump_internal_leakage_severe",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_severe",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_0578:pump:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_slightly_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_115_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_0578:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_close_to_total_failure",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_90_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_0578:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          }
+        ],
+        "component_candidates": [
+          {
+            "component_id": "accumulator",
+            "score": 1.0,
+            "retained_fault_ids": [
+              "accumulator_pressure_severely_reduced"
+            ]
+          }
+        ],
+        "supported_fault_set": [
+          "accumulator_pressure_severely_reduced"
+        ],
+        "candidate_fault_sets": [
+          [
+            "accumulator_pressure_severely_reduced"
+          ]
+        ],
+        "ambiguous_exclusion_groups": {},
+        "evidence_summary": {
+          "total": 2,
+          "valid": 2,
+          "invalid_or_unsupported": 0
+        },
+        "policy": {
+          "min_support": 0.45,
+          "retain_margin": 0.08,
+          "max_contradiction_fraction": 0.35,
+          "candidate_set_cap": 32
+        },
+        "safety": {
+          "root_cause_claimed": false,
+          "propagation_inferred": false,
+          "invalid_evidence_used_for_scoring": false,
+          "generic_component_or_mechanism_evidence_cannot_by_itself_identify_fault_mode": true,
+          "concurrent_faults_are_not_relabelled_as_alternatives": true
+        }
+      }
+    },
+    {
+      "case_id": "HYD_1137",
+      "result": {
+        "contract": "DOR-LOCALIZATION-RESULT/0.5",
+        "status": "SUPPORTED",
+        "reason": "all retained fault groups are individually resolved; concurrent faults across groups are allowed",
+        "fault_hypotheses": [
+          {
+            "fault_id": "accumulator_pressure_slightly_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_115_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_1137:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          },
+          {
+            "fault_id": "pump_internal_leakage_weak",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_weak",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_1137:pump:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "pump_condition"
+          }
+        ],
+        "all_scored_hypotheses": [
+          {
+            "fault_id": "pump_internal_leakage_weak",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_weak",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_1137:pump:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "pump_condition"
+          },
+          {
+            "fault_id": "accumulator_pressure_slightly_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_115_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_1137:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          },
+          {
+            "fault_id": "pump_internal_leakage_severe",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_severe",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_1137:pump:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_severely_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_100_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_1137:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_close_to_total_failure",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_90_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_1137:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          }
+        ],
+        "component_candidates": [
+          {
+            "component_id": "accumulator",
+            "score": 1.0,
+            "retained_fault_ids": [
+              "accumulator_pressure_slightly_reduced"
+            ]
+          },
+          {
+            "component_id": "pump",
+            "score": 1.0,
+            "retained_fault_ids": [
+              "pump_internal_leakage_weak"
+            ]
+          }
+        ],
+        "supported_fault_set": [
+          "accumulator_pressure_slightly_reduced",
+          "pump_internal_leakage_weak"
+        ],
+        "candidate_fault_sets": [
+          [
+            "accumulator_pressure_slightly_reduced",
+            "pump_internal_leakage_weak"
+          ]
+        ],
+        "ambiguous_exclusion_groups": {},
+        "evidence_summary": {
+          "total": 2,
+          "valid": 2,
+          "invalid_or_unsupported": 0
+        },
+        "policy": {
+          "min_support": 0.45,
+          "retain_margin": 0.08,
+          "max_contradiction_fraction": 0.35,
+          "candidate_set_cap": 32
+        },
+        "safety": {
+          "root_cause_claimed": false,
+          "propagation_inferred": false,
+          "invalid_evidence_used_for_scoring": false,
+          "generic_component_or_mechanism_evidence_cannot_by_itself_identify_fault_mode": true,
+          "concurrent_faults_are_not_relabelled_as_alternatives": true
+        }
+      }
+    },
+    {
+      "case_id": "HYD_1138",
+      "result": {
+        "contract": "DOR-LOCALIZATION-RESULT/0.5",
+        "status": "SUPPORTED",
+        "reason": "all retained fault groups are individually resolved; concurrent faults across groups are allowed",
+        "fault_hypotheses": [
+          {
+            "fault_id": "accumulator_pressure_slightly_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_115_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_1138:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          },
+          {
+            "fault_id": "pump_internal_leakage_weak",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_weak",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_1138:pump:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "pump_condition"
+          }
+        ],
+        "all_scored_hypotheses": [
+          {
+            "fault_id": "pump_internal_leakage_weak",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_weak",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_1138:pump:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "pump_condition"
+          },
+          {
+            "fault_id": "accumulator_pressure_slightly_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_115_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_1138:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          },
+          {
+            "fault_id": "pump_internal_leakage_severe",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_severe",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_1138:pump:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_severely_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_100_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_1138:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_close_to_total_failure",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_90_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_1138:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          }
+        ],
+        "component_candidates": [
+          {
+            "component_id": "accumulator",
+            "score": 1.0,
+            "retained_fault_ids": [
+              "accumulator_pressure_slightly_reduced"
+            ]
+          },
+          {
+            "component_id": "pump",
+            "score": 1.0,
+            "retained_fault_ids": [
+              "pump_internal_leakage_weak"
+            ]
+          }
+        ],
+        "supported_fault_set": [
+          "accumulator_pressure_slightly_reduced",
+          "pump_internal_leakage_weak"
+        ],
+        "candidate_fault_sets": [
+          [
+            "accumulator_pressure_slightly_reduced",
+            "pump_internal_leakage_weak"
+          ]
+        ],
+        "ambiguous_exclusion_groups": {},
+        "evidence_summary": {
+          "total": 2,
+          "valid": 2,
+          "invalid_or_unsupported": 0
+        },
+        "policy": {
+          "min_support": 0.45,
+          "retain_margin": 0.08,
+          "max_contradiction_fraction": 0.35,
+          "candidate_set_cap": 32
+        },
+        "safety": {
+          "root_cause_claimed": false,
+          "propagation_inferred": false,
+          "invalid_evidence_used_for_scoring": false,
+          "generic_component_or_mechanism_evidence_cannot_by_itself_identify_fault_mode": true,
+          "concurrent_faults_are_not_relabelled_as_alternatives": true
+        }
+      }
+    },
+    {
+      "case_id": "HYD_1139",
+      "result": {
+        "contract": "DOR-LOCALIZATION-RESULT/0.5",
+        "status": "SUPPORTED",
+        "reason": "all retained fault groups are individually resolved; concurrent faults across groups are allowed",
+        "fault_hypotheses": [
+          {
+            "fault_id": "accumulator_pressure_slightly_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_115_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_1139:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          },
+          {
+            "fault_id": "pump_internal_leakage_weak",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_weak",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_1139:pump:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "pump_condition"
+          }
+        ],
+        "all_scored_hypotheses": [
+          {
+            "fault_id": "pump_internal_leakage_weak",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_weak",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_1139:pump:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "pump_condition"
+          },
+          {
+            "fault_id": "accumulator_pressure_slightly_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_115_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_1139:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          },
+          {
+            "fault_id": "pump_internal_leakage_severe",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_severe",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_1139:pump:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_severely_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_100_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_1139:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_close_to_total_failure",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_90_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_1139:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          }
+        ],
+        "component_candidates": [
+          {
+            "component_id": "accumulator",
+            "score": 1.0,
+            "retained_fault_ids": [
+              "accumulator_pressure_slightly_reduced"
+            ]
+          },
+          {
+            "component_id": "pump",
+            "score": 1.0,
+            "retained_fault_ids": [
+              "pump_internal_leakage_weak"
+            ]
+          }
+        ],
+        "supported_fault_set": [
+          "accumulator_pressure_slightly_reduced",
+          "pump_internal_leakage_weak"
+        ],
+        "candidate_fault_sets": [
+          [
+            "accumulator_pressure_slightly_reduced",
+            "pump_internal_leakage_weak"
+          ]
+        ],
+        "ambiguous_exclusion_groups": {},
+        "evidence_summary": {
+          "total": 2,
+          "valid": 2,
+          "invalid_or_unsupported": 0
+        },
+        "policy": {
+          "min_support": 0.45,
+          "retain_margin": 0.08,
+          "max_contradiction_fraction": 0.35,
+          "candidate_set_cap": 32
+        },
+        "safety": {
+          "root_cause_claimed": false,
+          "propagation_inferred": false,
+          "invalid_evidence_used_for_scoring": false,
+          "generic_component_or_mechanism_evidence_cannot_by_itself_identify_fault_mode": true,
+          "concurrent_faults_are_not_relabelled_as_alternatives": true
+        }
+      }
+    },
+    {
+      "case_id": "HYD_1140",
+      "result": {
+        "contract": "DOR-LOCALIZATION-RESULT/0.5",
+        "status": "SUPPORTED",
+        "reason": "all retained fault groups are individually resolved; concurrent faults across groups are allowed",
+        "fault_hypotheses": [
+          {
+            "fault_id": "accumulator_pressure_slightly_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_115_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_1140:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          },
+          {
+            "fault_id": "pump_internal_leakage_weak",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_weak",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_1140:pump:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "pump_condition"
+          }
+        ],
+        "all_scored_hypotheses": [
+          {
+            "fault_id": "pump_internal_leakage_weak",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_weak",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_1140:pump:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "pump_condition"
+          },
+          {
+            "fault_id": "accumulator_pressure_slightly_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_115_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_1140:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          },
+          {
+            "fault_id": "pump_internal_leakage_severe",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_severe",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_1140:pump:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_severely_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_100_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_1140:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_close_to_total_failure",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_90_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_1140:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          }
+        ],
+        "component_candidates": [
+          {
+            "component_id": "accumulator",
+            "score": 1.0,
+            "retained_fault_ids": [
+              "accumulator_pressure_slightly_reduced"
+            ]
+          },
+          {
+            "component_id": "pump",
+            "score": 1.0,
+            "retained_fault_ids": [
+              "pump_internal_leakage_weak"
+            ]
+          }
+        ],
+        "supported_fault_set": [
+          "accumulator_pressure_slightly_reduced",
+          "pump_internal_leakage_weak"
+        ],
+        "candidate_fault_sets": [
+          [
+            "accumulator_pressure_slightly_reduced",
+            "pump_internal_leakage_weak"
+          ]
+        ],
+        "ambiguous_exclusion_groups": {},
+        "evidence_summary": {
+          "total": 2,
+          "valid": 2,
+          "invalid_or_unsupported": 0
+        },
+        "policy": {
+          "min_support": 0.45,
+          "retain_margin": 0.08,
+          "max_contradiction_fraction": 0.35,
+          "candidate_set_cap": 32
+        },
+        "safety": {
+          "root_cause_claimed": false,
+          "propagation_inferred": false,
+          "invalid_evidence_used_for_scoring": false,
+          "generic_component_or_mechanism_evidence_cannot_by_itself_identify_fault_mode": true,
+          "concurrent_faults_are_not_relabelled_as_alternatives": true
+        }
+      }
+    },
+    {
+      "case_id": "HYD_1141",
+      "result": {
+        "contract": "DOR-LOCALIZATION-RESULT/0.5",
+        "status": "SUPPORTED",
+        "reason": "all retained fault groups are individually resolved; concurrent faults across groups are allowed",
+        "fault_hypotheses": [
+          {
+            "fault_id": "accumulator_pressure_slightly_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_115_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_1141:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          },
+          {
+            "fault_id": "pump_internal_leakage_weak",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_weak",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_1141:pump:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "pump_condition"
+          }
+        ],
+        "all_scored_hypotheses": [
+          {
+            "fault_id": "pump_internal_leakage_weak",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_weak",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_1141:pump:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "pump_condition"
+          },
+          {
+            "fault_id": "accumulator_pressure_slightly_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_115_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_1141:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          },
+          {
+            "fault_id": "pump_internal_leakage_severe",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_severe",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_1141:pump:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_severely_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_100_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_1141:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_close_to_total_failure",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_90_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_1141:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          }
+        ],
+        "component_candidates": [
+          {
+            "component_id": "accumulator",
+            "score": 1.0,
+            "retained_fault_ids": [
+              "accumulator_pressure_slightly_reduced"
+            ]
+          },
+          {
+            "component_id": "pump",
+            "score": 1.0,
+            "retained_fault_ids": [
+              "pump_internal_leakage_weak"
+            ]
+          }
+        ],
+        "supported_fault_set": [
+          "accumulator_pressure_slightly_reduced",
+          "pump_internal_leakage_weak"
+        ],
+        "candidate_fault_sets": [
+          [
+            "accumulator_pressure_slightly_reduced",
+            "pump_internal_leakage_weak"
+          ]
+        ],
+        "ambiguous_exclusion_groups": {},
+        "evidence_summary": {
+          "total": 2,
+          "valid": 2,
+          "invalid_or_unsupported": 0
+        },
+        "policy": {
+          "min_support": 0.45,
+          "retain_margin": 0.08,
+          "max_contradiction_fraction": 0.35,
+          "candidate_set_cap": 32
+        },
+        "safety": {
+          "root_cause_claimed": false,
+          "propagation_inferred": false,
+          "invalid_evidence_used_for_scoring": false,
+          "generic_component_or_mechanism_evidence_cannot_by_itself_identify_fault_mode": true,
+          "concurrent_faults_are_not_relabelled_as_alternatives": true
+        }
+      }
+    },
+    {
+      "case_id": "HYD_1142",
+      "result": {
+        "contract": "DOR-LOCALIZATION-RESULT/0.5",
+        "status": "SUPPORTED",
+        "reason": "all retained fault groups are individually resolved; concurrent faults across groups are allowed",
+        "fault_hypotheses": [
+          {
+            "fault_id": "accumulator_pressure_slightly_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_115_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_1142:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          },
+          {
+            "fault_id": "pump_internal_leakage_weak",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_weak",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_1142:pump:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "pump_condition"
+          }
+        ],
+        "all_scored_hypotheses": [
+          {
+            "fault_id": "pump_internal_leakage_weak",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_weak",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_1142:pump:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "pump_condition"
+          },
+          {
+            "fault_id": "accumulator_pressure_slightly_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_115_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_1142:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          },
+          {
+            "fault_id": "pump_internal_leakage_severe",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_severe",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_1142:pump:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_severely_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_100_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_1142:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_close_to_total_failure",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_90_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_1142:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          }
+        ],
+        "component_candidates": [
+          {
+            "component_id": "accumulator",
+            "score": 1.0,
+            "retained_fault_ids": [
+              "accumulator_pressure_slightly_reduced"
+            ]
+          },
+          {
+            "component_id": "pump",
+            "score": 1.0,
+            "retained_fault_ids": [
+              "pump_internal_leakage_weak"
+            ]
+          }
+        ],
+        "supported_fault_set": [
+          "accumulator_pressure_slightly_reduced",
+          "pump_internal_leakage_weak"
+        ],
+        "candidate_fault_sets": [
+          [
+            "accumulator_pressure_slightly_reduced",
+            "pump_internal_leakage_weak"
+          ]
+        ],
+        "ambiguous_exclusion_groups": {},
+        "evidence_summary": {
+          "total": 2,
+          "valid": 2,
+          "invalid_or_unsupported": 0
+        },
+        "policy": {
+          "min_support": 0.45,
+          "retain_margin": 0.08,
+          "max_contradiction_fraction": 0.35,
+          "candidate_set_cap": 32
+        },
+        "safety": {
+          "root_cause_claimed": false,
+          "propagation_inferred": false,
+          "invalid_evidence_used_for_scoring": false,
+          "generic_component_or_mechanism_evidence_cannot_by_itself_identify_fault_mode": true,
+          "concurrent_faults_are_not_relabelled_as_alternatives": true
+        }
+      }
+    },
+    {
+      "case_id": "HYD_1143",
+      "result": {
+        "contract": "DOR-LOCALIZATION-RESULT/0.5",
+        "status": "SUPPORTED",
+        "reason": "all retained fault groups are individually resolved; concurrent faults across groups are allowed",
+        "fault_hypotheses": [
+          {
+            "fault_id": "accumulator_pressure_slightly_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_115_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_1143:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          },
+          {
+            "fault_id": "pump_internal_leakage_weak",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_weak",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_1143:pump:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "pump_condition"
+          }
+        ],
+        "all_scored_hypotheses": [
+          {
+            "fault_id": "pump_internal_leakage_weak",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_weak",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_1143:pump:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "pump_condition"
+          },
+          {
+            "fault_id": "accumulator_pressure_slightly_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_115_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_1143:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          },
+          {
+            "fault_id": "pump_internal_leakage_severe",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_severe",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_1143:pump:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_severely_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_100_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_1143:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_close_to_total_failure",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_90_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_1143:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          }
+        ],
+        "component_candidates": [
+          {
+            "component_id": "accumulator",
+            "score": 1.0,
+            "retained_fault_ids": [
+              "accumulator_pressure_slightly_reduced"
+            ]
+          },
+          {
+            "component_id": "pump",
+            "score": 1.0,
+            "retained_fault_ids": [
+              "pump_internal_leakage_weak"
+            ]
+          }
+        ],
+        "supported_fault_set": [
+          "accumulator_pressure_slightly_reduced",
+          "pump_internal_leakage_weak"
+        ],
+        "candidate_fault_sets": [
+          [
+            "accumulator_pressure_slightly_reduced",
+            "pump_internal_leakage_weak"
+          ]
+        ],
+        "ambiguous_exclusion_groups": {},
+        "evidence_summary": {
+          "total": 2,
+          "valid": 2,
+          "invalid_or_unsupported": 0
+        },
+        "policy": {
+          "min_support": 0.45,
+          "retain_margin": 0.08,
+          "max_contradiction_fraction": 0.35,
+          "candidate_set_cap": 32
+        },
+        "safety": {
+          "root_cause_claimed": false,
+          "propagation_inferred": false,
+          "invalid_evidence_used_for_scoring": false,
+          "generic_component_or_mechanism_evidence_cannot_by_itself_identify_fault_mode": true,
+          "concurrent_faults_are_not_relabelled_as_alternatives": true
+        }
+      }
+    },
+    {
+      "case_id": "HYD_2125",
+      "result": {
+        "contract": "DOR-LOCALIZATION-RESULT/0.5",
+        "status": "SUPPORTED",
+        "reason": "all retained fault groups are individually resolved; concurrent faults across groups are allowed",
+        "fault_hypotheses": [
+          {
+            "fault_id": "accumulator_pressure_close_to_total_failure",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_90_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_2125:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          },
+          {
+            "fault_id": "pump_internal_leakage_weak",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_weak",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_2125:pump:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "pump_condition"
+          }
+        ],
+        "all_scored_hypotheses": [
+          {
+            "fault_id": "pump_internal_leakage_weak",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_weak",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_2125:pump:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "pump_condition"
+          },
+          {
+            "fault_id": "accumulator_pressure_close_to_total_failure",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_90_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_2125:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          },
+          {
+            "fault_id": "pump_internal_leakage_severe",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_severe",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2125:pump:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_slightly_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_115_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2125:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_severely_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_100_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2125:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          }
+        ],
+        "component_candidates": [
+          {
+            "component_id": "accumulator",
+            "score": 1.0,
+            "retained_fault_ids": [
+              "accumulator_pressure_close_to_total_failure"
+            ]
+          },
+          {
+            "component_id": "pump",
+            "score": 1.0,
+            "retained_fault_ids": [
+              "pump_internal_leakage_weak"
+            ]
+          }
+        ],
+        "supported_fault_set": [
+          "accumulator_pressure_close_to_total_failure",
+          "pump_internal_leakage_weak"
+        ],
+        "candidate_fault_sets": [
+          [
+            "accumulator_pressure_close_to_total_failure",
+            "pump_internal_leakage_weak"
+          ]
+        ],
+        "ambiguous_exclusion_groups": {},
+        "evidence_summary": {
+          "total": 2,
+          "valid": 2,
+          "invalid_or_unsupported": 0
+        },
+        "policy": {
+          "min_support": 0.45,
+          "retain_margin": 0.08,
+          "max_contradiction_fraction": 0.35,
+          "candidate_set_cap": 32
+        },
+        "safety": {
+          "root_cause_claimed": false,
+          "propagation_inferred": false,
+          "invalid_evidence_used_for_scoring": false,
+          "generic_component_or_mechanism_evidence_cannot_by_itself_identify_fault_mode": true,
+          "concurrent_faults_are_not_relabelled_as_alternatives": true
+        }
+      }
+    },
+    {
+      "case_id": "HYD_2126",
+      "result": {
+        "contract": "DOR-LOCALIZATION-RESULT/0.5",
+        "status": "SUPPORTED",
+        "reason": "all retained fault groups are individually resolved; concurrent faults across groups are allowed",
+        "fault_hypotheses": [
+          {
+            "fault_id": "accumulator_pressure_close_to_total_failure",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_90_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_2126:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          },
+          {
+            "fault_id": "pump_internal_leakage_weak",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_weak",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_2126:pump:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "pump_condition"
+          }
+        ],
+        "all_scored_hypotheses": [
+          {
+            "fault_id": "pump_internal_leakage_weak",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_weak",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_2126:pump:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "pump_condition"
+          },
+          {
+            "fault_id": "accumulator_pressure_close_to_total_failure",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_90_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_2126:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          },
+          {
+            "fault_id": "pump_internal_leakage_severe",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_severe",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2126:pump:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_slightly_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_115_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2126:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_severely_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_100_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2126:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          }
+        ],
+        "component_candidates": [
+          {
+            "component_id": "accumulator",
+            "score": 1.0,
+            "retained_fault_ids": [
+              "accumulator_pressure_close_to_total_failure"
+            ]
+          },
+          {
+            "component_id": "pump",
+            "score": 1.0,
+            "retained_fault_ids": [
+              "pump_internal_leakage_weak"
+            ]
+          }
+        ],
+        "supported_fault_set": [
+          "accumulator_pressure_close_to_total_failure",
+          "pump_internal_leakage_weak"
+        ],
+        "candidate_fault_sets": [
+          [
+            "accumulator_pressure_close_to_total_failure",
+            "pump_internal_leakage_weak"
+          ]
+        ],
+        "ambiguous_exclusion_groups": {},
+        "evidence_summary": {
+          "total": 2,
+          "valid": 2,
+          "invalid_or_unsupported": 0
+        },
+        "policy": {
+          "min_support": 0.45,
+          "retain_margin": 0.08,
+          "max_contradiction_fraction": 0.35,
+          "candidate_set_cap": 32
+        },
+        "safety": {
+          "root_cause_claimed": false,
+          "propagation_inferred": false,
+          "invalid_evidence_used_for_scoring": false,
+          "generic_component_or_mechanism_evidence_cannot_by_itself_identify_fault_mode": true,
+          "concurrent_faults_are_not_relabelled_as_alternatives": true
+        }
+      }
+    },
+    {
+      "case_id": "HYD_2127",
+      "result": {
+        "contract": "DOR-LOCALIZATION-RESULT/0.5",
+        "status": "SUPPORTED",
+        "reason": "all retained fault groups are individually resolved; concurrent faults across groups are allowed",
+        "fault_hypotheses": [
+          {
+            "fault_id": "accumulator_pressure_close_to_total_failure",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_90_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_2127:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          },
+          {
+            "fault_id": "pump_internal_leakage_weak",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_weak",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_2127:pump:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "pump_condition"
+          }
+        ],
+        "all_scored_hypotheses": [
+          {
+            "fault_id": "pump_internal_leakage_weak",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_weak",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_2127:pump:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "pump_condition"
+          },
+          {
+            "fault_id": "accumulator_pressure_close_to_total_failure",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_90_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_2127:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          },
+          {
+            "fault_id": "pump_internal_leakage_severe",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_severe",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2127:pump:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_slightly_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_115_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2127:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_severely_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_100_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2127:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          }
+        ],
+        "component_candidates": [
+          {
+            "component_id": "accumulator",
+            "score": 1.0,
+            "retained_fault_ids": [
+              "accumulator_pressure_close_to_total_failure"
+            ]
+          },
+          {
+            "component_id": "pump",
+            "score": 1.0,
+            "retained_fault_ids": [
+              "pump_internal_leakage_weak"
+            ]
+          }
+        ],
+        "supported_fault_set": [
+          "accumulator_pressure_close_to_total_failure",
+          "pump_internal_leakage_weak"
+        ],
+        "candidate_fault_sets": [
+          [
+            "accumulator_pressure_close_to_total_failure",
+            "pump_internal_leakage_weak"
+          ]
+        ],
+        "ambiguous_exclusion_groups": {},
+        "evidence_summary": {
+          "total": 2,
+          "valid": 2,
+          "invalid_or_unsupported": 0
+        },
+        "policy": {
+          "min_support": 0.45,
+          "retain_margin": 0.08,
+          "max_contradiction_fraction": 0.35,
+          "candidate_set_cap": 32
+        },
+        "safety": {
+          "root_cause_claimed": false,
+          "propagation_inferred": false,
+          "invalid_evidence_used_for_scoring": false,
+          "generic_component_or_mechanism_evidence_cannot_by_itself_identify_fault_mode": true,
+          "concurrent_faults_are_not_relabelled_as_alternatives": true
+        }
+      }
+    },
+    {
+      "case_id": "HYD_2128",
+      "result": {
+        "contract": "DOR-LOCALIZATION-RESULT/0.5",
+        "status": "SUPPORTED",
+        "reason": "all retained fault groups are individually resolved; concurrent faults across groups are allowed",
+        "fault_hypotheses": [
+          {
+            "fault_id": "accumulator_pressure_close_to_total_failure",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_90_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_2128:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          },
+          {
+            "fault_id": "pump_internal_leakage_weak",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_weak",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_2128:pump:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "pump_condition"
+          }
+        ],
+        "all_scored_hypotheses": [
+          {
+            "fault_id": "pump_internal_leakage_weak",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_weak",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_2128:pump:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "pump_condition"
+          },
+          {
+            "fault_id": "accumulator_pressure_close_to_total_failure",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_90_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_2128:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          },
+          {
+            "fault_id": "pump_internal_leakage_severe",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_severe",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2128:pump:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_slightly_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_115_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2128:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_severely_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_100_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2128:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          }
+        ],
+        "component_candidates": [
+          {
+            "component_id": "accumulator",
+            "score": 1.0,
+            "retained_fault_ids": [
+              "accumulator_pressure_close_to_total_failure"
+            ]
+          },
+          {
+            "component_id": "pump",
+            "score": 1.0,
+            "retained_fault_ids": [
+              "pump_internal_leakage_weak"
+            ]
+          }
+        ],
+        "supported_fault_set": [
+          "accumulator_pressure_close_to_total_failure",
+          "pump_internal_leakage_weak"
+        ],
+        "candidate_fault_sets": [
+          [
+            "accumulator_pressure_close_to_total_failure",
+            "pump_internal_leakage_weak"
+          ]
+        ],
+        "ambiguous_exclusion_groups": {},
+        "evidence_summary": {
+          "total": 2,
+          "valid": 2,
+          "invalid_or_unsupported": 0
+        },
+        "policy": {
+          "min_support": 0.45,
+          "retain_margin": 0.08,
+          "max_contradiction_fraction": 0.35,
+          "candidate_set_cap": 32
+        },
+        "safety": {
+          "root_cause_claimed": false,
+          "propagation_inferred": false,
+          "invalid_evidence_used_for_scoring": false,
+          "generic_component_or_mechanism_evidence_cannot_by_itself_identify_fault_mode": true,
+          "concurrent_faults_are_not_relabelled_as_alternatives": true
+        }
+      }
+    },
+    {
+      "case_id": "HYD_2129",
+      "result": {
+        "contract": "DOR-LOCALIZATION-RESULT/0.5",
+        "status": "SUPPORTED",
+        "reason": "all retained fault groups are individually resolved; concurrent faults across groups are allowed",
+        "fault_hypotheses": [
+          {
+            "fault_id": "accumulator_pressure_close_to_total_failure",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_90_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_2129:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          },
+          {
+            "fault_id": "pump_internal_leakage_weak",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_weak",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_2129:pump:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "pump_condition"
+          }
+        ],
+        "all_scored_hypotheses": [
+          {
+            "fault_id": "pump_internal_leakage_weak",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_weak",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_2129:pump:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "pump_condition"
+          },
+          {
+            "fault_id": "accumulator_pressure_close_to_total_failure",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_90_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_2129:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          },
+          {
+            "fault_id": "pump_internal_leakage_severe",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_severe",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2129:pump:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_slightly_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_115_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2129:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_severely_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_100_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2129:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          }
+        ],
+        "component_candidates": [
+          {
+            "component_id": "accumulator",
+            "score": 1.0,
+            "retained_fault_ids": [
+              "accumulator_pressure_close_to_total_failure"
+            ]
+          },
+          {
+            "component_id": "pump",
+            "score": 1.0,
+            "retained_fault_ids": [
+              "pump_internal_leakage_weak"
+            ]
+          }
+        ],
+        "supported_fault_set": [
+          "accumulator_pressure_close_to_total_failure",
+          "pump_internal_leakage_weak"
+        ],
+        "candidate_fault_sets": [
+          [
+            "accumulator_pressure_close_to_total_failure",
+            "pump_internal_leakage_weak"
+          ]
+        ],
+        "ambiguous_exclusion_groups": {},
+        "evidence_summary": {
+          "total": 2,
+          "valid": 2,
+          "invalid_or_unsupported": 0
+        },
+        "policy": {
+          "min_support": 0.45,
+          "retain_margin": 0.08,
+          "max_contradiction_fraction": 0.35,
+          "candidate_set_cap": 32
+        },
+        "safety": {
+          "root_cause_claimed": false,
+          "propagation_inferred": false,
+          "invalid_evidence_used_for_scoring": false,
+          "generic_component_or_mechanism_evidence_cannot_by_itself_identify_fault_mode": true,
+          "concurrent_faults_are_not_relabelled_as_alternatives": true
+        }
+      }
+    },
+    {
+      "case_id": "HYD_2132",
+      "result": {
+        "contract": "DOR-LOCALIZATION-RESULT/0.5",
+        "status": "SUPPORTED",
+        "reason": "all retained fault groups are individually resolved; concurrent faults across groups are allowed",
+        "fault_hypotheses": [
+          {
+            "fault_id": "accumulator_pressure_close_to_total_failure",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_90_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_2132:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          },
+          {
+            "fault_id": "pump_internal_leakage_weak",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_weak",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_2132:pump:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "pump_condition"
+          }
+        ],
+        "all_scored_hypotheses": [
+          {
+            "fault_id": "pump_internal_leakage_weak",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_weak",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_2132:pump:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "pump_condition"
+          },
+          {
+            "fault_id": "accumulator_pressure_close_to_total_failure",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_90_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_2132:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          },
+          {
+            "fault_id": "pump_internal_leakage_severe",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_severe",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2132:pump:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_slightly_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_115_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2132:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_severely_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_100_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2132:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          }
+        ],
+        "component_candidates": [
+          {
+            "component_id": "accumulator",
+            "score": 1.0,
+            "retained_fault_ids": [
+              "accumulator_pressure_close_to_total_failure"
+            ]
+          },
+          {
+            "component_id": "pump",
+            "score": 1.0,
+            "retained_fault_ids": [
+              "pump_internal_leakage_weak"
+            ]
+          }
+        ],
+        "supported_fault_set": [
+          "accumulator_pressure_close_to_total_failure",
+          "pump_internal_leakage_weak"
+        ],
+        "candidate_fault_sets": [
+          [
+            "accumulator_pressure_close_to_total_failure",
+            "pump_internal_leakage_weak"
+          ]
+        ],
+        "ambiguous_exclusion_groups": {},
+        "evidence_summary": {
+          "total": 2,
+          "valid": 2,
+          "invalid_or_unsupported": 0
+        },
+        "policy": {
+          "min_support": 0.45,
+          "retain_margin": 0.08,
+          "max_contradiction_fraction": 0.35,
+          "candidate_set_cap": 32
+        },
+        "safety": {
+          "root_cause_claimed": false,
+          "propagation_inferred": false,
+          "invalid_evidence_used_for_scoring": false,
+          "generic_component_or_mechanism_evidence_cannot_by_itself_identify_fault_mode": true,
+          "concurrent_faults_are_not_relabelled_as_alternatives": true
+        }
+      }
+    },
+    {
+      "case_id": "HYD_2133",
+      "result": {
+        "contract": "DOR-LOCALIZATION-RESULT/0.5",
+        "status": "SUPPORTED",
+        "reason": "all retained fault groups are individually resolved; concurrent faults across groups are allowed",
+        "fault_hypotheses": [
+          {
+            "fault_id": "accumulator_pressure_close_to_total_failure",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_90_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_2133:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          },
+          {
+            "fault_id": "pump_internal_leakage_weak",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_weak",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_2133:pump:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "pump_condition"
+          }
+        ],
+        "all_scored_hypotheses": [
+          {
+            "fault_id": "pump_internal_leakage_weak",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_weak",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_2133:pump:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "pump_condition"
+          },
+          {
+            "fault_id": "accumulator_pressure_close_to_total_failure",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_90_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_2133:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          },
+          {
+            "fault_id": "pump_internal_leakage_severe",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_severe",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2133:pump:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_slightly_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_115_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2133:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_severely_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_100_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2133:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          }
+        ],
+        "component_candidates": [
+          {
+            "component_id": "accumulator",
+            "score": 1.0,
+            "retained_fault_ids": [
+              "accumulator_pressure_close_to_total_failure"
+            ]
+          },
+          {
+            "component_id": "pump",
+            "score": 1.0,
+            "retained_fault_ids": [
+              "pump_internal_leakage_weak"
+            ]
+          }
+        ],
+        "supported_fault_set": [
+          "accumulator_pressure_close_to_total_failure",
+          "pump_internal_leakage_weak"
+        ],
+        "candidate_fault_sets": [
+          [
+            "accumulator_pressure_close_to_total_failure",
+            "pump_internal_leakage_weak"
+          ]
+        ],
+        "ambiguous_exclusion_groups": {},
+        "evidence_summary": {
+          "total": 2,
+          "valid": 2,
+          "invalid_or_unsupported": 0
+        },
+        "policy": {
+          "min_support": 0.45,
+          "retain_margin": 0.08,
+          "max_contradiction_fraction": 0.35,
+          "candidate_set_cap": 32
+        },
+        "safety": {
+          "root_cause_claimed": false,
+          "propagation_inferred": false,
+          "invalid_evidence_used_for_scoring": false,
+          "generic_component_or_mechanism_evidence_cannot_by_itself_identify_fault_mode": true,
+          "concurrent_faults_are_not_relabelled_as_alternatives": true
+        }
+      }
+    },
+    {
+      "case_id": "HYD_2166",
+      "result": {
+        "contract": "DOR-LOCALIZATION-RESULT/0.5",
+        "status": "SUPPORTED",
+        "reason": "all retained fault groups are individually resolved; concurrent faults across groups are allowed",
+        "fault_hypotheses": [
+          {
+            "fault_id": "accumulator_pressure_close_to_total_failure",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_90_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_2166:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          }
+        ],
+        "all_scored_hypotheses": [
+          {
+            "fault_id": "accumulator_pressure_close_to_total_failure",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_90_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_2166:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          },
+          {
+            "fault_id": "pump_internal_leakage_weak",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_weak",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2166:pump:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "pump_internal_leakage_severe",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_severe",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2166:pump:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_slightly_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_115_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2166:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_severely_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_100_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2166:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          }
+        ],
+        "component_candidates": [
+          {
+            "component_id": "accumulator",
+            "score": 1.0,
+            "retained_fault_ids": [
+              "accumulator_pressure_close_to_total_failure"
+            ]
+          }
+        ],
+        "supported_fault_set": [
+          "accumulator_pressure_close_to_total_failure"
+        ],
+        "candidate_fault_sets": [
+          [
+            "accumulator_pressure_close_to_total_failure"
+          ]
+        ],
+        "ambiguous_exclusion_groups": {},
+        "evidence_summary": {
+          "total": 2,
+          "valid": 2,
+          "invalid_or_unsupported": 0
+        },
+        "policy": {
+          "min_support": 0.45,
+          "retain_margin": 0.08,
+          "max_contradiction_fraction": 0.35,
+          "candidate_set_cap": 32
+        },
+        "safety": {
+          "root_cause_claimed": false,
+          "propagation_inferred": false,
+          "invalid_evidence_used_for_scoring": false,
+          "generic_component_or_mechanism_evidence_cannot_by_itself_identify_fault_mode": true,
+          "concurrent_faults_are_not_relabelled_as_alternatives": true
+        }
+      }
+    },
+    {
+      "case_id": "HYD_2167",
+      "result": {
+        "contract": "DOR-LOCALIZATION-RESULT/0.5",
+        "status": "SUPPORTED",
+        "reason": "all retained fault groups are individually resolved; concurrent faults across groups are allowed",
+        "fault_hypotheses": [
+          {
+            "fault_id": "accumulator_pressure_close_to_total_failure",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_90_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_2167:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          }
+        ],
+        "all_scored_hypotheses": [
+          {
+            "fault_id": "accumulator_pressure_close_to_total_failure",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_90_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_2167:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          },
+          {
+            "fault_id": "pump_internal_leakage_weak",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_weak",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2167:pump:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "pump_internal_leakage_severe",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_severe",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2167:pump:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_slightly_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_115_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2167:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_severely_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_100_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2167:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          }
+        ],
+        "component_candidates": [
+          {
+            "component_id": "accumulator",
+            "score": 1.0,
+            "retained_fault_ids": [
+              "accumulator_pressure_close_to_total_failure"
+            ]
+          }
+        ],
+        "supported_fault_set": [
+          "accumulator_pressure_close_to_total_failure"
+        ],
+        "candidate_fault_sets": [
+          [
+            "accumulator_pressure_close_to_total_failure"
+          ]
+        ],
+        "ambiguous_exclusion_groups": {},
+        "evidence_summary": {
+          "total": 2,
+          "valid": 2,
+          "invalid_or_unsupported": 0
+        },
+        "policy": {
+          "min_support": 0.45,
+          "retain_margin": 0.08,
+          "max_contradiction_fraction": 0.35,
+          "candidate_set_cap": 32
+        },
+        "safety": {
+          "root_cause_claimed": false,
+          "propagation_inferred": false,
+          "invalid_evidence_used_for_scoring": false,
+          "generic_component_or_mechanism_evidence_cannot_by_itself_identify_fault_mode": true,
+          "concurrent_faults_are_not_relabelled_as_alternatives": true
+        }
+      }
+    },
+    {
+      "case_id": "HYD_2168",
+      "result": {
+        "contract": "DOR-LOCALIZATION-RESULT/0.5",
+        "status": "SUPPORTED",
+        "reason": "all retained fault groups are individually resolved; concurrent faults across groups are allowed",
+        "fault_hypotheses": [
+          {
+            "fault_id": "accumulator_pressure_close_to_total_failure",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_90_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_2168:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          }
+        ],
+        "all_scored_hypotheses": [
+          {
+            "fault_id": "accumulator_pressure_close_to_total_failure",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_90_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_2168:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          },
+          {
+            "fault_id": "pump_internal_leakage_weak",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_weak",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2168:pump:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "pump_internal_leakage_severe",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_severe",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2168:pump:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_slightly_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_115_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2168:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_severely_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_100_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2168:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          }
+        ],
+        "component_candidates": [
+          {
+            "component_id": "accumulator",
+            "score": 1.0,
+            "retained_fault_ids": [
+              "accumulator_pressure_close_to_total_failure"
+            ]
+          }
+        ],
+        "supported_fault_set": [
+          "accumulator_pressure_close_to_total_failure"
+        ],
+        "candidate_fault_sets": [
+          [
+            "accumulator_pressure_close_to_total_failure"
+          ]
+        ],
+        "ambiguous_exclusion_groups": {},
+        "evidence_summary": {
+          "total": 2,
+          "valid": 2,
+          "invalid_or_unsupported": 0
+        },
+        "policy": {
+          "min_support": 0.45,
+          "retain_margin": 0.08,
+          "max_contradiction_fraction": 0.35,
+          "candidate_set_cap": 32
+        },
+        "safety": {
+          "root_cause_claimed": false,
+          "propagation_inferred": false,
+          "invalid_evidence_used_for_scoring": false,
+          "generic_component_or_mechanism_evidence_cannot_by_itself_identify_fault_mode": true,
+          "concurrent_faults_are_not_relabelled_as_alternatives": true
+        }
+      }
+    },
+    {
+      "case_id": "HYD_2169",
+      "result": {
+        "contract": "DOR-LOCALIZATION-RESULT/0.5",
+        "status": "SUPPORTED",
+        "reason": "all retained fault groups are individually resolved; concurrent faults across groups are allowed",
+        "fault_hypotheses": [
+          {
+            "fault_id": "accumulator_pressure_close_to_total_failure",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_90_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_2169:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          }
+        ],
+        "all_scored_hypotheses": [
+          {
+            "fault_id": "accumulator_pressure_close_to_total_failure",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_90_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_2169:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          },
+          {
+            "fault_id": "pump_internal_leakage_weak",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_weak",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2169:pump:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "pump_internal_leakage_severe",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_severe",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2169:pump:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_slightly_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_115_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2169:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_severely_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_100_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2169:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          }
+        ],
+        "component_candidates": [
+          {
+            "component_id": "accumulator",
+            "score": 1.0,
+            "retained_fault_ids": [
+              "accumulator_pressure_close_to_total_failure"
+            ]
+          }
+        ],
+        "supported_fault_set": [
+          "accumulator_pressure_close_to_total_failure"
+        ],
+        "candidate_fault_sets": [
+          [
+            "accumulator_pressure_close_to_total_failure"
+          ]
+        ],
+        "ambiguous_exclusion_groups": {},
+        "evidence_summary": {
+          "total": 2,
+          "valid": 2,
+          "invalid_or_unsupported": 0
+        },
+        "policy": {
+          "min_support": 0.45,
+          "retain_margin": 0.08,
+          "max_contradiction_fraction": 0.35,
+          "candidate_set_cap": 32
+        },
+        "safety": {
+          "root_cause_claimed": false,
+          "propagation_inferred": false,
+          "invalid_evidence_used_for_scoring": false,
+          "generic_component_or_mechanism_evidence_cannot_by_itself_identify_fault_mode": true,
+          "concurrent_faults_are_not_relabelled_as_alternatives": true
+        }
+      }
+    },
+    {
+      "case_id": "HYD_2170",
+      "result": {
+        "contract": "DOR-LOCALIZATION-RESULT/0.5",
+        "status": "SUPPORTED",
+        "reason": "all retained fault groups are individually resolved; concurrent faults across groups are allowed",
+        "fault_hypotheses": [
+          {
+            "fault_id": "accumulator_pressure_close_to_total_failure",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_90_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_2170:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          }
+        ],
+        "all_scored_hypotheses": [
+          {
+            "fault_id": "accumulator_pressure_close_to_total_failure",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_90_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_2170:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          },
+          {
+            "fault_id": "pump_internal_leakage_weak",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_weak",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2170:pump:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "pump_internal_leakage_severe",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_severe",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2170:pump:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_slightly_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_115_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2170:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_severely_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_100_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2170:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          }
+        ],
+        "component_candidates": [
+          {
+            "component_id": "accumulator",
+            "score": 1.0,
+            "retained_fault_ids": [
+              "accumulator_pressure_close_to_total_failure"
+            ]
+          }
+        ],
+        "supported_fault_set": [
+          "accumulator_pressure_close_to_total_failure"
+        ],
+        "candidate_fault_sets": [
+          [
+            "accumulator_pressure_close_to_total_failure"
+          ]
+        ],
+        "ambiguous_exclusion_groups": {},
+        "evidence_summary": {
+          "total": 2,
+          "valid": 2,
+          "invalid_or_unsupported": 0
+        },
+        "policy": {
+          "min_support": 0.45,
+          "retain_margin": 0.08,
+          "max_contradiction_fraction": 0.35,
+          "candidate_set_cap": 32
+        },
+        "safety": {
+          "root_cause_claimed": false,
+          "propagation_inferred": false,
+          "invalid_evidence_used_for_scoring": false,
+          "generic_component_or_mechanism_evidence_cannot_by_itself_identify_fault_mode": true,
+          "concurrent_faults_are_not_relabelled_as_alternatives": true
+        }
+      }
+    },
+    {
+      "case_id": "HYD_2171",
+      "result": {
+        "contract": "DOR-LOCALIZATION-RESULT/0.5",
+        "status": "SUPPORTED",
+        "reason": "all retained fault groups are individually resolved; concurrent faults across groups are allowed",
+        "fault_hypotheses": [
+          {
+            "fault_id": "accumulator_pressure_close_to_total_failure",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_90_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_2171:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          }
+        ],
+        "all_scored_hypotheses": [
+          {
+            "fault_id": "accumulator_pressure_close_to_total_failure",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_90_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_2171:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          },
+          {
+            "fault_id": "pump_internal_leakage_weak",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_weak",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2171:pump:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "pump_internal_leakage_severe",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_severe",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2171:pump:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_slightly_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_115_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2171:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_severely_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_100_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2171:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          }
+        ],
+        "component_candidates": [
+          {
+            "component_id": "accumulator",
+            "score": 1.0,
+            "retained_fault_ids": [
+              "accumulator_pressure_close_to_total_failure"
+            ]
+          }
+        ],
+        "supported_fault_set": [
+          "accumulator_pressure_close_to_total_failure"
+        ],
+        "candidate_fault_sets": [
+          [
+            "accumulator_pressure_close_to_total_failure"
+          ]
+        ],
+        "ambiguous_exclusion_groups": {},
+        "evidence_summary": {
+          "total": 2,
+          "valid": 2,
+          "invalid_or_unsupported": 0
+        },
+        "policy": {
+          "min_support": 0.45,
+          "retain_margin": 0.08,
+          "max_contradiction_fraction": 0.35,
+          "candidate_set_cap": 32
+        },
+        "safety": {
+          "root_cause_claimed": false,
+          "propagation_inferred": false,
+          "invalid_evidence_used_for_scoring": false,
+          "generic_component_or_mechanism_evidence_cannot_by_itself_identify_fault_mode": true,
+          "concurrent_faults_are_not_relabelled_as_alternatives": true
+        }
+      }
+    },
+    {
+      "case_id": "HYD_2172",
+      "result": {
+        "contract": "DOR-LOCALIZATION-RESULT/0.5",
+        "status": "SUPPORTED",
+        "reason": "all retained fault groups are individually resolved; concurrent faults across groups are allowed",
+        "fault_hypotheses": [
+          {
+            "fault_id": "accumulator_pressure_close_to_total_failure",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_90_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_2172:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          }
+        ],
+        "all_scored_hypotheses": [
+          {
+            "fault_id": "accumulator_pressure_close_to_total_failure",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_90_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_2172:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          },
+          {
+            "fault_id": "pump_internal_leakage_weak",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_weak",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2172:pump:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "pump_internal_leakage_severe",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_severe",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2172:pump:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_slightly_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_115_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2172:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_severely_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_100_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2172:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          }
+        ],
+        "component_candidates": [
+          {
+            "component_id": "accumulator",
+            "score": 1.0,
+            "retained_fault_ids": [
+              "accumulator_pressure_close_to_total_failure"
+            ]
+          }
+        ],
+        "supported_fault_set": [
+          "accumulator_pressure_close_to_total_failure"
+        ],
+        "candidate_fault_sets": [
+          [
+            "accumulator_pressure_close_to_total_failure"
+          ]
+        ],
+        "ambiguous_exclusion_groups": {},
+        "evidence_summary": {
+          "total": 2,
+          "valid": 2,
+          "invalid_or_unsupported": 0
+        },
+        "policy": {
+          "min_support": 0.45,
+          "retain_margin": 0.08,
+          "max_contradiction_fraction": 0.35,
+          "candidate_set_cap": 32
+        },
+        "safety": {
+          "root_cause_claimed": false,
+          "propagation_inferred": false,
+          "invalid_evidence_used_for_scoring": false,
+          "generic_component_or_mechanism_evidence_cannot_by_itself_identify_fault_mode": true,
+          "concurrent_faults_are_not_relabelled_as_alternatives": true
+        }
+      }
+    },
+    {
+      "case_id": "HYD_2173",
+      "result": {
+        "contract": "DOR-LOCALIZATION-RESULT/0.5",
+        "status": "SUPPORTED",
+        "reason": "all retained fault groups are individually resolved; concurrent faults across groups are allowed",
+        "fault_hypotheses": [
+          {
+            "fault_id": "accumulator_pressure_close_to_total_failure",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_90_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_2173:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          }
+        ],
+        "all_scored_hypotheses": [
+          {
+            "fault_id": "accumulator_pressure_close_to_total_failure",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_90_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_2173:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          },
+          {
+            "fault_id": "pump_internal_leakage_weak",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_weak",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2173:pump:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "pump_internal_leakage_severe",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_severe",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2173:pump:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_slightly_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_115_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2173:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_severely_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_100_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2173:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          }
+        ],
+        "component_candidates": [
+          {
+            "component_id": "accumulator",
+            "score": 1.0,
+            "retained_fault_ids": [
+              "accumulator_pressure_close_to_total_failure"
+            ]
+          }
+        ],
+        "supported_fault_set": [
+          "accumulator_pressure_close_to_total_failure"
+        ],
+        "candidate_fault_sets": [
+          [
+            "accumulator_pressure_close_to_total_failure"
+          ]
+        ],
+        "ambiguous_exclusion_groups": {},
+        "evidence_summary": {
+          "total": 2,
+          "valid": 2,
+          "invalid_or_unsupported": 0
+        },
+        "policy": {
+          "min_support": 0.45,
+          "retain_margin": 0.08,
+          "max_contradiction_fraction": 0.35,
+          "candidate_set_cap": 32
+        },
+        "safety": {
+          "root_cause_claimed": false,
+          "propagation_inferred": false,
+          "invalid_evidence_used_for_scoring": false,
+          "generic_component_or_mechanism_evidence_cannot_by_itself_identify_fault_mode": true,
+          "concurrent_faults_are_not_relabelled_as_alternatives": true
+        }
+      }
+    },
+    {
+      "case_id": "HYD_2174",
+      "result": {
+        "contract": "DOR-LOCALIZATION-RESULT/0.5",
+        "status": "SUPPORTED",
+        "reason": "all retained fault groups are individually resolved; concurrent faults across groups are allowed",
+        "fault_hypotheses": [
+          {
+            "fault_id": "accumulator_pressure_close_to_total_failure",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_90_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_2174:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          }
+        ],
+        "all_scored_hypotheses": [
+          {
+            "fault_id": "accumulator_pressure_close_to_total_failure",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_90_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_2174:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          },
+          {
+            "fault_id": "pump_internal_leakage_weak",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_weak",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2174:pump:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "pump_internal_leakage_severe",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_severe",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2174:pump:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_slightly_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_115_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2174:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_severely_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_100_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2174:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          }
+        ],
+        "component_candidates": [
+          {
+            "component_id": "accumulator",
+            "score": 1.0,
+            "retained_fault_ids": [
+              "accumulator_pressure_close_to_total_failure"
+            ]
+          }
+        ],
+        "supported_fault_set": [
+          "accumulator_pressure_close_to_total_failure"
+        ],
+        "candidate_fault_sets": [
+          [
+            "accumulator_pressure_close_to_total_failure"
+          ]
+        ],
+        "ambiguous_exclusion_groups": {},
+        "evidence_summary": {
+          "total": 2,
+          "valid": 2,
+          "invalid_or_unsupported": 0
+        },
+        "policy": {
+          "min_support": 0.45,
+          "retain_margin": 0.08,
+          "max_contradiction_fraction": 0.35,
+          "candidate_set_cap": 32
+        },
+        "safety": {
+          "root_cause_claimed": false,
+          "propagation_inferred": false,
+          "invalid_evidence_used_for_scoring": false,
+          "generic_component_or_mechanism_evidence_cannot_by_itself_identify_fault_mode": true,
+          "concurrent_faults_are_not_relabelled_as_alternatives": true
+        }
+      }
+    },
+    {
+      "case_id": "HYD_2175",
+      "result": {
+        "contract": "DOR-LOCALIZATION-RESULT/0.5",
+        "status": "SUPPORTED",
+        "reason": "all retained fault groups are individually resolved; concurrent faults across groups are allowed",
+        "fault_hypotheses": [
+          {
+            "fault_id": "accumulator_pressure_close_to_total_failure",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_90_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_2175:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          }
+        ],
+        "all_scored_hypotheses": [
+          {
+            "fault_id": "accumulator_pressure_close_to_total_failure",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_90_bar",
+            "category": "PARAMETRIC",
+            "score": 1.0,
+            "explicit_support": 1.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 0.0,
+            "matched_evidence": [
+              "HYD_2175:accumulator:class"
+            ],
+            "contradicting_evidence": [],
+            "missing_expected": [],
+            "eligible": true,
+            "exclusion_group": "accumulator_condition"
+          },
+          {
+            "fault_id": "pump_internal_leakage_weak",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_weak",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2175:pump:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "pump_internal_leakage_severe",
+            "target_component_id": "pump",
+            "fault_mode": "internal_leakage_severe",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2175:pump:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_slightly_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_115_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2175:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          },
+          {
+            "fault_id": "accumulator_pressure_severely_reduced",
+            "target_component_id": "accumulator",
+            "fault_mode": "pressure_100_bar",
+            "category": "PARAMETRIC",
+            "score": 0.0,
+            "explicit_support": 0.0,
+            "scope_bonus": 0.0,
+            "contradiction_fraction": 1.0,
+            "matched_evidence": [],
+            "contradicting_evidence": [
+              "HYD_2175:accumulator:class"
+            ],
+            "missing_expected": [],
+            "eligible": false
+          }
+        ],
+        "component_candidates": [
+          {
+            "component_id": "accumulator",
+            "score": 1.0,
+            "retained_fault_ids": [
+              "accumulator_pressure_close_to_total_failure"
+            ]
+          }
+        ],
+        "supported_fault_set": [
+          "accumulator_pressure_close_to_total_failure"
+        ],
+        "candidate_fault_sets": [
+          [
+            "accumulator_pressure_close_to_total_failure"
+          ]
+        ],
+        "ambiguous_exclusion_groups": {},
+        "evidence_summary": {
+          "total": 2,
+          "valid": 2,
+          "invalid_or_unsupported": 0
+        },
+        "policy": {
+          "min_support": 0.45,
+          "retain_margin": 0.08,
+          "max_contradiction_fraction": 0.35,
+          "candidate_set_cap": 32
+        },
+        "safety": {
+          "root_cause_claimed": false,
+          "propagation_inferred": false,
+          "invalid_evidence_used_for_scoring": false,
+          "generic_component_or_mechanism_evidence_cannot_by_itself_identify_fault_mode": true,
+          "concurrent_faults_are_not_relabelled_as_alternatives": true
+        }
+      }
+    }
+  ],
+  "safety": {
+    "test_truth_used_for_reasoning": false,
+    "root_cause_claimed": false,
+    "propagation_inferred": false
+  }
+}

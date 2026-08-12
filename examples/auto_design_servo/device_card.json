@@ -1,0 +1,16 @@
+{
+  "contract": "DOR-DEVICE-MECHANISM-CARD/1.0",
+  "device_id": "servo-smoke-fixture",
+  "domain": "synthetic-servo",
+  "components": [{"component_id": "drive"}, {"component_id": "load"}],
+  "sensors": [
+    {"sensor_id": "x1", "component_id": "drive", "unit": "a.u."},
+    {"sensor_id": "x2", "component_id": "load", "unit": "a.u."}
+  ],
+  "topology_edges": [
+    {"source": "drive", "target": "load", "relation": "MECHANICAL", "provenance": "synthetic smoke-fixture definition"}
+  ],
+  "mechanism_features": [
+    {"feature_id": "balance_residual", "operation": "difference", "source_columns": ["x1", "x2"], "provenance": "synthetic smoke-fixture balance relation"}
+  ]
+}

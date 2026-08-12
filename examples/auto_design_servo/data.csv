@@ -1,0 +1,17 @@
+sample_id,run_id,split,x1,x2,fault,component,severity
+0,r00,train,0.02,-0.01,N,healthy,0.00
+1,r01,train,0.92,-0.88,F,drive,0.90
+2,r02,train,-0.01,0.02,N,healthy,0.02
+3,r03,train,1.05,-1.01,F,drive,1.00
+4,r04,train,0.03,0.01,N,healthy,0.01
+5,r05,train,0.81,-0.78,F,drive,0.80
+6,r06,train,0.00,-0.02,N,healthy,0.00
+7,r07,train,1.13,-1.08,F,drive,1.10
+8,r08,val,0.01,0.00,N,healthy,0.01
+9,r09,val,0.97,-0.94,F,drive,0.95
+10,r10,val,-0.02,0.01,N,healthy,0.00
+11,r11,val,1.08,-1.02,F,drive,1.05
+12,r12,cal,0.02,0.00,N,healthy,0.01
+13,r13,cal,0.89,-0.86,F,drive,0.88
+14,r14,test,0.00,-0.01,N,healthy,0.00
+15,r15,test,1.02,-0.99,F,drive,1.00

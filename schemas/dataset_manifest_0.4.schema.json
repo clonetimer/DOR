@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dor.local/schemas/dataset_manifest_0.4.schema.json",
+  "title": "DOR DatasetManifest 0.4",
+  "type": "object",
+  "required": ["contract", "dataset_id", "domain", "task", "data", "identifiers", "split", "supervision", "context", "calibration", "leakage_guard", "mechanism", "provenance"],
+  "properties": {
+    "contract": {"const": "DOR-DATASET-MANIFEST/0.4"},
+    "dataset_id": {"type": "string", "minLength": 1},
+    "domain": {"type": "string", "minLength": 1},
+    "task": {"enum": ["ANOMALY_DETECTION", "FAULT_CLASSIFICATION", "FAULT_LOCALIZATION", "FAULT_IDENTIFICATION"]},
+    "data": {
+      "type": "object",
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {"type": "string"},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "row_count": {"type": ["integer", "null"], "minimum": 0}
+      },
+      "additionalProperties": true
+    },
+    "identifiers": {"type": "array", "items": {"type": "string"}, "minItems": 1, "uniqueItems": true},
+    "split": {
+      "type": "object",
+      "required": ["column", "train_values", "validation_values", "calibration_values", "test_values"],
+      "properties": {
+        "column": {"type": "string"},
+        "train_values": {"type": "array", "minItems": 1},
+        "validation_values": {"type": "array", "minItems": 1},
+        "calibration_values": {"type": "array", "minItems": 1},
+        "test_values": {"type": "array", "minItems": 1}
+      }
+    },
+    "supervision": {
+      "type": "object",
+      "required": ["label_column"],
+      "properties": {
+        "label_column": {"type": ["string", "null"]},
+        "normal_label": {"type": ["string", "null"]},
+        "class_frame": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "context": {
+      "type": "object",
+      "required": ["columns", "policy", "levels", "fallback_policy"],
+      "properties": {
+        "columns": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "policy": {"enum": ["EXACT", "HIERARCHICAL"]},
+        "fallback_policy": {"const": "DECLARED_ANCESTOR_ONLY"},
+        "semantics": {"type": "string"},
+        "levels": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["level_id", "columns", "min_group_size", "fallback_allowed", "sharing_basis"],
+            "properties": {
+              "level_id": {"type": "string", "minLength": 1},
+              "columns": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+              "min_group_size": {"type": "integer", "minimum": 2},
+              "fallback_allowed": {"type": "boolean"},
+              "sharing_basis": {"type": "string"}
+            }
+          }
+        }
+      }
+    },
+    "calibration": {
+      "type": "object",
+      "required": ["alpha", "min_group_size", "missing_context_policy"],
+      "properties": {
+        "alpha": {"type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1},
+        "min_group_size": {"type": "integer", "minimum": 2},
+        "missing_context_policy": {"const": "ABSTAIN"}
+      }
+    },
+    "leakage_guard": {
+      "type": "object",
+      "required": ["group_columns"],
+      "properties": {
+        "group_columns": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "description": {"type": "string"}
+      }
+    },
+    "mechanism": {
+      "type": "object",
+      "required": ["status"],
+      "properties": {
+        "status": {"enum": ["NOT_PROVIDED", "DEFERRED", "UNCERTIFIED", "UNIDENTIFIABLE", "CERTIFIED", "COMPLETE", "REQUESTED"]},
+        "reason": {"type": "string"}
+      }
+    },
+    "provenance": {"type": "object"}
+  },
+  "additionalProperties": true
+}

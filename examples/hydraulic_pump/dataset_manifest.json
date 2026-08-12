@@ -1,0 +1,73 @@
+{
+  "contract": "DOR-DATASET-MANIFEST/0.4",
+  "dataset_id": "UCI-Hydraulic-Pump-stable",
+  "domain": "industrial_hydraulic",
+  "task": "FAULT_CLASSIFICATION",
+  "data": {
+    "path": "hydraulic_pump_features.csv",
+    "sha256": "311191a4f27d3040d8a2d5c9ad5cf233a113e1ac5e8d78a6fd180dae6993613c",
+    "row_count": 1449
+  },
+  "identifiers": [
+    "sample_id",
+    "split_group"
+  ],
+  "split": {
+    "column": "split",
+    "train_values": [
+      "train"
+    ],
+    "validation_values": [
+      "val"
+    ],
+    "calibration_values": [
+      "cal"
+    ],
+    "test_values": [
+      "test"
+    ]
+  },
+  "supervision": {
+    "label_column": "fault_label",
+    "normal_label": "0",
+    "class_frame": [
+      "0",
+      "1",
+      "2"
+    ]
+  },
+  "context": {
+    "columns": [],
+    "policy": "EXACT",
+    "fallback_policy": "DECLARED_ANCESTOR_ONLY",
+    "semantics": "global calibration retained as a portfolio/control-plane regression case",
+    "levels": [
+      {
+        "level_id": "global",
+        "columns": [],
+        "min_group_size": 20,
+        "fallback_allowed": false,
+        "sharing_basis": "global context declared by this regression fixture"
+      }
+    ]
+  },
+  "calibration": {
+    "alpha": 0.1,
+    "min_group_size": 20,
+    "missing_context_policy": "ABSTAIN"
+  },
+  "leakage_guard": {
+    "group_columns": [
+      "split_group"
+    ],
+    "description": "nuisance-condition groups are disjoint across roles"
+  },
+  "mechanism": {
+    "status": "DEFERRED",
+    "reason": "DEFERRED: this harder-target run intentionally reuses the same non-certified engineering feature view as the valve baseline so target difficulty tests the existing diagnostic contract; no new mechanism discovery claim is made."
+  },
+  "provenance": {
+    "source_master_sha256": "4b6116cb8af32b0dc3b0896a2fe485452d6ab0ef690bb1b5627ae0b367303dd2",
+    "prior_prototype_contract": "DOR-DATASET-MANIFEST-PROTOTYPE/0.2"
+  }
+}

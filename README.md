@@ -1,0 +1,119 @@
+# DOR Diagnostic Stack v0.7.0.dev0 — Auto Diagnostic Architect Development Preview
+
+> v0.7.0.dev0 新增独立的 Auto Diagnostic Architect 通道；v0.6 根因闭环状态仍是 executable prototype / not closed，不能因新增设计功能而视为真实 ADAPT 根因验证完成。
+
+## 自动诊断模型设计预览
+
+```text
+结构化设备机理卡 + 表格/多通道时序数据 + 四阶段监督合同
+                         ↓
+数据/泄漏/可辨识性资格审查 + 机理特征编译
+                         ↓
+检测 → 定位 → 分类 → 辨识 条件 DAG 与有限候选竞争
+                         ↓
+可运行模型包 + 阶段拒答状态 + 机制审计报告
+```
+
+```bash
+dor auto-design --device-card device_card.json --manifest dataset_manifest.json \
+  --data data.csv --request auto_design_request.json --out design_output
+dor auto-predict --bundle design_output/pipeline_bundle --data deployment.csv --output predictions.csv
+```
+
+当前“最合适”严格表示声明预算、候选集合与 validation 合同内的稳定最佳或等价集合，不表示全局 NAS 最优。缺少定位、分类或辨识监督时相应阶段返回 `UNSUPPORTED`，不会隐式生成伪标签。详见 `docs/AUTO_DIAGNOSTIC_ARCHITECT_CN.md` 和实施台账 `docs/IMPLEMENTATION_LEDGER_AUTO_DESIGN_CN.md`。
+
+---
+
+# DOR Diagnostic Stack v0.6.0 — Propagation / Root-Cause Development Prototype
+
+**组件基线：DOR 0.6.0 DEV PROTO / ISGN 2.2.0 / M2N 2.3.1 / FEC 2.4.0**
+
+> 生命周期：DOR 仍处于开发收敛期。v0.6 已形成可执行的传播/根因推理原型，但**本版本不宣布 v0.6 开发节点完成**。完整 NASA ADAPT telemetry、实验日志、方向拓扑与独立 fault truth 尚未进入可重复本地 benchmark，因此当前根因结果只证明合同、安全规则与源约束 fixture 可运行，不证明真实 ADAPT 根因诊断准确率。
+
+## 已完成的前置节点
+
+- v0.3：Control Plane / DatasetManifest / TaskQualification / DiagnosticPlan；
+- v0.4：Context Hierarchy / Reference Applicability；
+- v0.5：Fault Ontology / Mechanism-to-Component Map / Fault Localization v1。
+
+## v0.6 本轮新增
+
+```text
+DOR-LOCALIZATION-RESULT/0.5
++ directional topology with provenance
++ VALID timestamped evidence
++ optional mechanism-component binding
+        ↓
+Propagation eligibility
+        ↓
+minimal concurrent root-set search
+        ↓
+SUPPORTED / ALTERNATIVES / UNKNOWN
+        ↓
+DOR-ROOT-CAUSE-RESULT/0.6
+```
+
+### 根因声明必须同时满足
+
+1. fault-specific local support 有时间戳；
+2. 至少有一个非局部 downstream anomaly 被方向 topology path 解释；
+3. propagation path 每条边均有 provenance；
+4. downstream timing 与 root support 时间相容；
+5. 配置要求的 anomaly evidence coverage 被满足；
+6. 若存在多个同等最小 root sets，则保留 `ALTERNATIVES`；
+7. 并发独立根因允许形成 root set，不强制单根因。
+
+## 明确禁止的捷径
+
+- earliest anomaly ≠ root cause；
+- upstream topology node ≠ root cause；
+- localization result ≠ root cause；
+- unprovenanced adjacency 不得支持 propagation；
+- 没有时间信息不得把 localization 升级成 root-cause claim；
+- Test fault log 不得参与 reasoner rule 选择。
+
+## 新 CLI
+
+```bash
+dor root-cause \
+  --ontology fault_ontology.json \
+  --localization localization.json \
+  --evidence evidence.csv \
+  --output root_cause.json
+```
+
+可选参数：
+
+```text
+--mechanism-map
+--max-root-set-size
+--coverage-required
+--alternative-margin
+--temporal-tolerance
+--max-path-depth
+```
+
+v0.3~v0.5 的 CLI 全部保留。
+
+## 当前验证边界
+
+- DOR v0.6 DEV PROTO：34 tests passed；
+- 其中 root-cause 专项安全测试：10 passed；
+- NASA ADAPT：仅有 source-constrained synthetic timing fixture；
+- 该 fixture 的 topology 关系来自公开 NASA 文献，但时间戳/evidence 是为了软件合同验证而构造；
+- **不能把 fixture 的 `SUPPORTED` 解释为真实 ADAPT benchmark accuracy。**
+
+## v0.6 尚未关闭的门槛
+
+- 完整 ADAPT `dataset_text.zip` 未进入本地运行环境；
+- EPS diagram 尚未转换为完整 provenance-bound topology graph；
+- Experiment Log 尚未形成 time-aligned independent truth manifest；
+- 还没有真实 fault-injection run 上的 propagation/root-cause post-hoc benchmark；
+- 因此尚不进入 v0.7 Identification orchestration 的正式开发闭环。
+
+详见：
+
+- `docs/DOR_V0.6_ROOT_CAUSE_PROTO_CN.md`
+- `docs/USER_GUIDE_CN.md`
+- `docs/DEVELOPMENT_UPDATE_CN.md`
+- `docs/VALIDATION_STATUS_CN.md`

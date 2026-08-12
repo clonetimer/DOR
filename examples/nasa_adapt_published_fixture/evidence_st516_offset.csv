@@ -1,0 +1,2 @@
+evidence_id,scope_type,scope_id,state,strength,validity,timestamp,provenance
+sensor_offset,SENSOR,ST516,OFFSET,1.0,VALID,100.0,published ADAPT sensor-offset example

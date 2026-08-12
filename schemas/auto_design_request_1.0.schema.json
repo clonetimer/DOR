@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "DOR-AUTO-DIAGNOSTIC-DESIGN-REQUEST/1.0",
+  "title": "DOR automatic diagnostic design request",
+  "type": "object",
+  "required": ["contract", "stages"],
+  "properties": {
+    "contract": {"const": "DOR-AUTO-DIAGNOSTIC-DESIGN-REQUEST/1.0"},
+    "stages": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"enum": ["DETECTION", "LOCALIZATION", "CLASSIFICATION", "IDENTIFICATION"]}
+    },
+    "budget": {
+      "type": "object",
+      "properties": {
+        "max_candidates": {"type": "integer", "minimum": 1, "default": 24},
+        "max_wall_seconds": {"type": "number", "exclusiveMinimum": 0, "default": 7200},
+        "max_parameters": {"type": "integer", "minimum": 1},
+        "max_inference_latency_ms": {"type": "number", "exclusiveMinimum": 0}
+      }
+    },
+    "search": {
+      "type": "object",
+      "properties": {
+        "seeds": {"type": "array", "minItems": 1, "items": {"type": "integer"}},
+        "final_seed": {"type": "integer"}
+      }
+    },
+    "selection": {
+      "type": "object",
+      "properties": {
+        "practical_margin": {"type": "number", "minimum": 0, "exclusiveMaximum": 1, "default": 0.02},
+        "restart_stability": {"type": "number", "minimum": 0, "maximum": 1, "default": 0.75}
+      }
+    },
+    "candidates": {"type": "object"},
+    "metrics": {"type": "object"}
+  },
+  "additionalProperties": false
+}

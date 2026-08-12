@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "DOR-DEVICE-MECHANISM-CARD/1.0",
+  "title": "DOR structured device and mechanism card",
+  "type": "object",
+  "required": ["contract", "device_id", "sensors"],
+  "properties": {
+    "contract": {"const": "DOR-DEVICE-MECHANISM-CARD/1.0"},
+    "device_id": {"type": "string", "minLength": 1},
+    "domain": {"type": "string"},
+    "components": {"type": "array", "items": {"type": "object"}},
+    "sensors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["sensor_id"],
+        "properties": {
+          "sensor_id": {"type": "string", "minLength": 1},
+          "unit": {"type": "string"},
+          "component_id": {"type": "string"}
+        }
+      }
+    },
+    "topology_edges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["source", "target", "relation", "provenance"],
+        "properties": {
+          "source": {"type": "string"}, "target": {"type": "string"},
+          "relation": {"type": "string"}, "provenance": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "mechanism_features": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["feature_id", "operation", "source_columns", "provenance"],
+        "properties": {
+          "feature_id": {"type": "string", "minLength": 1},
+          "operation": {"enum": ["difference", "ratio", "sum", "product", "linear_residual"]},
+          "source_columns": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+          "coefficients": {"type": "array", "items": {"type": "number"}},
+          "expected": {"type": "number"}, "epsilon": {"type": "number", "exclusiveMinimum": 0},
+          "provenance": {"type": "string", "minLength": 1}
+        }
+      }
+    }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,37 @@
+{
+  "contract": "DOR-FAULT-ONTOLOGY/0.5",
+  "ontology_id": "NASA_ADAPT_EY260_E261_SOURCE_CONSTRAINED_V06",
+  "domain": "aerospace_electrical_power_testbed",
+  "scope_note": "Source-constrained synthetic timing fixture for DOR v0.6 logic only; not an observed ADAPT experiment replay.",
+  "components": [
+    {"component_id":"EY260","component_type":"relay","kind":"ACTUATOR","subsystem":"ADAPT_EPS"},
+    {"component_id":"E261_node","component_type":"electrical_node","kind":"VIRTUAL","subsystem":"ADAPT_EPS"},
+    {"component_id":"E261_health","component_type":"voltage_sensor","kind":"SENSOR","subsystem":"ADAPT_EPS"}
+  ],
+  "sensors": [
+    {"sensor_id":"E261","sensor_type":"voltage","health_component_id":"E261_health","observes_components":["E261_node"]}
+  ],
+  "commands": [],
+  "topology_edges": [
+    {"source":"EY260","target":"E261_node","relation":"POWER_FLOW","provenance":"NASA benchmarking paper describes E261 as downstream voltage of relay EY260"}
+  ],
+  "faults": [
+    {
+      "fault_id":"EY260_failed_open",
+      "target_component_id":"EY260",
+      "fault_mode":"failed_open",
+      "category":"DISCRETE",
+      "exclusion_group":"EY260_health",
+      "expected_evidence":[{"scope_type":"COMPONENT","scope_id":"EY260","expected_state":"ABNORMAL","weight":1.0}]
+    },
+    {
+      "fault_id":"E261_sensor_stuck",
+      "target_component_id":"E261_health",
+      "fault_mode":"stuck",
+      "category":"SENSOR",
+      "exclusion_group":"E261_health_mode",
+      "expected_evidence":[{"scope_type":"SENSOR","scope_id":"E261","expected_state":"STUCK","weight":1.0}]
+    }
+  ],
+  "provenance": {"sources":["NASA ADAPT Open Data Portal","NASA NTRS 20110011109 benchmarking paper"]}
+}

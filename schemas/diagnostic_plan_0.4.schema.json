@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DOR DiagnosticPlan 0.4",
+  "type": "object",
+  "required": ["contract", "plan_id", "task", "qualification", "engine_admissions", "steps", "provenance"],
+  "properties": {
+    "contract": {"const": "DOR-DIAGNOSTIC-PLAN/0.4"},
+    "plan_id": {"type": "string", "pattern": "^dor04-"},
+    "task": {"type": "string"},
+    "qualification": {"type": "object"},
+    "engine_admissions": {"type": "array"},
+    "steps": {"type": "array", "minItems": 1},
+    "provenance": {"type": "object"}
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DOR DiagnosisBundle 0.4",
+  "type": "object",
+  "required": ["contract", "plan_id", "task", "task_qualification", "engine_admissions", "model_selection", "retained_candidate_ids", "calibration", "diagnosis_status", "diagnosis_summary", "artifacts", "prohibited_claims"],
+  "properties": {
+    "contract": {"const": "DOR-DIAGNOSIS-BUNDLE/0.4"},
+    "plan_id": {"type": "string", "pattern": "^dor04-"},
+    "task": {"type": "string"},
+    "diagnosis_status": {"enum": ["SUPPORTED", "ALTERNATIVES", "UNKNOWN", "ABSTAIN"]},
+    "retained_candidate_ids": {"type": "array", "items": {"type": "string"}},
+    "calibration": {
+      "type": "object",
+      "required": ["policy", "context_levels", "alpha", "missing_context_policy", "reference_applicability", "references", "selected_reference_outputs"]
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "sha256", "size_bytes"],
+        "properties": {
+          "path": {"type": "string"},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "size_bytes": {"type": "integer", "minimum": 0}
+        }
+      }
+    },
+    "prohibited_claims": {"type": "array", "items": {"type": "string"}}
+  }
+}

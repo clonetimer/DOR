@@ -1,0 +1,3516 @@
+{
+  "contract": "DOR-REFERENCE-APPLICABILITY/0.4",
+  "policy": "HIERARCHICAL",
+  "id_column": "sample_id",
+  "levels": [
+    {
+      "level_id": "exact",
+      "columns": [
+        "cooler",
+        "pump"
+      ],
+      "min_group_size": 20,
+      "fallback_allowed": false,
+      "sharing_basis": "exact declared nuisance operating condition"
+    },
+    {
+      "level_id": "pump_regime",
+      "columns": [
+        "pump"
+      ],
+      "min_group_size": 40,
+      "fallback_allowed": true,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes"
+    }
+  ],
+  "calibration_reference_counts": {
+    "exact": {
+      "20|0": 80,
+      "20|1": 80,
+      "20|2": 40,
+      "3|1": 40
+    },
+    "pump_regime": {
+      "1": 120,
+      "0": 80,
+      "2": 40
+    }
+  },
+  "supported_keys_by_level": {
+    "exact": [
+      "20|0",
+      "20|1",
+      "20|2",
+      "3|1"
+    ],
+    "pump_regime": [
+      "0",
+      "1",
+      "2"
+    ]
+  },
+  "test_rows": [
+    {
+      "row_id": "HYD_0241",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "2"
+      ],
+      "n_reference": 40,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=40"
+    },
+    {
+      "row_id": "HYD_0242",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "2"
+      ],
+      "n_reference": 40,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=40"
+    },
+    {
+      "row_id": "HYD_0243",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "2"
+      ],
+      "n_reference": 40,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=40"
+    },
+    {
+      "row_id": "HYD_0244",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "2"
+      ],
+      "n_reference": 40,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=40"
+    },
+    {
+      "row_id": "HYD_0245",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "2"
+      ],
+      "n_reference": 40,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=40"
+    },
+    {
+      "row_id": "HYD_0246",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "2"
+      ],
+      "n_reference": 40,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=40"
+    },
+    {
+      "row_id": "HYD_0247",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "2"
+      ],
+      "n_reference": 40,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=40"
+    },
+    {
+      "row_id": "HYD_0248",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "2"
+      ],
+      "n_reference": 40,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=40"
+    },
+    {
+      "row_id": "HYD_0249",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "2"
+      ],
+      "n_reference": 40,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=40"
+    },
+    {
+      "row_id": "HYD_0250",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "2"
+      ],
+      "n_reference": 40,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=40"
+    },
+    {
+      "row_id": "HYD_0303",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_0304",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_0305",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_0306",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_0307",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_0308",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_0309",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_0310",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_0311",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_0312",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_0374",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "2"
+      ],
+      "n_reference": 40,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=40"
+    },
+    {
+      "row_id": "HYD_0375",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "2"
+      ],
+      "n_reference": 40,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=40"
+    },
+    {
+      "row_id": "HYD_0376",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "2"
+      ],
+      "n_reference": 40,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=40"
+    },
+    {
+      "row_id": "HYD_0377",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "2"
+      ],
+      "n_reference": 40,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=40"
+    },
+    {
+      "row_id": "HYD_0378",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "2"
+      ],
+      "n_reference": 40,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=40"
+    },
+    {
+      "row_id": "HYD_0379",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "2"
+      ],
+      "n_reference": 40,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=40"
+    },
+    {
+      "row_id": "HYD_0380",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "2"
+      ],
+      "n_reference": 40,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=40"
+    },
+    {
+      "row_id": "HYD_0381",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "2"
+      ],
+      "n_reference": 40,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=40"
+    },
+    {
+      "row_id": "HYD_0382",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "2"
+      ],
+      "n_reference": 40,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=40"
+    },
+    {
+      "row_id": "HYD_0383",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "2"
+      ],
+      "n_reference": 40,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=40"
+    },
+    {
+      "row_id": "HYD_0436",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_0437",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_0438",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_0439",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_0440",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_0441",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_0442",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_0443",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_0444",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_0445",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_0507",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "2"
+      ],
+      "n_reference": 40,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=40"
+    },
+    {
+      "row_id": "HYD_0508",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "2"
+      ],
+      "n_reference": 40,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=40"
+    },
+    {
+      "row_id": "HYD_0509",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "2"
+      ],
+      "n_reference": 40,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=40"
+    },
+    {
+      "row_id": "HYD_0510",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "2"
+      ],
+      "n_reference": 40,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=40"
+    },
+    {
+      "row_id": "HYD_0511",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "2"
+      ],
+      "n_reference": 40,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=40"
+    },
+    {
+      "row_id": "HYD_0512",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "2"
+      ],
+      "n_reference": 40,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=40"
+    },
+    {
+      "row_id": "HYD_0513",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "2"
+      ],
+      "n_reference": 40,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=40"
+    },
+    {
+      "row_id": "HYD_0514",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "2"
+      ],
+      "n_reference": 40,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=40"
+    },
+    {
+      "row_id": "HYD_0515",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "2"
+      ],
+      "n_reference": 40,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=40"
+    },
+    {
+      "row_id": "HYD_0516",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "2"
+      ],
+      "n_reference": 40,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=40"
+    },
+    {
+      "row_id": "HYD_0569",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_0570",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_0571",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_0572",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_0573",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_0574",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_0575",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_0576",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_0577",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_0578",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_0640",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "2"
+      ],
+      "n_reference": 40,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=40"
+    },
+    {
+      "row_id": "HYD_0641",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "2"
+      ],
+      "n_reference": 40,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=40"
+    },
+    {
+      "row_id": "HYD_0642",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "2"
+      ],
+      "n_reference": 40,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=40"
+    },
+    {
+      "row_id": "HYD_0643",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "2"
+      ],
+      "n_reference": 40,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=40"
+    },
+    {
+      "row_id": "HYD_0644",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "2"
+      ],
+      "n_reference": 40,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=40"
+    },
+    {
+      "row_id": "HYD_0645",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "2"
+      ],
+      "n_reference": 40,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=40"
+    },
+    {
+      "row_id": "HYD_0646",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "2"
+      ],
+      "n_reference": 40,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=40"
+    },
+    {
+      "row_id": "HYD_0647",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "2"
+      ],
+      "n_reference": 40,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=40"
+    },
+    {
+      "row_id": "HYD_0648",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "2"
+      ],
+      "n_reference": 40,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=40"
+    },
+    {
+      "row_id": "HYD_0649",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "2"
+      ],
+      "n_reference": 40,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=40"
+    },
+    {
+      "row_id": "HYD_0702",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_0703",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_0704",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_0705",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_0706",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_0707",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_0708",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_0709",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_0710",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_0711",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_1004",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|1"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1005",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|1"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1006",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|1"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1007",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|1"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1008",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|1"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1009",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|1"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1010",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|1"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1011",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|1"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1012",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|1"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1013",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|1"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1055",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1056",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1057",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1058",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1059",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1060",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1061",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1062",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1063",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1064",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1137",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|1"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1138",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|1"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1139",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|1"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1140",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|1"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1141",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|1"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1142",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|1"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1143",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|1"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1144",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|1"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1145",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|1"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1146",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|1"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1188",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1189",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1190",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1191",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1192",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1193",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1194",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1195",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1196",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1197",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1270",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|1"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1271",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|1"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1272",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|1"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1273",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|1"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1274",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|1"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1275",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|1"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1276",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|1"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1277",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|1"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1278",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|1"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1279",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|1"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1321",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1322",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1323",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1324",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1325",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1326",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1327",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1328",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1329",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1330",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1403",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|1"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1404",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|1"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1405",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|1"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1406",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|1"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1407",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|1"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1408",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|1"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1409",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|1"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1410",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|1"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1411",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|1"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1412",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|1"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1454",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1455",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1456",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1457",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1458",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1459",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1460",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1461",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1462",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1463",
+      "status": "EXACT_SUPPORTED",
+      "selected_level": "exact",
+      "selected_columns": [
+        "cooler",
+        "pump"
+      ],
+      "selected_key": [
+        "20|0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "exact declared nuisance operating condition",
+      "reason": "finest declared context has sufficient independent calibration reference"
+    },
+    {
+      "row_id": "HYD_1726",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "1"
+      ],
+      "n_reference": 120,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=120"
+    },
+    {
+      "row_id": "HYD_1727",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "1"
+      ],
+      "n_reference": 120,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=120"
+    },
+    {
+      "row_id": "HYD_1728",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "1"
+      ],
+      "n_reference": 120,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=120"
+    },
+    {
+      "row_id": "HYD_1729",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "1"
+      ],
+      "n_reference": 120,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=120"
+    },
+    {
+      "row_id": "HYD_1730",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "1"
+      ],
+      "n_reference": 120,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=120"
+    },
+    {
+      "row_id": "HYD_1731",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "1"
+      ],
+      "n_reference": 120,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=120"
+    },
+    {
+      "row_id": "HYD_1732",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "1"
+      ],
+      "n_reference": 120,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=120"
+    },
+    {
+      "row_id": "HYD_1733",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "1"
+      ],
+      "n_reference": 120,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=120"
+    },
+    {
+      "row_id": "HYD_1734",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "1"
+      ],
+      "n_reference": 120,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=120"
+    },
+    {
+      "row_id": "HYD_1735",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "1"
+      ],
+      "n_reference": 120,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=120"
+    },
+    {
+      "row_id": "HYD_1767",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_1768",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_1769",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_1770",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_1771",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_1772",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_1773",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_1774",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_1775",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_1776",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_1859",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "1"
+      ],
+      "n_reference": 120,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=120"
+    },
+    {
+      "row_id": "HYD_1860",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "1"
+      ],
+      "n_reference": 120,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=120"
+    },
+    {
+      "row_id": "HYD_1861",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "1"
+      ],
+      "n_reference": 120,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=120"
+    },
+    {
+      "row_id": "HYD_1862",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "1"
+      ],
+      "n_reference": 120,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=120"
+    },
+    {
+      "row_id": "HYD_1863",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "1"
+      ],
+      "n_reference": 120,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=120"
+    },
+    {
+      "row_id": "HYD_1864",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "1"
+      ],
+      "n_reference": 120,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=120"
+    },
+    {
+      "row_id": "HYD_1865",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "1"
+      ],
+      "n_reference": 120,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=120"
+    },
+    {
+      "row_id": "HYD_1866",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "1"
+      ],
+      "n_reference": 120,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=120"
+    },
+    {
+      "row_id": "HYD_1867",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "1"
+      ],
+      "n_reference": 120,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=120"
+    },
+    {
+      "row_id": "HYD_1868",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "1"
+      ],
+      "n_reference": 120,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=120"
+    },
+    {
+      "row_id": "HYD_1900",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_1901",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_1902",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_1903",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_1904",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_1905",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_1906",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_1907",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_1908",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_1909",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_1992",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "1"
+      ],
+      "n_reference": 120,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=120"
+    },
+    {
+      "row_id": "HYD_1993",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "1"
+      ],
+      "n_reference": 120,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=120"
+    },
+    {
+      "row_id": "HYD_1994",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "1"
+      ],
+      "n_reference": 120,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=120"
+    },
+    {
+      "row_id": "HYD_1995",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "1"
+      ],
+      "n_reference": 120,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=120"
+    },
+    {
+      "row_id": "HYD_1996",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "1"
+      ],
+      "n_reference": 120,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=120"
+    },
+    {
+      "row_id": "HYD_1997",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "1"
+      ],
+      "n_reference": 120,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=120"
+    },
+    {
+      "row_id": "HYD_1998",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "1"
+      ],
+      "n_reference": 120,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=120"
+    },
+    {
+      "row_id": "HYD_1999",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "1"
+      ],
+      "n_reference": 120,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=120"
+    },
+    {
+      "row_id": "HYD_2000",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "1"
+      ],
+      "n_reference": 120,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=120"
+    },
+    {
+      "row_id": "HYD_2001",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "1"
+      ],
+      "n_reference": 120,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=120"
+    },
+    {
+      "row_id": "HYD_2033",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_2034",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_2035",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_2036",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_2037",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_2038",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_2039",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_2040",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_2041",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_2042",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_2125",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "1"
+      ],
+      "n_reference": 120,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=120"
+    },
+    {
+      "row_id": "HYD_2126",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "1"
+      ],
+      "n_reference": 120,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=120"
+    },
+    {
+      "row_id": "HYD_2127",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "1"
+      ],
+      "n_reference": 120,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=120"
+    },
+    {
+      "row_id": "HYD_2128",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "1"
+      ],
+      "n_reference": 120,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=120"
+    },
+    {
+      "row_id": "HYD_2129",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "1"
+      ],
+      "n_reference": 120,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=120"
+    },
+    {
+      "row_id": "HYD_2130",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "1"
+      ],
+      "n_reference": 120,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=120"
+    },
+    {
+      "row_id": "HYD_2131",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "1"
+      ],
+      "n_reference": 120,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=120"
+    },
+    {
+      "row_id": "HYD_2132",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "1"
+      ],
+      "n_reference": 120,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=120"
+    },
+    {
+      "row_id": "HYD_2133",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "1"
+      ],
+      "n_reference": 120,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=120"
+    },
+    {
+      "row_id": "HYD_2134",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "1"
+      ],
+      "n_reference": 120,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=120"
+    },
+    {
+      "row_id": "HYD_2166",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_2167",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_2168",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_2169",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_2170",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_2171",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_2172",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_2173",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_2174",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    },
+    {
+      "row_id": "HYD_2175",
+      "status": "HIERARCHY_SUPPORTED",
+      "selected_level": "pump_regime",
+      "selected_columns": [
+        "pump"
+      ],
+      "selected_key": [
+        "0"
+      ],
+      "n_reference": 80,
+      "sharing_basis": "DEVELOPMENT_HYPOTHESIS: for accumulator fault classification, pool cooler states only at fixed pump condition when exact cooler+pump reference is absent; this is not a physical-equivalence claim and was not discovered from held-out test outcomes",
+      "reason": "exact context has n=0 < 20; declared ancestor pump_regime admitted with n=80"
+    }
+  ],
+  "summary": {
+    "n_test_rows": 240,
+    "status_counts": {
+      "EXACT_SUPPORTED": 80,
+      "CONTEXT_UNSUPPORTED": 0,
+      "POWER_LIMITED": 0,
+      "HIERARCHY_SUPPORTED": 160
+    },
+    "selected_level_counts": {
+      "pump_regime": 160,
+      "exact": 80
+    },
+    "supported_rows": 240,
+    "unsupported_rows": 0
+  },
+  "safety": {
+    "test_labels_used": false,
+    "test_scores_used": false,
+    "implicit_pooling": false,
+    "coarser_reference_requires_declared_fallback_and_sharing_basis": true,
+    "coverage_claim": "FEC validity at a chosen level still depends on exchangeability within that declared reference group; DOR hierarchy admission is not itself a coverage theorem."
+  }
+}

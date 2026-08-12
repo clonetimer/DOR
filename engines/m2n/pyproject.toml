@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "m2n-toolkit"
+version = "2.3.1"
+description = "M2N practitioner toolkit: mechanism-aware Scientific-ML design plus finite diagnostic model orchestration for fault diagnosis"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "numpy>=1.24",
+  "scipy>=1.10",
+  "torch>=2.0",
+  "pandas>=1.5",
+  "scikit-learn>=1.4",
+  "joblib>=1.3",
+]
+authors = [{name = "M2N Project"}]
+
+
+[project.optional-dependencies]
+discovery = [
+  "pysindy>=2.1,<3",
+  "derivative>=0.6.2,<0.7",
+]
+
+[project.scripts]
+m2n = "m2n.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+m2n = [
+  "templates/device_project/*.py",
+  "templates/device_project/*.md",
+  "templates/device_project/data/*.md",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

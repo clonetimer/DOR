@@ -1,0 +1,81 @@
+{
+  "contract": "DOR-DATASET-MANIFEST/0.4",
+  "dataset_id": "OPSSAT-AD-v2-context-balanced-P1",
+  "domain": "satellite",
+  "task": "ANOMALY_DETECTION",
+  "data": {
+    "path": "/mnt/data/dor04_work/DOR_Diagnostic_Stack_v0.4.0_DEV_RC1/examples/opssat_ad/opssat_p1_features.csv",
+    "sha256": "1539b5131796c0cb723561a8be8d1ec56ea8e4be858008ff647aef25e110a8df",
+    "row_count": 2123
+  },
+  "identifiers": [
+    "segment",
+    "channel"
+  ],
+  "split": {
+    "column": "split",
+    "train_values": [
+      "train"
+    ],
+    "validation_values": [
+      "val"
+    ],
+    "calibration_values": [
+      "cal"
+    ],
+    "test_values": [
+      "test"
+    ]
+  },
+  "supervision": {
+    "label_column": "fault_label",
+    "normal_label": "0",
+    "class_frame": [
+      "0",
+      "1"
+    ]
+  },
+  "context": {
+    "columns": [
+      "channel"
+    ],
+    "policy": "EXACT",
+    "fallback_policy": "DECLARED_ANCESTOR_ONLY",
+    "semantics": "telemetry parameter/channel; no cross-channel pooling is currently justified",
+    "levels": [
+      {
+        "level_id": "channel_exact",
+        "columns": [
+          "channel"
+        ],
+        "min_group_size": 20,
+        "fallback_allowed": false,
+        "sharing_basis": "exact telemetry channel"
+      }
+    ]
+  },
+  "calibration": {
+    "alpha": 0.1,
+    "min_group_size": 20,
+    "missing_context_policy": "ABSTAIN"
+  },
+  "leakage_guard": {
+    "group_columns": [
+      "segment"
+    ],
+    "description": "each OPSSAT segment belongs to exactly one data role; official test is preserved"
+  },
+  "mechanism": {
+    "status": "NOT_PROVIDED",
+    "reason": "OPSSAT P1 uses official segment-level telemetry features; no certified satellite mechanism bundle is declared for this detection task."
+  },
+  "provenance": {
+    "source_md5": {
+      "dataset.csv": "5246fdc5e4630a4cecbf7fb6bc8b795e",
+      "segments.csv": "72f109630abb933a386106897a631188"
+    },
+    "official_test_preserved": true,
+    "role_freeze_before_model_selection": true,
+    "dor04_context_hierarchy": "no coarser satellite reference is declared; sparse channels remain fail-closed"
+  }
+}

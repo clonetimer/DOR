@@ -1,0 +1,70 @@
+{
+  "name": "demo_machine",
+  "contacts": [
+    {
+      "key": "temp_level",
+      "column": "temp_level",
+      "path": [
+        "thermal"
+      ],
+      "A": 1.0,
+      "G": 1
+    },
+    {
+      "key": "temp_slope",
+      "column": "temp_slope",
+      "path": [
+        "thermal"
+      ],
+      "A": 1.0,
+      "G": 1
+    },
+    {
+      "key": "vib_rms",
+      "column": "vib_rms",
+      "path": [
+        "vibration"
+      ],
+      "A": 1.0,
+      "G": 1
+    },
+    {
+      "key": "vib_impulse",
+      "column": "vib_impulse",
+      "path": [
+        "vibration"
+      ],
+      "A": 1.0,
+      "G": 1
+    }
+  ],
+  "operators": [
+    "mean",
+    "mean"
+  ],
+  "expected_contact_count": 4,
+  "calibration": {
+    "scope": "root",
+    "dependency_set": [
+      "demo_machine:healthy"
+    ],
+    "provenance": "commissioning"
+  },
+  "policy": {
+    "alpha": 0.05,
+    "min_A": 0.5,
+    "min_C_presence": 0.75,
+    "min_S_ctx": 0.05,
+    "min_S_ref": 0.05
+  },
+  "reference_contract": {
+    "modalities": {
+      "temperature": "observed",
+      "vibration": "observed"
+    },
+    "provider_fingerprints": [
+      "sha256:12165a05dbbebd4ff0bd5e313eae7c10bc04fe06b0291aaf7404b5ab1b904cc0"
+    ],
+    "source_domain": "real"
+  }
+}

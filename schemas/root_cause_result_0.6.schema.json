@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "DOR-ROOT-CAUSE-RESULT/0.6",
+  "title": "DOR Root Cause Result v0.6",
+  "type": "object",
+  "required": ["contract", "status", "reason", "root_cause_set", "candidate_root_sets", "root_candidates", "evidence_summary", "localization_input", "policy", "safety"],
+  "properties": {
+    "contract": {"const": "DOR-ROOT-CAUSE-RESULT/0.6"},
+    "status": {"enum": ["SUPPORTED", "ALTERNATIVES", "UNKNOWN", "ABSTAIN"]},
+    "reason": {"type": "string"},
+    "root_cause_set": {"type": "array", "items": {"type": "string"}},
+    "candidate_root_sets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["fault_ids", "component_ids", "coverage_fraction", "score", "covered_evidence"],
+        "properties": {
+          "fault_ids": {"type": "array", "items": {"type": "string"}},
+          "component_ids": {"type": "array", "items": {"type": "string"}},
+          "coverage_fraction": {"type": "number", "minimum": 0, "maximum": 1},
+          "score": {"type": "number"},
+          "covered_evidence": {"type": "array", "items": {"type": "string"}}
+        },
+        "additionalProperties": true
+      }
+    },
+    "root_candidates": {"type": "array"},
+    "unexplained_evidence": {"type": "array", "items": {"type": "string"}},
+    "evidence_summary": {"type": "object"},
+    "localization_input": {"type": "object"},
+    "policy": {"type": "object"},
+    "safety": {
+      "type": "object",
+      "required": ["root_cause_claimed", "propagation_inferred", "earliest_anomaly_is_not_root_cause_rule", "topology_only_is_not_sufficient", "timestamped_fault_specific_support_required", "provenance_bound_path_required", "test_truth_used_for_reasoning", "concurrent_root_causes_allowed"],
+      "properties": {
+        "root_cause_claimed": {"type": "boolean"},
+        "propagation_inferred": {"type": "boolean"},
+        "earliest_anomaly_is_not_root_cause_rule": {"const": true},
+        "topology_only_is_not_sufficient": {"const": true},
+        "timestamped_fault_specific_support_required": {"const": true},
+        "provenance_bound_path_required": {"const": true},
+        "test_truth_used_for_reasoning": {"const": false},
+        "concurrent_root_causes_allowed": {"const": true}
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

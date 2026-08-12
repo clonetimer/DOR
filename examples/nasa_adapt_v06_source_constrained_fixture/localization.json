@@ -1,0 +1,93 @@
+{
+  "contract": "DOR-LOCALIZATION-RESULT/0.5",
+  "status": "SUPPORTED",
+  "reason": "all retained fault groups are individually resolved; concurrent faults across groups are allowed",
+  "fault_hypotheses": [
+    {
+      "fault_id": "EY260_failed_open",
+      "target_component_id": "EY260",
+      "fault_mode": "failed_open",
+      "category": "DISCRETE",
+      "score": 1.0,
+      "explicit_support": 1.0,
+      "scope_bonus": 0.25,
+      "contradiction_fraction": 0.0,
+      "matched_evidence": [
+        "EY260_local"
+      ],
+      "contradicting_evidence": [],
+      "missing_expected": [],
+      "eligible": true,
+      "exclusion_group": "EY260_health"
+    }
+  ],
+  "all_scored_hypotheses": [
+    {
+      "fault_id": "EY260_failed_open",
+      "target_component_id": "EY260",
+      "fault_mode": "failed_open",
+      "category": "DISCRETE",
+      "score": 1.0,
+      "explicit_support": 1.0,
+      "scope_bonus": 0.25,
+      "contradiction_fraction": 0.0,
+      "matched_evidence": [
+        "EY260_local"
+      ],
+      "contradicting_evidence": [],
+      "missing_expected": [],
+      "eligible": true,
+      "exclusion_group": "EY260_health"
+    },
+    {
+      "fault_id": "E261_sensor_stuck",
+      "target_component_id": "E261_health",
+      "fault_mode": "stuck",
+      "category": "SENSOR",
+      "score": 0.0,
+      "explicit_support": 0.0,
+      "scope_bonus": 0.0,
+      "contradiction_fraction": 0.0,
+      "matched_evidence": [],
+      "contradicting_evidence": [],
+      "missing_expected": [],
+      "eligible": false
+    }
+  ],
+  "component_candidates": [
+    {
+      "component_id": "EY260",
+      "score": 1.0,
+      "retained_fault_ids": [
+        "EY260_failed_open"
+      ]
+    }
+  ],
+  "supported_fault_set": [
+    "EY260_failed_open"
+  ],
+  "candidate_fault_sets": [
+    [
+      "EY260_failed_open"
+    ]
+  ],
+  "ambiguous_exclusion_groups": {},
+  "evidence_summary": {
+    "total": 2,
+    "valid": 2,
+    "invalid_or_unsupported": 0
+  },
+  "policy": {
+    "min_support": 0.45,
+    "retain_margin": 0.08,
+    "max_contradiction_fraction": 0.35,
+    "candidate_set_cap": 32
+  },
+  "safety": {
+    "root_cause_claimed": false,
+    "propagation_inferred": false,
+    "invalid_evidence_used_for_scoring": false,
+    "generic_component_or_mechanism_evidence_cannot_by_itself_identify_fault_mode": true,
+    "concurrent_faults_are_not_relabelled_as_alternatives": true
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "qualified_case_rule": "pump diagnosis_status == SUPPORTED AND accumulator diagnosis_status == SUPPORTED",
+  "truth_used_for_qualification": false,
+  "n_intersection": 40,
+  "n_qualified": 29,
+  "pump_source_sha256": "523ab8f0518cff063e98e2e7258253f19fd1c4e4fca9da8d285766910b4b62b8",
+  "accumulator_source_sha256": "4c7fa41fbf5c7b862e5abb3d50e0c5fec4a1982d8799a2466168aad45b76b459",
+  "evidence_sha256": "6ca87b5eb8cef36633eccd0a9a34e59f5bbcdbddbb1d554be8f9473063b70a5e"
+}

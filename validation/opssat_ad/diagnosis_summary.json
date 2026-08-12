@@ -1,0 +1,28 @@
+{
+  "contract": "DOR-DIAGNOSIS-BUNDLE/0.4",
+  "task": "ANOMALY_DETECTION",
+  "n": 529,
+  "supported_fraction": 0.9886578449905482,
+  "abstain_fraction": 0.011342155009451797,
+  "abnormal_fraction_among_supported": 0.22179732313575526,
+  "prohibited_claims": [
+    "scalar anomaly score or calibrated p-value is not a fault-class probability",
+    "ABNORMAL is detection evidence, not physical root cause",
+    "unsupported context is an explicit abstention, not NORMAL"
+  ],
+  "posthoc_test_audit": {
+    "sequence": "computed only after diagnosis.csv was written; excluded from selection/calibration/arbitration",
+    "n_test_rows": 529,
+    "labels_available": true,
+    "supported_rows": 523,
+    "empirical_supported_accuracy": 0.8623326959847036,
+    "abnormal_f1_supported_rows": 0.6814159292035398,
+    "balanced_accuracy_supported_rows": 0.8027845036319612,
+    "confusion_supported_rows": {
+      "tp": 77,
+      "fp": 39,
+      "fn": 33,
+      "tn": 374
+    }
+  }
+}
