@@ -51,3 +51,6 @@ __all__ += ["MissingTermRecoveryResult","evaluate_term","target_derivative","rec
 
 from .hybrid import (RegimePartition, RegimeRelationEvidence, HybridAlgebraicRecoveryResult, threshold_regime_partition, project_algebraic_regime, project_public_regime_windows, discover_regime_algebraic_relations)
 __all__ += ["RegimePartition","RegimeRelationEvidence","HybridAlgebraicRecoveryResult","threshold_regime_partition","project_algebraic_regime","project_public_regime_windows","discover_regime_algebraic_relations"]
+
+from .discovery_policy import DiscoveryRouteDecision, recommend_discovery_route
+__all__ += ["DiscoveryRouteDecision", "recommend_discovery_route"]

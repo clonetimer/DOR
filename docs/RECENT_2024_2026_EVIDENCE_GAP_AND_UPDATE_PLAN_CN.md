@@ -28,7 +28,7 @@
 证据目录：
 
 - 数据集：`benchmarks/public_datasets.json`，16 项，其中新增 9 项近两年记录；受限数据明确标为 `RESTRICTED`。
-- 方法：`benchmarks/recent_methods_2024_2026.json`，12 项；每项含机制变化、创新类别、发表状态、证据等级、DOR 决策和风险。
+- 方法：`benchmarks/recent_methods_2024_2026.json`，17 项；每项含机制变化、创新类别、发表状态、证据等级、DOR 决策和风险。2026-08-13 又吸收用户补充的 SymMatika、PHM Part II、Neural Compiler、Conformal Fusion 与 PFM，其中 PFM 明确暂缓。
 - CLI：`dor dataset-catalog`、`dor method-catalog`、`dor benchmark-plan`。
 
 ## 3. 近两年公开工业数据集扫描

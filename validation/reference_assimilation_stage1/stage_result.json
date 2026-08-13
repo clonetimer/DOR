@@ -1,0 +1,25 @@
+{
+  "contract": "DOR-REFERENCE-ASSIMILATION-STAGE-RESULT/1.0",
+  "date": "2026-08-13",
+  "status": "COMPLETED",
+  "scope": [
+    "safe symbolic compilation",
+    "fixed-step differentiable UDE",
+    "evidence-aware mechanism discovery routing",
+    "modality-mask calibration feasibility and held-out audit"
+  ],
+  "new_tests": 13,
+  "full_regression": {"dor": 55, "m2n": 40, "fec": 75, "isgn": 99, "total": 269},
+  "spacecraft_dataset_boundary": {
+    "adcs_normal_calibration_rows": 3,
+    "phm_normal_calibration_rows": 5,
+    "deployment_threshold_ready": false,
+    "note": "This stage does not convert synthetic spacecraft evidence into flight or hardware evidence."
+  },
+  "prohibited_claims": [
+    "not a unique physical-law discovery proof",
+    "not a global optimal architecture proof",
+    "not arbitrary-shift conformal coverage",
+    "not industrial accuracy improvement evidence"
+  ]
+}

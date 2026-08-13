@@ -140,6 +140,12 @@ __all__ += [
 from .bias_routing import BiasRoute, PhysicsKnowledgeItem, BiasRoutingDecision, BiasRoutePlan, route_physics_knowledge, build_bias_route_plan
 from .representation_policy import RepresentationKind, RepresentationEligibility, RepresentationPlan, assess_representation, build_representation_plan
 from .exact_physics import ExactPhysicsContract, audit_exact_physics
+from .symbolic_compiler import (
+    SymbolicParameter, SymbolicCompilationContract, SymbolicCompilationError,
+    SymbolicDomainError, CompiledSymbolicModule, SymbolicResidualModel,
+    compile_symbolic_expression,
+)
+from .ude import UDERuntimeContract, CompiledVectorField, HybridUDE, integrate_ude
 
 from .diagnostic_modeling import (
     DIAGNOSTIC_TASKS, FEATURE_VIEWS, CLASSIFIER_FAMILIES, DETECTOR_FAMILIES,
@@ -150,6 +156,10 @@ from .diagnostic_modeling import (
 )
 
 __all__ += [
+    "SymbolicParameter", "SymbolicCompilationContract", "SymbolicCompilationError",
+    "SymbolicDomainError", "CompiledSymbolicModule", "SymbolicResidualModel",
+    "compile_symbolic_expression", "UDERuntimeContract", "CompiledVectorField",
+    "HybridUDE", "integrate_ude",
     "DIAGNOSTIC_TASKS", "FEATURE_VIEWS", "CLASSIFIER_FAMILIES", "DETECTOR_FAMILIES",
     "DiagnosticFamilyDescriptor", "DiagnosticQualification", "DiagnosticCandidate",
     "DiagnosticSelectionPolicy", "DiagnosticSelectionDecision", "DiagnosticDesignSummary",

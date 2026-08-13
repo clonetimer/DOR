@@ -48,6 +48,8 @@ dor spacecraft-prepare --dataset-root whole_spacecraft_phm_dataset_v6_0 \
 
 **组件基线：DOR 0.6.0 DEV PROTO / ISGN 2.2.0 / M2N 2.3.1 / FEC 2.4.0**
 
+参考文献吸收阶段 1 已在当前开发树加入安全符号编译、fixed-step UDE、ISGN 发现路由、FEC mask held-out audit 和 DOR mask 样本预算门。实现边界、269 项全量回归和遗留实验见 `docs/REFERENCE_ASSIMILATION_STAGE1_CN.md`；这些开发能力尚未升级上述发布基线版本号。
+
 > 生命周期：DOR 仍处于开发收敛期。v0.6 已形成可执行的传播/根因推理原型，但**本版本不宣布 v0.6 开发节点完成**。完整 NASA ADAPT telemetry、实验日志、方向拓扑与独立 fault truth 尚未进入可重复本地 benchmark，因此当前根因结果只证明合同、安全规则与源约束 fixture 可运行，不证明真实 ADAPT 根因诊断准确率。
 
 ## 已完成的前置节点

@@ -16,6 +16,7 @@ from .auto_design import predict_pipeline, run_auto_design
 from .dataset_registry import build_benchmark_plan, catalog_summary, default_catalog_path, load_catalog
 from .public_adapters import prepare_spacecraft_dataset, prepare_uci_hydraulic
 from .research_registry import default_method_catalog_path, load_method_catalog, method_catalog_summary
+from .modality_calibration import assess_modality_mask_calibration
 
 
 def main() -> int:
@@ -40,6 +41,8 @@ def main() -> int:
     uh.add_argument('--archive',required=True); uh.add_argument('--out',required=True); uh.add_argument('--sensors',nargs='*',default=None); uh.add_argument('--seed',type=int,default=447); uh.add_argument('--block-size',type=int,default=5)
     sc=sp.add_parser('spacecraft-prepare',help='stream a sat-sim spacecraft file tree into a leakage-bounded DOR table')
     sc.add_argument('--dataset-root',required=True); sc.add_argument('--out',required=True); sc.add_argument('--feature-profile',choices=['causal_raw','deployable_full'],default='causal_raw')
+    mf=sp.add_parser('mask-calibration-plan',help='audit whether calibration data can support declared modality-presence masks')
+    mf.add_argument('--modalities',nargs='+',required=True); mf.add_argument('--calibration-rows',type=int,required=True); mf.add_argument('--min-group-size',type=int,default=20); mf.add_argument('--output',default=None)
 
     mc=sp.add_parser('manifest-check',help='formalize/validate a DatasetManifest and bind it to a concrete data artifact')
     mc.add_argument('--manifest',required=True); mc.add_argument('--request',required=True); mc.add_argument('--data',required=True); mc.add_argument('--output',required=True)
@@ -95,6 +98,10 @@ def main() -> int:
     if args.command=='spacecraft-prepare':
         result=prepare_spacecraft_dataset(args.dataset_root,args.out,feature_profile=args.feature_profile)
         print(json.dumps({'state':'OK','binding':result,'out':str(Path(args.out).resolve())},indent=2)); return 0
+    if args.command=='mask-calibration-plan':
+        result=assess_modality_mask_calibration(args.modalities,calibration_rows=args.calibration_rows,min_group_size=args.min_group_size).to_dict()
+        if args.output: write_json(args.output,result)
+        print(json.dumps(result,indent=2)); return 0 if result['status']!='INSUFFICIENT_FOR_EXHAUSTIVE_MASKS' else 2
     if args.command=='manifest-check':
         m=formalize_manifest(load_json(args.manifest),load_json(args.request),args.data); write_json(args.output,m); print(json.dumps({'state':'OK','contract':m['contract'],'output':str(Path(args.output).resolve())},indent=2)); return 0
     if args.command=='reference-plan':

@@ -15,9 +15,13 @@ def test_recent_method_catalog_is_closed_window_and_auditable():
     catalog = load_method_catalog(CATALOG)
     summary = method_catalog_summary(catalog)
     assert summary["search_window"] == {"from": "2024-08-13", "to": "2026-08-13"}
-    assert summary["method_count"] >= 12
+    assert summary["method_count"] >= 17
     assert summary["status_counts"]["PEER_REVIEWED"] >= 4
     assert all(item["mechanism_delta"] and item["risks"] for item in catalog["methods"])
+    decisions = {item["method_id"]: item["dor_decision"] for item in catalog["methods"]}
+    assert decisions["neural-compiler-2026"] == "ADOPT_SAFE_SUBSET"
+    assert decisions["conformal-fusion-missing-modalities-2026"] == "ADOPT_AUDIT_AND_EXISTING_EXTENSION"
+    assert decisions["perceptual-flow-matching-2026"] == "DEFER_OUT_OF_SCOPE"
 
 
 def test_method_catalog_rejects_out_of_window_claims():

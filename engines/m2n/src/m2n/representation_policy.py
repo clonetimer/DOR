@@ -50,7 +50,7 @@ def assess_representation(kind: str|RepresentationKind, semantics: Mapping[str,A
     if k is RepresentationKind.DIFFERENTIAL_DYNAMICS:
         cond=('state/time semantics declared','differential solver integration is part of the estimation contract','unknown term placement is localized')
         ok=_b(s,'continuous_time',True) and _b(s,'solver_compatible',False)
-        return RepresentationEligibility(k.value,'ELIGIBLE' if ok else 'CONDITIONALLY_ELIGIBLE','UDE_STYLE','unknown object is a differential-equation term; use solver-aware hybrid dynamics rather than a pointwise MLP' if ok else 'differential dynamics are requested but solver compatibility has not been qualified',cond,runtime_status='CONTRACT_ONLY')
+        return RepresentationEligibility(k.value,'ELIGIBLE' if ok else 'CONDITIONALLY_ELIGIBLE','UDE_STYLE','unknown object is a differential-equation term; use solver-aware hybrid dynamics rather than a pointwise MLP' if ok else 'differential dynamics are requested but solver compatibility has not been qualified',cond,runtime_status='NATIVE_FIXED_STEP_RK4' if ok else 'CONTRACT_ONLY')
 
     if k is RepresentationKind.CONSERVATIVE_HAMILTONIAN:
         cond=('canonical or reconstructable q/p coordinates','energy-like conserved quantity is physically plausible','dominant dissipation/forcing absent or modeled separately')

@@ -134,6 +134,61 @@
       "evidence_level": "E0", "dor_decision": "RESEARCH_ONLY",
       "dor_impact": "motivates adaptive calibration experiments but does not replace held-out deployment validation",
       "risks": ["preprint self-report", "coverage assumptions can fail under arbitrary shift"]
+    },
+    {
+      "method_id": "symmatika-2025",
+      "title": "SymMatika: Structure-Aware Symbolic Discovery",
+      "published_on": "2025-08-18", "venue": "arXiv", "status": "PREPRINT",
+      "primary_url": "https://arxiv.org/abs/2507.03110",
+      "task": ["symbolic regression", "implicit relation discovery"], "innovation_class": "search_algorithm",
+      "mechanism_delta": "multi-island genetic programming with feedback-driven operator scheduling and reusable expression-subtree motifs",
+      "evidence_level": "E2", "dor_decision": "ADOPT_EXTERNAL_CANDIDATE_WITH_GATE",
+      "dor_impact": "route qualified explicit or implicit mechanism gaps to the existing ISGN/M2N external adapter and require independent industrial validation before admission",
+      "risks": ["preprint self-report", "27 of 100 Feynman tasks remain unsolved", "noise robustness and high-dimensional implicit recovery remain open", "large CPU search cost"]
+    },
+    {
+      "method_id": "physics-ml-back-phm-part2-2025",
+      "title": "From Physics to Machine Learning and Back: Part II - Learning and Observational Bias in PHM",
+      "published_on": "2025-09-25", "venue": "arXiv", "status": "PREPRINT",
+      "primary_url": "https://arxiv.org/abs/2509.21207",
+      "task": ["prognostics and health management", "physics-informed learning", "sim-to-real"], "innovation_class": "review_and_taxonomy",
+      "mechanism_delta": "organizes learning and observational physics biases, virtual sensing, multimodal fusion, fleet transfer and decision-making boundaries for PHM",
+      "evidence_level": "E1", "dor_decision": "ADOPT_PRINCIPLE",
+      "dor_impact": "make bias route, virtual-sensor lineage, sim-to-real, domain generalization and missing-modality qualification explicit control-plane concerns",
+      "risks": ["review evidence is not a component benchmark", "physics constraints can be wrong or non-identifiable", "simulation evidence is not field evidence"]
+    },
+    {
+      "method_id": "neural-compiler-2026",
+      "title": "The Neural Compiler: Program-to-Network Translation for Hybrid Scientific Machine Learning",
+      "published_on": "2026-05-21", "venue": "arXiv", "status": "PREPRINT",
+      "primary_url": "https://arxiv.org/abs/2605.22498",
+      "task": ["hybrid scientific machine learning", "differentiable compilation"], "innovation_class": "system_and_architecture_combination",
+      "mechanism_delta": "compiles a restricted arithmetic program into a frozen differentiable module that composes with learned residuals",
+      "evidence_level": "E2", "dor_decision": "ADOPT_SAFE_SUBSET",
+      "dor_impact": "add an allowlisted symbolic-expression compiler and solver-aware hybrid runtime while preserving domain guards and physical-truth disclaimers",
+      "risks": ["preprint self-report", "program structure must already be known", "hybrid credit assignment may be non-unique", "singular and periodic parameter landscapes can defeat gradient fitting"]
+    },
+    {
+      "method_id": "conformal-fusion-missing-modalities-2026",
+      "title": "Conformal Fusion Under Missing Modalities",
+      "published_on": "2026-08-07", "venue": "arXiv", "status": "PREPRINT",
+      "primary_url": "https://arxiv.org/abs/2608.07183",
+      "task": ["multimodal classification", "missing modalities", "conformal calibration"], "innovation_class": "architecture_and_calibration_combination",
+      "mechanism_delta": "vacuous evidence for absent modalities, evidential opinion fusion and Mondrian conformal calibration keyed by modality-presence mask",
+      "evidence_level": "E2", "dor_decision": "ADOPT_AUDIT_AND_EXISTING_EXTENSION",
+      "dor_impact": "retain FEC mask-conditional calibration, fail closed for sparse/unseen masks and report held-out coverage and prediction-set efficiency by mask",
+      "risks": ["preprint self-report", "2^M-1 mask growth", "exchangeability is required within each mask", "single-label experiments do not establish multilabel validity"]
+    },
+    {
+      "method_id": "perceptual-flow-matching-2026",
+      "title": "Perceptual Flow Matching for Few-Step Generative Modeling",
+      "published_on": "2026-07-03", "venue": "arXiv", "status": "PREPRINT",
+      "primary_url": "https://arxiv.org/abs/2607.03524",
+      "task": ["image generation", "video generation", "few-step sampling"], "innovation_class": "training_objective",
+      "mechanism_delta": "moves flow-matching supervision from latent Euclidean velocity error to pretrained perceptual feature space",
+      "evidence_level": "E2", "dor_decision": "DEFER_OUT_OF_SCOPE",
+      "dor_impact": "do not add to the industrial diagnostic model registry without a physics-consistent time-series generation problem and leakage-safe validation",
+      "risks": ["work in progress", "vision-only evidence", "perceptual geometry may not preserve diagnostic mechanisms", "synthetic faults may be plausible-looking but physically false"]
     }
   ]
 }

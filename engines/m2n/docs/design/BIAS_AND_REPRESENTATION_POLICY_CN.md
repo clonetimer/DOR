@@ -45,6 +45,10 @@ v2.2 定义：
 
 这些名称描述**M2N 学到的架构选择原则**，并不表示工具包 vendoring 或重新实现了相应论文源码。
 
+### UDE runtime boundary
+
+v2.4 development stage 已提供安全 symbolic vector field、additive neural residual 和 fixed-step RK4 API。只有 `continuous_time=true` 且 `solver_compatible=true` 时，representation policy 才标记 `NATIVE_FIXED_STEP_RK4`。该 API 不包含 adaptive/stiff solver 或 adjoint；刚性、长轨迹和步长敏感任务仍应返回专用 solver 需求，而不是把固定步长结果当作通用 UDE 支持。
+
 ### HNN eligibility
 
 至少要求：
@@ -79,14 +83,14 @@ v2.2 定义：
 }
 ```
 
-M2N 不会继续把该槽编译成普通 local MLP。当前 native runtime 会返回：
+M2N 不会继续把该槽编译成普通 local MLP。通用 Device Card 自动 lowering 尚未绑定具体 symbolic equations 时仍会返回：
 
 ```text
 SPECIALIZED_REPRESENTATION_REQUIRED
 recommended: UDE_STYLE
 ```
 
-因此“当前没安装专用 runtime”不会导致架构语义被悄悄改变。
+因此“当前没有足够的方程/solver 合同”不会导致架构语义被悄悄改变；具备完整合同的调用方可显式使用 fixed-step UDE API。
 
 ## 5. Exact Physics Contract
 

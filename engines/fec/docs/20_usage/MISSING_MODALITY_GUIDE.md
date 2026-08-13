@@ -29,6 +29,20 @@ sets = cal.prediction_sets(test_prob, test_masks, vacuity=test_vacuity)
 
 缺失 source 被当作 vacuous evidence；其 stale array value 被忽略。
 
+### Held-out mask audit
+
+完成独立 calibration 后，可在另一个带 `true_label` 的 held-out score pack 上逐 presence mask 审计覆盖与集合效率：
+
+```bash
+fec mask-calibration-audit \
+  --scores heldout_scores_with_true_label.csv \
+  --reference class_reference.json \
+  --output mask_calibration_audit.json \
+  --min-test-group-size 20
+```
+
+报告同时给出 empirical coverage、coverage shortfall、mean/singleton/empty set size、top-class accuracy 和 unsupported rows。它是 operational audit，不创建 instance-conditional 保证；每个 mask 内仍要求 exchangeability。
+
 ## 3. 资格条件
 
 - 每个 mask 必须有足够 labeled calibration；

@@ -100,7 +100,9 @@ __all__ += [
 # v2.4 context-conditioned external score bridges (Extension/Control Plane)
 from .anomaly_score_bridge import AnomalyContextReference, fit_anomaly_score_reference, infer_anomaly_decisions
 from .context_class_score_bridge import ContextClassConformalReference, fit_context_class_score_reference, infer_context_class_prediction_sets
+from .mask_calibration_audit import MaskCoverageAudit, MaskCalibrationAuditReport, audit_mask_conditional_class_reference, write_mask_calibration_audit
 __all__ += [
     'AnomalyContextReference','fit_anomaly_score_reference','infer_anomaly_decisions',
     'ContextClassConformalReference','fit_context_class_score_reference','infer_context_class_prediction_sets',
+    'MaskCoverageAudit','MaskCalibrationAuditReport','audit_mask_conditional_class_reference','write_mask_calibration_audit',
 ]

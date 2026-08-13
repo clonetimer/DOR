@@ -421,6 +421,27 @@ def cmd_class_context_infer(args) -> int:
     }, indent=2))
     return 0
 
+
+def cmd_mask_calibration_audit(args) -> int:
+    from fec.extensions.mask_calibration_audit import write_mask_calibration_audit
+    out = write_mask_calibration_audit(
+        args.scores,
+        args.reference,
+        args.output,
+        min_test_group_size=args.min_test_group_size,
+        coverage_tolerance=args.coverage_tolerance,
+    )
+    report = json.loads(Path(out).read_text(encoding="utf-8"))
+    print(json.dumps({
+        "state": "OK",
+        "output": str(Path(out).resolve()),
+        "supported_fraction": report["supported_fraction"],
+        "all_observed_masks_supported": report["all_observed_masks_supported"],
+        "all_supported_groups_pass": report["all_supported_groups_pass"],
+        "note": report["claim_boundary"],
+    }, indent=2))
+    return 0
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="fec", description="FEC v2.4 toolkit CLI")
     sp = p.add_subparsers(dest="command", required=True)
@@ -511,6 +532,14 @@ def build_parser() -> argparse.ArgumentParser:
     cci.add_argument("--reference", required=True)
     cci.add_argument("--output", required=True)
     cci.set_defaults(func=cmd_class_context_infer)
+
+    mca = sp.add_parser("mask-calibration-audit", help="audit held-out coverage and efficiency for every observed modality mask")
+    mca.add_argument("--scores", required=True, help="held-out class score CSV containing true_label")
+    mca.add_argument("--reference", required=True)
+    mca.add_argument("--output", required=True)
+    mca.add_argument("--min-test-group-size", type=int, default=20)
+    mca.add_argument("--coverage-tolerance", type=float, default=None)
+    mca.set_defaults(func=cmd_mask_calibration_audit)
     return p
 
 
