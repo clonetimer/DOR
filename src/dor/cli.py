@@ -11,6 +11,11 @@ from .executor import execute_chain
 from .ontology import load_json as load_semantic_json, validate_fault_ontology, validate_mechanism_component_map
 from .localization import localize_from_files, localize_batch_from_files
 from .rootcause import infer_root_causes_from_files
+from .identification import identify_from_files, build_identification_request_from_files
+from .multitask import arbitrate_multitask_from_files
+from .vertical import evaluate_vertical_from_file
+from .freeze import evaluate_freeze_gate_from_files
+from .isgn_identification_bridge import build_isgn_identification_evidence_from_files
 from .stack import stack_info
 from .auto_design import predict_pipeline, run_auto_design
 from .dataset_registry import build_benchmark_plan, catalog_summary, default_catalog_path, load_catalog
@@ -71,6 +76,18 @@ def main() -> int:
     rc=sp.add_parser('root-cause',help='v0.6 prototype: infer root-cause candidate sets only with timestamped fault-specific support and provenance-bound propagation paths')
     rc.add_argument('--ontology',required=True); rc.add_argument('--localization',required=True); rc.add_argument('--evidence',required=True); rc.add_argument('--mechanism-map',default=None); rc.add_argument('--output',required=True)
     rc.add_argument('--max-root-set-size',type=int,default=3); rc.add_argument('--coverage-required',type=float,default=1.0); rc.add_argument('--alternative-margin',type=float,default=0.05); rc.add_argument('--temporal-tolerance',type=float,default=0.0); rc.add_argument('--max-path-depth',type=int,default=8)
+    ip=sp.add_parser('identify-plan',help='create a SHA-bound identification request and decide whether ISGN differential identification is required')
+    ip.add_argument('--ontology',required=True); ip.add_argument('--localization',required=True); ip.add_argument('--root-cause',default=None); ip.add_argument('--case-id',default=None); ip.add_argument('--window-start',type=float,default=None); ip.add_argument('--window-end',type=float,default=None); ip.add_argument('--window-validity',default='VALID'); ip.add_argument('--output',required=True)
+    ib=sp.add_parser('isgn-identification',help='run the bounded ISGN differential adapter on an admitted baseline and abnormal dataset')
+    ib.add_argument('--mechanism-spec',required=True); ib.add_argument('--normal',required=True); ib.add_argument('--abnormal',required=True); ib.add_argument('--ontology',required=True); ib.add_argument('--mechanism-map',required=True); ib.add_argument('--window-validity',default='VALID'); ib.add_argument('--output',required=True)
+    ident=sp.add_parser('identify',help='identify discrete/sensor changes or consume qualified ISGN differential evidence')
+    ident.add_argument('--ontology',required=True); ident.add_argument('--localization',required=True); ident.add_argument('--evidence',required=True); ident.add_argument('--root-cause',default=None); ident.add_argument('--isgn-identification',default=None); ident.add_argument('--output',required=True)
+    mt=sp.add_parser('multi-task-arbitrate',help='cross-check detection/classification/localization/root-cause/identification evidence')
+    mt.add_argument('--detection',default=None); mt.add_argument('--classification',default=None); mt.add_argument('--localization',default=None); mt.add_argument('--root-cause',default=None); mt.add_argument('--identification',default=None); mt.add_argument('--case-id',default=None); mt.add_argument('--output',required=True)
+    vv=sp.add_parser('vertical-validate',help='evaluate domain/task evidence grades without upgrading cross-domain evidence')
+    vv.add_argument('--registry',required=True); vv.add_argument('--output',required=True)
+    fg=sp.add_parser('freeze-gate',help='evaluate explicit development-exit gates')
+    fg.add_argument('--evidence',required=True); fg.add_argument('--vertical',required=True); fg.add_argument('--output',required=True)
     ca=sp.add_parser('class-arbitrate',help='conservative arbitration over one or more FEC class prediction-set CSVs')
     ca.add_argument('--fec-output',action='append',required=True,help='repeat for each retained model')
     ca.add_argument('--output',required=True); ca.add_argument('--summary',required=True); ca.add_argument('--id-column',default='sample_id'); ca.add_argument('--true-label-column',default='true_label')
@@ -135,10 +152,26 @@ def main() -> int:
     if args.command=='root-cause':
         result=infer_root_causes_from_files(args.ontology,args.localization,args.evidence,mechanism_map_path=args.mechanism_map,max_root_set_size=args.max_root_set_size,coverage_required=args.coverage_required,alternative_margin=args.alternative_margin,temporal_tolerance=args.temporal_tolerance,max_path_depth=args.max_path_depth)
         write_json(args.output,result); print(json.dumps({'state':'OK','root_cause_status':result['status'],'root_cause_set':result.get('root_cause_set',[]),'output':str(Path(args.output).resolve())},indent=2)); return 0
+    if args.command=='identify-plan':
+        result=build_identification_request_from_files(args.ontology,args.localization,root_cause_path=args.root_cause,case_id=args.case_id,window_start=args.window_start,window_end=args.window_end,window_evidence_validity=args.window_validity)
+        write_json(args.output,result); print(json.dumps({'state':'OK','request_status':result['status'],'isgn_admission':result.get('engine_admissions',{}).get('ISGN'),'output':str(Path(args.output).resolve())},indent=2)); return 0 if result['status']!='BLOCKED' else 2
+    if args.command=='isgn-identification':
+        result=build_isgn_identification_evidence_from_files(args.mechanism_spec,args.normal,args.abnormal,args.ontology,args.mechanism_map,window_evidence_validity=args.window_validity)
+        write_json(args.output,result); print(json.dumps({'state':'OK','isgn_identification_status':result['status'],'supported_changes':sum(bool(x.get('supported')) for x in result.get('changes',[])),'output':str(Path(args.output).resolve())},indent=2)); return 0
+    if args.command=='identify':
+        result=identify_from_files(args.ontology,args.localization,args.evidence,root_cause_path=args.root_cause,isgn_identification_path=args.isgn_identification)
+        write_json(args.output,result); print(json.dumps({'state':'OK','identification_status':result['status'],'n_identifications':len(result.get('identifications',[])),'output':str(Path(args.output).resolve())},indent=2)); return 0
     if args.command=='anomaly-arbitrate':
         arbitrate_anomaly_csv(args.fec_output,args.output,args.summary); print(json.dumps({'state':'OK','output':str(Path(args.output).resolve()),'summary':str(Path(args.summary).resolve())},indent=2)); return 0
     if args.command=='anomaly-portfolio-arbitrate':
         arbitrate_anomaly_portfolio(args.fec_output,args.output,args.summary,id_column=args.id_column); print(json.dumps({'state':'OK','output':str(Path(args.output).resolve()),'summary':str(Path(args.summary).resolve())},indent=2)); return 0
+    if args.command=='multi-task-arbitrate':
+        result=arbitrate_multitask_from_files(detection_path=args.detection,classification_path=args.classification,localization_path=args.localization,root_cause_path=args.root_cause,identification_path=args.identification,case_id=args.case_id)
+        write_json(args.output,result); print(json.dumps({'state':'OK','multitask_status':result['status'],'diagnostic_depth':result['diagnostic_depth'],'output':str(Path(args.output).resolve())},indent=2)); return 0 if result['status']!='ABSTAIN' else 2
+    if args.command=='vertical-validate':
+        result=evaluate_vertical_from_file(args.registry); write_json(args.output,result); print(json.dumps({'state':'OK','vertical_status':result['status'],'missing_gates':result['missing_gates'],'output':str(Path(args.output).resolve())},indent=2)); return 0 if result['status']!='BLOCKED' else 2
+    if args.command=='freeze-gate':
+        result=evaluate_freeze_gate_from_files(args.evidence,args.vertical); write_json(args.output,result); print(json.dumps({'state':'OK','freeze_status':result['status'],'blocking_gates':result['blocking_gates'],'output':str(Path(args.output).resolve())},indent=2)); return 0 if result['status']=='READY_FOR_1_0_FREEZE' else 3
     if args.command=='class-arbitrate':
         arbitrate_class_portfolio(args.fec_output,args.output,args.summary,id_column=args.id_column,true_label_column=args.true_label_column); print(json.dumps({'state':'OK','output':str(Path(args.output).resolve()),'summary':str(Path(args.summary).resolve())},indent=2)); return 0
     return 2

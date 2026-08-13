@@ -1,12 +1,12 @@
-# DOR 四工具合体故障诊断工具包 — v0.5 使用指南
+# DOR 四工具合体故障诊断工具包 — v0.8 集成开发版使用指南
 
-版本：DOR 0.5.0 / ISGN 2.2.0 / M2N 2.3.1 / FEC 2.4.0
+源码版本：DOR 0.8.0.dev0 / ISGN 2.2.0 / M2N 2.12.0+dor.1 / FEC 2.4.0
 
-> v0.5 是开发候选。Detection / Classification 的运行主链继承 v0.4；v0.5 新增的是 Fault Semantics / Localization。Root Cause / Propagation / Identification 尚未声明完成。
+> v0.8 是选择性集成开发版：保留表格诊断、符号编译和 UDE，新增模型族/时序/波形设计、辨识桥、多任务仲裁与验证冻结门。它不保证任意设备的全局最优模型。
 
 ## 1. 安装
 
-推荐从 `wheels/` 安装四个 wheel，或使用 `scripts/install.sh` / `scripts/install.ps1`。
+推荐使用 `scripts/install.sh` / `scripts/install.ps1` 从当前源码安装四个组件。`wheels/` 是本地构建产物，不作为 Git 源码交付的唯一安装路径。
 
 验证：
 
@@ -15,6 +15,24 @@ dor stack-info
 isgn doctor
 m2n doctor
 fec --help
+```
+
+### 模型族与时序设计
+
+```bash
+m2n model-plan --spec device_card.json --data sequence.csv --out model_plan.json
+m2n temporal-design --spec device_card.json --data sequence.csv --out temporal_output
+m2n predict-temporal --design-dir temporal_output --data heldout.csv --out predictions.csv
+```
+
+`DeviceCard` 必须显式声明 independent context、局部时间、数据 split 和 `modeling_contract`。工况支持标志只表示是否位于训练经验支持域，不是故障概率。
+
+### 辨识与跨任务仲裁
+
+```bash
+dor identify-plan --ontology fault_ontology.json --localization localization.json --output identification_request.json
+dor identify --ontology fault_ontology.json --localization localization.json --evidence evidence.json --output identification.json
+dor multi-task-arbitrate --detection detection.json --localization localization.json --identification identification.json --output diagnosis.json
 ```
 
 ## 2. 原 v0.4 主链仍然可用

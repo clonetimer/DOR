@@ -36,6 +36,7 @@ from .design_session import run_design_session
 
 
 SUPPORTED_TEMPLATES = {'second_order_mechanics', 'separable_peak_response', 'generic_mechanism_graph'}
+SUPPORTED_SCHEMA_VERSIONS = ('1.0','2.0','2.1','2.2','2.3','2.4','2.5','2.6','2.7','2.8','2.9','2.10','2.11','2.12')
 
 
 def _sha256(path: Path) -> str:
@@ -69,6 +70,64 @@ def _read_csv(path: Path) -> dict[str, np.ndarray]:
         except Exception:
             arrays[k]=np.asarray(v,dtype=object)
     return arrays
+
+
+def _evidence_coordinates(spec: Mapping[str,Any], data: Mapping[str,np.ndarray]) -> tuple[np.ndarray, np.ndarray | None, str | None]:
+    """Resolve the sample time and independent-context coordinates for outputs.
+
+    ``data.time_column`` is authoritative when declared.  Otherwise common time
+    column names and the second-order derivative time column are used.  Local
+    time is allowed to reset between declared independent contexts; callers that
+    aggregate over time must preserve the returned context vector.
+    """
+    n=len(next(iter(data.values()))) if data else 0
+    dcfg=spec.get('data',{}) or {}
+    qcfg=spec.get('qualification',{}) or {}
+    context_col=qcfg.get('independent_context_column')
+    context=None
+    if context_col:
+        context_col=str(context_col)
+        if context_col not in data:
+            raise ValueError(f'missing declared independent context column {context_col!r}')
+        context=np.asarray(data[context_col])
+        if len(context)!=n:
+            raise ValueError('independent context length does not match data rows')
+        if context.dtype.kind in 'fiu':
+            if not np.all(np.isfinite(np.asarray(context,float))):
+                raise ValueError(f'independent context column {context_col!r} contains non-finite values')
+        elif any(x is None or not str(x).strip() for x in np.asarray(context,dtype=object)):
+            raise ValueError(f'independent context column {context_col!r} contains missing values')
+
+    declared_time=dcfg.get('time_column')
+    candidates=[]
+    if declared_time:
+        candidates.append(str(declared_time))
+    candidates.extend(['time_s','t_s','time','timestamp'])
+    if spec.get('template')=='second_order_mechanics':
+        der=(spec.get('supervision',{}) or {}).get('derive_acceleration') or {}
+        if der.get('time_column'):
+            candidates.append(str(der['time_column']))
+    time_col=None
+    for c in dict.fromkeys(candidates):
+        if c in data:
+            time_col=c
+            break
+    if declared_time and str(declared_time) not in data:
+        raise ValueError(f'missing declared time column {str(declared_time)!r}')
+    if time_col is None:
+        return np.arange(n,dtype=float),context,None
+    try:
+        t=np.asarray(data[time_col],float)
+    except Exception as e:
+        raise ValueError(f'time column {time_col!r} is not numeric') from e
+    if len(t)!=n or not np.all(np.isfinite(t)):
+        raise ValueError(f'time column {time_col!r} contains invalid values')
+    if context is not None:
+        for cid in np.unique(context):
+            ii=np.flatnonzero(context==cid)
+            if len(ii)>1 and np.any(np.diff(t[ii])<=0):
+                raise ValueError(f'time column {time_col!r} must be strictly increasing within independent context {cid!r}')
+    return t,context,time_col
 
 
 def _split_indices(data: Mapping[str,np.ndarray], cfg: Mapping[str,Any]) -> tuple[np.ndarray,np.ndarray]:
@@ -142,6 +201,13 @@ def _required_columns(spec: Mapping[str,Any]) -> tuple[str,...]:
 def _basic_data_qualification(spec: Mapping[str,Any], data: Mapping[str,np.ndarray], tri:np.ndarray, vai:np.ndarray) -> tuple[str,str,tuple[str,...],dict[str,Any]]:
     required=_required_columns(spec)
     kind=spec['template']; sup=spec['supervision']
+    qcfg=spec.get('qualification',{})
+    context_col=qcfg.get('independent_context_column')
+    if context_col is not None and str(context_col) not in data:
+        name=str(context_col)
+        return 'UNSUPPORTED','PARTIAL',(f'missing declared independent context column: {name!r}',),{
+            'missing_independent_context_column':name,'n_train':int(len(tri)),'n_validation':int(len(vai)),
+        }
     missing=[c for c in required if c not in data]
     if missing:
         return 'UNSUPPORTED','UNSUPPORTED',(f'missing required observed columns: {missing}',),{'missing_columns':missing,'n_train':int(len(tri)),'n_validation':int(len(vai))}
@@ -160,10 +226,15 @@ def _basic_data_qualification(spec: Mapping[str,Any], data: Mapping[str,np.ndarr
         inputs=list(sup['input_columns'].values()); targets=[sup['target_column']]; has_structure_search=True
     else:
         inputs=list(sup['input_columns'].values()); targets=list(sup['output_columns'].values()); has_structure_search=any(str(x.get('level')) in ('K2','K3') for x in spec.get('knowledge',{}).get('slots',[]))
-    qcfg=spec.get('qualification',{})
     max_out=float(qcfg.get('max_validation_outside_train_fraction',0.25)) if has_structure_search else 1.0
+    min_train_contexts=qcfg.get('min_train_independent_contexts')
+    min_validation_contexts=qcfg.get('min_validation_independent_contexts')
     q=qualify_tabular_design(
         data,required_inputs=inputs,target_columns=targets,train_idx=tri,validation_idx=vai,
+        independent_context=None if context_col is None else np.asarray(data[str(context_col)]),
+        independent_context_evidence_scope=str(qcfg.get('evidence_scope','PRODUCTION')),
+        min_train_independent_contexts=None if min_train_contexts is None else int(min_train_contexts),
+        min_validation_independent_contexts=None if min_validation_contexts is None else int(min_validation_contexts),
         min_train_rows=int(qcfg.get('min_train_rows',50)),min_validation_rows=int(qcfg.get('min_validation_rows',20)),
         min_target_std=float(qcfg.get('min_target_std',1e-10)),
         max_validation_outside_train_fraction=max_out,
@@ -468,8 +539,8 @@ class GoalDrivenDesignSummary:
 def run_goal_driven_design(spec_path:str|Path, data_path:str|Path, output_dir:str|Path) -> GoalDrivenDesignSummary:
     spec_path=Path(spec_path); data_path=Path(data_path); out=Path(output_dir); out.mkdir(parents=True,exist_ok=True)
     raw_spec=json.loads(spec_path.read_text(encoding='utf-8'))
-    if str(raw_spec.get('schema_version')) not in ('1.0','2.0','2.1'):
-        raise ValueError('device card schema_version must be 1.0, 2.0, or 2.1')
+    if str(raw_spec.get('schema_version')) not in SUPPORTED_SCHEMA_VERSIONS:
+        raise ValueError(f'device card schema_version must be one of {SUPPORTED_SCHEMA_VERSIONS}')
     if raw_spec.get('template') not in SUPPORTED_TEMPLATES:
         raise ValueError(f"unsupported template {raw_spec.get('template')!r}; supported={sorted(SUPPORTED_TEMPLATES)}")
     data=_read_csv(data_path); spec,derived_notes=_prepare_derived_supervision(copy.deepcopy(raw_spec),data); tri,vai=_split_indices(data,spec.get('data',{}))
@@ -498,7 +569,7 @@ def run_goal_driven_design(spec_path:str|Path, data_path:str|Path, output_dir:st
         artifacts['backend_actions']='backend_actions.json'
 
     if plan.planning_status!='READY':
-        result={'status':plan.planning_status,'planning_status':plan.planning_status,'selected_candidate_id':None,'candidate_validation_risks':{},'reasons':list(plan.reasons),'backend_actions':[x.to_dict() for x in backend_actions]}
+        result={'status':plan.planning_status,'planning_status':plan.planning_status,'selected_candidate_id':None,'candidate_validation_risks':{},'reasons':list(plan.reasons),'backend_actions':[x.to_dict() for x in backend_actions],'qualification_evidence_scope':str(spec.get('qualification',{}).get('evidence_scope','PRODUCTION'))}
         (out/'design_result.json').write_text(json.dumps(result,indent=2,ensure_ascii=False),encoding='utf-8')
         (out/'DESIGN_REPORT.md').write_text(_blueprint_markdown(spec,plan,result,diagnostics),encoding='utf-8')
         artifacts.update({'result':'design_result.json','report':'DESIGN_REPORT.md'})
@@ -512,7 +583,7 @@ def run_goal_driven_design(spec_path:str|Path, data_path:str|Path, output_dir:st
         (out/'model_set_routing.json').write_text(json.dumps(route.to_dict(),indent=2,ensure_ascii=False),encoding='utf-8')
         artifacts['model_set_routing']='model_set_routing.json'
         if route.status=='MODEL_SET_BACKEND_RECOMMENDED' and not bool(spec.get('backends',{}).get('force_exact_enumeration',False)):
-            result={'status':'MODEL_SET_BACKEND_RECOMMENDED','planning_status':'READY','selected_candidate_id':None,'candidate_validation_risks':{},'reasons':[route.reason],'backend_actions':[x.to_dict() for x in backend_actions]}
+            result={'status':'MODEL_SET_BACKEND_RECOMMENDED','planning_status':'READY','selected_candidate_id':None,'candidate_validation_risks':{},'reasons':[route.reason],'backend_actions':[x.to_dict() for x in backend_actions],'qualification_evidence_scope':str(spec.get('qualification',{}).get('evidence_scope','PRODUCTION'))}
             (out/'design_result.json').write_text(json.dumps(result,indent=2,ensure_ascii=False),encoding='utf-8')
             (out/'DESIGN_REPORT.md').write_text(_blueprint_markdown(spec,plan,result,diagnostics),encoding='utf-8')
             artifacts.update({'result':'design_result.json','report':'DESIGN_REPORT.md'})
@@ -535,6 +606,7 @@ def run_goal_driven_design(spec_path:str|Path, data_path:str|Path, output_dir:st
     dr=run_design_session(plan,skeleton,bindings,evaluator,selection_policy=ArchitectureSelectionPolicy(float(policy_cfg.get('practical_ratio',0.8)),float(policy_cfg.get('restart_stability',0.75))),max_candidates=int(spec.get('max_candidates',64)))
     candidate_exact_contracts={c.id:audit_exact_physics(c.ir).to_dict() for c in dr.candidate_space.candidates}
     d=dr.to_dict(); d['network_blueprints']=_network_blueprints(dr.candidate_space); d['backend_actions']=[x.to_dict() for x in backend_actions]
+    d['qualification_evidence_scope']=str(spec.get('qualification',{}).get('evidence_scope','PRODUCTION'))
 
     # P4: a finite family must first fail an absolute normalized fit gate. Only
     # then may a previously declared *local* K3 escape be evaluated.
@@ -611,7 +683,7 @@ def run_goal_driven_design(spec_path:str|Path, data_path:str|Path, output_dir:st
     target_names=_target_output_names(spec); target_cols=_target_columns(spec)
     target_scales={n:max(float(np.std(np.asarray(data[c],float)[tri])),1e-12) for n,c in zip(target_names,target_cols)}
     save_support_reference(ref,support_cols,target_scales,out/'normal_support.json'); artifacts['normal_support']='normal_support.json'
-    evidence_contract={'contract':'M2N-MODEL-EVIDENCE/2.0','output_names':list(target_names),'support_input_columns':list(support_cols),'model_count':len(deploy_ids),'semantics':{'mechanism_residual':'normalized residual of an admissible frozen M2N model family','model_disagreement':'prediction spread across a retained finite architecture set','support_ood':'normal-commissioning reference qualification, not a fault probability'},'prohibited_claims':['fault probability','fault class','RUL','physical parameter drift unless separately qualified']}
+    evidence_contract={'contract':'M2N-MODEL-EVIDENCE/2.2','output_names':list(target_names),'support_input_columns':list(support_cols),'model_count':len(deploy_ids),'qualification_evidence_scope':str(spec.get('qualification',{}).get('evidence_scope','PRODUCTION')),'semantics':{'mechanism_residual':'normalized residual of an admissible frozen M2N model family','model_disagreement':'prediction spread across a retained finite architecture set','support_ood':'normal-commissioning reference qualification, not a fault probability','mechanism_evidence_in_support':'1 only when the sample remains inside the frozen normal-support domain; out-of-support residual/disagreement are retained for audit but are not normal-domain mechanism evidence'},'prohibited_claims':['fault probability','fault class','RUL','physical parameter drift unless separately qualified']}
     (out/'evidence_contract.json').write_text(json.dumps(evidence_contract,indent=2,ensure_ascii=False),encoding='utf-8'); artifacts['evidence_contract']='evidence_contract.json'
 
     (out/'DESIGN_REPORT.md').write_text(_blueprint_markdown(spec,plan,d,diagnostics),encoding='utf-8'); artifacts['report']='DESIGN_REPORT.md'
@@ -645,7 +717,7 @@ def _inference_required_columns(spec:Mapping[str,Any]) -> tuple[str,...]:
 
 
 def predict_model_artifact(artifact_path:str|Path, data_path:str|Path, output_path:str|Path) -> Path:
-    payload=torch.load(Path(artifact_path),map_location='cpu',weights_only=False)
+    payload=torch.load(Path(artifact_path),map_location='cpu',weights_only=True)
     if payload.get('toolkit_format') not in ('M2N_GOAL_MODEL_V1','M2N_GOAL_MODEL_V2'):
         raise ValueError('unsupported model artifact format')
     spec,model=_candidate_from_payload(payload); data=_read_csv(Path(data_path)); n=len(next(iter(data.values()))); idx=np.arange(n)
@@ -655,8 +727,17 @@ def predict_model_artifact(artifact_path:str|Path, data_path:str|Path, output_pa
     if pred.ndim==1: pred=pred[:,None]
     names=_target_output_names(spec)
     output_path=Path(output_path); output_path.parent.mkdir(parents=True,exist_ok=True)
+    t,context,time_col=_evidence_coordinates(spec,data)
+    headers=[]; arrays=[]
+    if context is not None:
+        headers.append('m2n_independent_context'); arrays.append(np.asarray(context))
+    if time_col is not None:
+        headers.append('time_s'); arrays.append(np.asarray(t,float))
+    for j,name in enumerate(names):
+        headers.append(f'm2n_prediction__{name}'); arrays.append(pred[:,j])
+    mat=np.column_stack(arrays)
     with output_path.open('w',encoding='utf-8',newline='') as f:
-        w=csv.writer(f); w.writerow([f'm2n_prediction__{n}' for n in names]); w.writerows(pred.tolist())
+        w=csv.writer(f); w.writerow(headers); w.writerows(mat.tolist())
     return output_path
 
 
@@ -675,15 +756,14 @@ def generate_model_evidence(design_dir:str|Path, data_path:str|Path, output_path
     if not model_paths: raise ValueError('design contains no deployable model artifacts; evidence cannot be generated')
     preds={}
     for mp in model_paths:
-        payload=torch.load(mp,map_location='cpu',weights_only=False); _,m=_candidate_from_payload(payload)
+        payload=torch.load(mp,map_location='cpu',weights_only=True); _,m=_candidate_from_payload(payload)
         with torch.no_grad(): preds[str(payload['candidate_id'])]=np.asarray(_predict(spec2,m,data,idx).detach().cpu().numpy(),float)
     target=np.asarray(_target(spec2,data,idx).detach().cpu().numpy(),float)
     ref,cols,scales=load_support_reference(root/'normal_support.json')
     X=np.column_stack([np.asarray(data[c],float) for c in cols])
     dist,ood=ref.score(X)
-    if 'time_s' in data: t=np.asarray(data['time_s'],float)
-    elif 'time' in data: t=np.asarray(data['time'],float)
-    elif spec2['template']=='second_order_mechanics' and spec2['supervision'].get('derive_acceleration'):
-        t=np.asarray(data[spec2['supervision']['derive_acceleration']['time_column']],float)
-    else: t=np.arange(n,dtype=float)
-    return write_evidence_csv(output_path,time=t,output_names=_target_output_names(spec2),target=target,predictions=preds,support_distance=dist,support_ood=ood,target_scales=scales)
+    t,context,_=_evidence_coordinates(spec2,data)
+    return write_evidence_csv(
+        output_path,time=t,output_names=_target_output_names(spec2),target=target,predictions=preds,
+        support_distance=dist,support_ood=ood,target_scales=scales,independent_context=context,
+    )

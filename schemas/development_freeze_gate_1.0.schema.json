@@ -1,0 +1,15 @@
+{
+ "$schema":"https://json-schema.org/draft/2020-12/schema",
+ "title":"DOR Development Freeze Gate 1.0",
+ "type":"object",
+ "required":["contract","status","reason","gates","blocking_gates","vertical_status","safety"],
+ "properties":{
+  "contract":{"const":"DOR-DEVELOPMENT-FREEZE-GATE/1.0"},
+  "status":{"enum":["READY_FOR_1_0_FREEZE","BLOCKED"]},
+  "reason":{"type":"string"},
+  "gates":{"type":"array","items":{"type":"object","required":["gate","status","reason","evidence"],"properties":{"gate":{"type":"string"},"status":{"enum":["PASS","BLOCKED"]},"reason":{"type":"string"},"evidence":{"type":"array"}}}},
+  "blocking_gates":{"type":"array","items":{"type":"string"}},
+  "vertical_status":{"type":"string"},
+  "safety":{"type":"object"}
+ }
+}

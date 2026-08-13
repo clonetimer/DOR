@@ -1,0 +1,20 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"DOR-MULTITASK-DIAGNOSIS/0.8",
+  "type":"object",
+  "required":["contract","status","reason","diagnostic_depth","task_states","claims","contradictions","safety"],
+  "properties":{
+    "contract":{"const":"DOR-MULTITASK-DIAGNOSIS/0.8"},
+    "case_id":{"type":["string","null"]},
+    "status":{"enum":["SUPPORTED","ALTERNATIVES","UNKNOWN","ABSTAIN"]},
+    "reason":{"type":"string"},
+    "diagnostic_depth":{"enum":["NONE","DETECTION","CLASSIFICATION","LOCALIZATION","ROOT_CAUSE","IDENTIFICATION"]},
+    "task_states":{"type":"object"},
+    "claims":{"type":"object"},
+    "contradictions":{"type":"array","items":{"type":"string"}},
+    "warnings":{"type":"array","items":{"type":"string"}},
+    "artifact_bindings":{"type":"object"},
+    "safety":{"type":"object","required":["test_truth_allowed","root_cause_claimed"]}
+  },
+  "additionalProperties":true
+}

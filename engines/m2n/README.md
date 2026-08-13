@@ -1,8 +1,8 @@
-# M2N Practitioner Kit v2.3
+# M2N Practitioner Kit v2.12.0+dor.1
 
 **Mechanism-to-Model / Scientific-ML + Diagnostic Model Orchestration Toolkit**
 
-M2N v2.3 有两条受同一资格原则约束的主入口：
+本集成版有三条受同一资格原则约束的主入口：
 
 ```text
 A. 正常机理/Scientific-ML 设计
@@ -26,9 +26,21 @@ DOR 任务合同 + 故障/正常数据 + raw/mechanism features
  Diagnostic Model Bundle + class/anomaly scores
                 ↓
         FEC calibration → DOR
+
+C. 模型族与时序设计（v2.12 integration）
+机理合同 + 独立 trajectory/context + 局部时间
+                ↓
+ 模型族资格 / 时序与波形候选竞争
+                ↓
+ Linear AR / TCN / GRU / Transformer
+ K1 / Bounded / Affine / Quaternion
+                ↓
+ 工况支持域 + Frozen Temporal Bundle
 ```
 
 v2.3 不增加第五个工具，而是在 M2N 内补上此前缺失的“谁负责训练和比较诊断模型”这一层。它不是全局 AutoML：候选集合有限、必须显式分割 train/validation/calibration/test、允许 AMBIGUOUS/PORTFOLIO/UNSUPPORTED，最终故障语义与根因仍属于 DOR。v2.2 的 Scientific-ML bias/representation 原则保持不变。
+
+`+dor.1` 保留这条诊断模型通道、安全符号编译和 UDE，同时选择性合入 v2.12 的模型族、时序、波形、独立上下文和运行工况支持能力。它仍不是全局 NAS，也不把支持域解释成故障概率。
 
 ## 1. 目录
 
@@ -73,6 +85,9 @@ m2n predict-design --design-dir output --data data/normal_data.csv --out predict
 m2n policy-preview --spec device_card.json --out reports/policy_preview.json
 m2n validate --spec device_card.json [--data normal.csv]
 m2n inspect-data --spec device_card.json --data normal.csv
+m2n model-plan --spec device_card.json --data sequence.csv
+m2n temporal-design --spec device_card.json --data sequence.csv --out temporal_output
+m2n predict-temporal --design-dir temporal_output --data heldout.csv --out predictions.csv
 m2n predict-design --design-dir output --data heldout.csv --out predictions.csv
 m2n seal-bundle --design-dir output
 m2n check-bundle --design-dir output

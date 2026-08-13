@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DOR adapter baseline for ISGN differential identification v0.7",
+  "type": "object",
+  "required": ["contract", "certificate_status", "graph", "provenance"],
+  "properties": {
+    "contract": {"const": "DOR-ISGN-MECHANISM-BASELINE/0.7"},
+    "certificate_status": {"type": "string"},
+    "graph": {"type": "object", "minProperties": 1},
+    "operators": {"type": "object"},
+    "operator_parameters": {"type": "object"},
+    "provenance": {"type": "object", "required": ["source"]}
+  }
+}

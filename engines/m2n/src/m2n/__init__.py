@@ -6,8 +6,8 @@ contracts, IR lowering/compilation, architecture selection, finite portfolios,
 and model-evidence utilities without the historical experiment harnesses.
 """
 
-__version__ = "2.3.1"
-__method_baseline__ = "M2N v6.3 adjudication baseline + practitioner P1-P5 + v2.2 bias/representation policy + v2.3 finite diagnostic model orchestration + v2.3.1 application patch for string-label MLP and calibrated ambiguity portfolios; adopted methods do not bypass qualification"
+__version__ = "2.12.0+dor.1"
+__method_baseline__ = "M2N v2.12 model-family/temporal/context-support integration plus DOR finite diagnostic orchestration, safe symbolic compilation and UDE; adopted methods do not bypass qualification"
 
 from .canonical_ir import Dim, CanonicalIR, canonical_signature, compile_canonical
 from .knowledge_contract import (
@@ -154,6 +154,15 @@ from .diagnostic_modeling import (
     list_diagnostic_families, qualify_diagnostic_request, build_diagnostic_candidates,
     run_diagnostic_model_design, predict_diagnostic_design,
 )
+from .model_family import (
+    ModelingObjective, InputRepresentation, MechanismUsage, ModelFamily,
+    ModelingContract, FamilyEligibility, ModelFamilyPlan,
+    profile_modeling_data, qualify_model_families, load_and_plan_model_families,
+)
+from .temporal_design import (
+    TemporalModelKind, TemporalCandidate, TemporalQualification, TemporalDesignSummary,
+    qualify_temporal_design, run_temporal_design, predict_temporal_design,
+)
 
 __all__ += [
     "SymbolicParameter", "SymbolicCompilationContract", "SymbolicCompilationError",
@@ -165,4 +174,9 @@ __all__ += [
     "DiagnosticSelectionPolicy", "DiagnosticSelectionDecision", "DiagnosticDesignSummary",
     "list_diagnostic_families", "qualify_diagnostic_request", "build_diagnostic_candidates",
     "run_diagnostic_model_design", "predict_diagnostic_design",
+    "ModelingObjective", "InputRepresentation", "MechanismUsage", "ModelFamily",
+    "ModelingContract", "FamilyEligibility", "ModelFamilyPlan",
+    "profile_modeling_data", "qualify_model_families", "load_and_plan_model_families",
+    "TemporalModelKind", "TemporalCandidate", "TemporalQualification", "TemporalDesignSummary",
+    "qualify_temporal_design", "run_temporal_design", "predict_temporal_design",
 ]

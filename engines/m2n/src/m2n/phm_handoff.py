@@ -39,7 +39,7 @@ def load_support_reference(path: str|Path):
     return ref,tuple(d['columns']),{str(k):float(v) for k,v in d.get('target_scales',{}).items()}
 
 
-def write_evidence_csv(path: str|Path, *, time: np.ndarray, output_names: tuple[str,...], target: np.ndarray, predictions: Mapping[str,np.ndarray], support_distance: np.ndarray, support_ood: np.ndarray, target_scales: Mapping[str,float]):
+def write_evidence_csv(path: str|Path, *, time: np.ndarray, output_names: tuple[str,...], target: np.ndarray, predictions: Mapping[str,np.ndarray], support_distance: np.ndarray, support_ood: np.ndarray, target_scales: Mapping[str,float], independent_context: np.ndarray | None=None):
     ids=tuple(predictions)
     stack=np.stack([np.asarray(predictions[k],float) for k in ids],axis=0) # [M,N,D]
     target=np.asarray(target,float)
@@ -51,13 +51,21 @@ def write_evidence_csv(path: str|Path, *, time: np.ndarray, output_names: tuple[
     best_rms=np.min(candidate_rms,axis=0)
     med_rms=np.median(candidate_rms,axis=0)
     disagreement=np.sqrt(np.mean((np.std(stack,axis=0)/scales[None,:])**2,axis=1)) if len(ids)>1 else np.zeros(target.shape[0])
-    fields=['time_s','m2n_best_finite_residual','m2n_median_finite_residual','m2n_model_disagreement','m2n_normal_support_distance','m2n_normal_support_ood']
+    context=None if independent_context is None else np.asarray(independent_context)
+    if context is not None and len(context)!=len(time):
+        raise ValueError('independent_context length must match evidence time length')
+    fields=['time_s']
+    if context is not None: fields.append('m2n_independent_context')
+    fields += ['m2n_best_finite_residual','m2n_median_finite_residual','m2n_model_disagreement','m2n_normal_support_distance','m2n_normal_support_ood','m2n_mechanism_evidence_in_support']
     fields += [f'm2n_best_finite_residual__{n}' for n in output_names]
     p=Path(path); p.parent.mkdir(parents=True,exist_ok=True)
     with p.open('w',encoding='utf-8',newline='') as f:
         w=csv.DictWriter(f,fieldnames=fields); w.writeheader()
         for i in range(len(time)):
-            row={'time_s':float(time[i]),'m2n_best_finite_residual':float(best_rms[i]),'m2n_median_finite_residual':float(med_rms[i]),'m2n_model_disagreement':float(disagreement[i]),'m2n_normal_support_distance':float(support_distance[i]),'m2n_normal_support_ood':int(bool(support_ood[i]))}
+            row={'time_s':float(time[i]),'m2n_best_finite_residual':float(best_rms[i]),'m2n_median_finite_residual':float(med_rms[i]),'m2n_model_disagreement':float(disagreement[i]),'m2n_normal_support_distance':float(support_distance[i]),'m2n_normal_support_ood':int(bool(support_ood[i])),'m2n_mechanism_evidence_in_support':int(not bool(support_ood[i]))}
+            if context is not None:
+                v=context[i]
+                row['m2n_independent_context']=v.item() if isinstance(v,np.generic) else v
             for j,n in enumerate(output_names): row[f'm2n_best_finite_residual__{n}']=float(best_channel[i,j])
             w.writerow(row)
     return p
@@ -75,22 +83,32 @@ def export_fec_contact_pack(evidence_csv: str|Path, output_csv: str|Path, contra
     if 'time_s' not in df: raise KeyError('time_s missing from M2N evidence')
     contacts=[c for c in df.columns if c.startswith('m2n_best_finite_residual__')]
     if not contacts: raise ValueError('no mechanism residual contacts found')
-    t=np.asarray(df['time_s'],float); start=float(t[0]); bins=np.floor((t-start)/float(window_s)+1e-12).astype(int)
+    t=np.asarray(df['time_s'],float)
+    context_col='m2n_independent_context' if 'm2n_independent_context' in df else None
+    groups=[(None,np.arange(len(df)))] if context_col is None else [(cid,np.flatnonzero(np.asarray(df[context_col],dtype=object)==cid)) for cid in pd.unique(df[context_col])]
     rows=[]
-    for b in np.unique(bins):
-        m=bins==b
-        if int(np.sum(m))<min_samples: continue
-        r={'time_s':float(np.mean(t[m]))}
-        for c in contacts+['m2n_model_disagreement']:
-            x=np.asarray(df.loc[m,c],float); r[c]=float(np.sqrt(np.mean(x*x)))
-        r['m2n_normal_support_distance']=float(np.median(np.asarray(df.loc[m,'m2n_normal_support_distance'],float)))
-        r['m2n_normal_support_ood_fraction']=float(np.mean(np.asarray(df.loc[m,'m2n_normal_support_ood'],int)>0))
-        rows.append(r)
+    for cid,ii in groups:
+        tg=t[ii]
+        if len(tg)>1 and np.any(np.diff(tg)<=0):
+            raise ValueError('time_s must be strictly increasing within each independent context before FEC windowing')
+        start=float(tg[0]); bins=np.floor((tg-start)/float(window_s)+1e-12).astype(int)
+        for b in np.unique(bins):
+            local=bins==b
+            if int(np.sum(local))<min_samples: continue
+            m=ii[local]
+            r={'time_s':float(np.mean(t[m]))}
+            if context_col is not None: r[context_col]=cid
+            for c in contacts+['m2n_model_disagreement']:
+                x=np.asarray(df.loc[m,c],float); r[c]=float(np.sqrt(np.mean(x*x)))
+            r['m2n_normal_support_distance']=float(np.median(np.asarray(df.loc[m,'m2n_normal_support_distance'],float)))
+            r['m2n_normal_support_ood_fraction']=float(np.mean(np.asarray(df.loc[m,'m2n_normal_support_ood'],int)>0))
+            r['m2n_mechanism_evidence_in_support_fraction']=float(np.mean(np.asarray(df.loc[m,'m2n_mechanism_evidence_in_support'],int)>0)) if 'm2n_mechanism_evidence_in_support' in df else 1.0-r['m2n_normal_support_ood_fraction']
+            rows.append(r)
     if len(rows)<2: raise ValueError('FEC contact windowing produced fewer than two windows')
     out=pd.DataFrame(rows); Path(output_csv).parent.mkdir(parents=True,exist_ok=True); out.to_csv(output_csv,index=False)
     contract=EvidenceContract(
-        'M2N-FEC-CONTACT-PACK/2.0',tuple(c.split('__',1)[1] for c in contacts),(),
-        semantics={**{c:'window RMS of the best admissible finite/local M2N mechanism residual; anomaly evidence candidate, not a fault probability' for c in contacts},'m2n_model_disagreement':'window RMS of admissible architecture prediction spread','m2n_normal_support_distance':'reference compatibility input; do not fuse as anomaly evidence','m2n_normal_support_ood_fraction':'reference compatibility/OOD context; do not fuse as anomaly evidence'},
+        'M2N-FEC-CONTACT-PACK/2.1',tuple(c.split('__',1)[1] for c in contacts),(),
+        semantics={**{c:'window RMS of the best admissible finite/local M2N mechanism residual; anomaly evidence candidate, not a fault probability' for c in contacts},'m2n_model_disagreement':'window RMS of admissible architecture prediction spread','m2n_normal_support_distance':'reference compatibility input; do not fuse as anomaly evidence','m2n_normal_support_ood_fraction':'reference compatibility/OOD context; do not fuse as anomaly evidence','m2n_mechanism_evidence_in_support_fraction':'fraction of samples in this window that remain inside the frozen normal-support domain; mechanism residual/disagreement interpretation must be qualified by this value',**({'m2n_independent_context':'independent run/cycle identifier preserved so evidence windows never cross context boundaries'} if context_col is not None else {})},
         prohibited_claims=('fault probability','fault class','RUL','physical parameter drift unless separately qualified'),
     )
     Path(contract_json).write_text(json.dumps(contract.to_dict(),indent=2,ensure_ascii=False),encoding='utf-8')
