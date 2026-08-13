@@ -54,7 +54,14 @@ def main():
     rc=json.loads((ROOT/'examples/nasa_adapt_v06_source_constrained_fixture/root_cause.json').read_text())
     checks.append({'check':'nasa_v06_rootcause_fixture','ok':rc.get('contract')=='DOR-ROOT-CAUSE-RESULT/0.6' and rc.get('status')=='SUPPORTED' and rc.get('root_cause_set')==['EY260_failed_open'] and rc.get('safety',{}).get('test_truth_used_for_reasoning') is False})
 
-    bad=[str(p.relative_to(ROOT)) for p in ROOT.rglob('*') if p.name in {'.pytest_cache','__pycache__'} or p.suffix in {'.pyc','.pyo'}]
+    excluded_roots={'.git','.venv','build','dist'}
+    bad=[]
+    for p in ROOT.rglob('*'):
+        relative=p.relative_to(ROOT)
+        if set(relative.parts) & excluded_roots:
+            continue
+        if p.name in {'.pytest_cache','__pycache__'} or p.suffix in {'.pyc','.pyo'}:
+            bad.append(str(relative))
     checks.append({'check':'release_hygiene','ok':not bad,'bad':bad[:20]})
     ok=all(c['ok'] for c in checks)
     print(json.dumps({'status':'PASS' if ok else 'FAIL','checks':checks},indent=2,ensure_ascii=False))

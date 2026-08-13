@@ -1,0 +1,38 @@
+{
+  "contract": "DOR-AUTO-DIAGNOSTIC-DESIGN-REQUEST/1.0",
+  "stages": ["DETECTION", "LOCALIZATION", "CLASSIFICATION", "IDENTIFICATION"],
+  "budget": {
+    "max_candidates": 6,
+    "max_wall_seconds": 1800,
+    "max_model_bytes": 200000000,
+    "max_parameters": 20000000,
+    "max_inference_latency_ms": 100
+  },
+  "search": {"seeds": [101, 102, 103], "final_seed": 9001},
+  "selection": {
+    "practical_margin": 0.02,
+    "restart_stability": 0.67,
+    "worst_slice_weight": 0.25,
+    "missing_sensor_weight": 0.15
+  },
+  "evaluation": {"min_slice_rows": 5},
+  "calibration": {"alpha": 0.1, "min_normal_rows": 10},
+  "robustness": {
+    "sensor_groups": {
+      "adcs": ["adcs.*"],
+      "eps": ["eps.*"],
+      "payload": ["payload.*"],
+      "comm": ["comm.*"],
+      "data": ["data.*"],
+      "thermal": ["thermal.*"],
+      "propulsion": ["propulsion.*"]
+    },
+    "max_missing_groups": 1
+  },
+  "candidates": {
+    "detection": {"families": ["pca_reconstruction", "isolation_forest"]},
+    "localization": {"families": ["logistic_regression", "random_forest"]},
+    "classification": {"families": ["logistic_regression", "random_forest"]},
+    "identification": {"families": ["ridge"]}
+  }
+}

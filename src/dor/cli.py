@@ -14,7 +14,7 @@ from .rootcause import infer_root_causes_from_files
 from .stack import stack_info
 from .auto_design import predict_pipeline, run_auto_design
 from .dataset_registry import build_benchmark_plan, catalog_summary, default_catalog_path, load_catalog
-from .public_adapters import prepare_uci_hydraulic
+from .public_adapters import prepare_spacecraft_dataset, prepare_uci_hydraulic
 from .research_registry import default_method_catalog_path, load_method_catalog, method_catalog_summary
 
 
@@ -38,6 +38,8 @@ def main() -> int:
     bp.add_argument('--dataset-id',required=True); bp.add_argument('--stages',nargs='+',required=True); bp.add_argument('--output',default=None)
     uh=sp.add_parser('uci-hydraulic-prepare',help='convert the official UCI Hydraulic ZIP into a provenance-bound multirate DOR dataset')
     uh.add_argument('--archive',required=True); uh.add_argument('--out',required=True); uh.add_argument('--sensors',nargs='*',default=None); uh.add_argument('--seed',type=int,default=447); uh.add_argument('--block-size',type=int,default=5)
+    sc=sp.add_parser('spacecraft-prepare',help='stream a sat-sim spacecraft file tree into a leakage-bounded DOR table')
+    sc.add_argument('--dataset-root',required=True); sc.add_argument('--out',required=True); sc.add_argument('--feature-profile',choices=['causal_raw','deployable_full'],default='causal_raw')
 
     mc=sp.add_parser('manifest-check',help='formalize/validate a DatasetManifest and bind it to a concrete data artifact')
     mc.add_argument('--manifest',required=True); mc.add_argument('--request',required=True); mc.add_argument('--data',required=True); mc.add_argument('--output',required=True)
@@ -89,6 +91,9 @@ def main() -> int:
         print(json.dumps(result,indent=2)); return 0 if result['state']!='BLOCKED' else 2
     if args.command=='uci-hydraulic-prepare':
         result=prepare_uci_hydraulic(args.archive,args.out,sensors=args.sensors,seed=args.seed,block_size=args.block_size)
+        print(json.dumps({'state':'OK','binding':result,'out':str(Path(args.out).resolve())},indent=2)); return 0
+    if args.command=='spacecraft-prepare':
+        result=prepare_spacecraft_dataset(args.dataset_root,args.out,feature_profile=args.feature_profile)
         print(json.dumps({'state':'OK','binding':result,'out':str(Path(args.out).resolve())},indent=2)); return 0
     if args.command=='manifest-check':
         m=formalize_manifest(load_json(args.manifest),load_json(args.request),args.data); write_json(args.output,m); print(json.dumps({'state':'OK','contract':m['contract'],'output':str(Path(args.output).resolve())},indent=2)); return 0

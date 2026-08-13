@@ -1,0 +1,49 @@
+{
+  "contract": "DOR-SPACECRAFT-FULL-TEST-SUMMARY/1.0",
+  "date": "2026-08-13",
+  "status": "CONDITIONALLY_QUALIFIED",
+  "source_datasets": {
+    "adcs_v5_2_2": {
+      "samples": 910,
+      "channels_causal_raw": 98,
+      "features_causal_raw": 882,
+      "channels_deployable_full": 144,
+      "features_deployable_full": 1296,
+      "source_manifest_sha256": "b7fc5dcb622d9abd85e7fdf10655daa3d3e7535a960a608b3220e0e6f5db21d9",
+      "source_index_sha256": "de65de31087bb828e3149fab543677137964912629310b0d14c5cca376d5c4b1",
+      "role_counts": {"train": 546, "validation": 182, "calibration": 91, "test": 91},
+      "normal_calibration_rows": 3
+    },
+    "phm_v6": {
+      "samples": 560,
+      "channels_causal_raw": 144,
+      "features_causal_raw": 1296,
+      "channels_deployable_full": 218,
+      "features_deployable_full": 1962,
+      "source_manifest_sha256": "617f7eeddd96d6091b83497b6ebc8e18a7697f3e61584fde41c5c0684abc41ec",
+      "source_index_sha256": "8363824e515084e695c0a715854b4e3b0489cac3353a9cb82c6bf63c2fd77b08",
+      "role_counts": {"train": 336, "validation": 112, "calibration": 56, "test": 56},
+      "normal_calibration_rows": 5
+    }
+  },
+  "independent_test": {
+    "adcs_causal_raw": {"detection_ap_best": 0.9977494834, "detection_recall_at_threshold_best": 0.3636363636, "cascade_gate_recall": 0.4204545455, "localization_macro_f1_end_to_end_faults": 0.3468234981, "classification_macro_f1_end_to_end_faults": 0.2171428571},
+    "adcs_deployable_full": {"detection_ap_best": 0.9983140512, "detection_recall_at_threshold_best": 0.4431818182, "cascade_gate_recall": 0.4886363636, "localization_macro_f1_end_to_end_faults": 0.4117585631, "classification_macro_f1_end_to_end_faults": 0.2989010989},
+    "phm_causal_raw": {"detection_ap_best": 0.9907006715, "detection_recall_at_threshold_best": 0.6274509804, "cascade_gate_recall": 0.6274509804, "localization_macro_f1_end_to_end_faults": 0.4716775599, "classification_macro_f1_end_to_end_faults": 0.6},
+    "phm_deployable_full": {"detection_ap_best": 0.9617969521, "detection_recall_at_threshold_best": 0.3529411765, "cascade_gate_recall": 0.3529411765, "localization_macro_f1_end_to_end_faults": 0.2333333333, "classification_macro_f1_end_to_end_faults_best": 0.3333333333}
+  },
+  "stage_readiness": {
+    "detection": "CONDITIONALLY_QUALIFIED_THRESHOLD_NOT_READY",
+    "localization": "EXPERIMENTALLY_SUPPORTED_BUT_CASCADE_LIMITED",
+    "classification": "EXPERIMENTALLY_SUPPORTED_BUT_CASCADE_LIMITED",
+    "identification": "UNSUPPORTED_HETEROGENEOUS_PARAMETERS_NOT_DECLARED"
+  },
+  "prohibited_claims": [
+    "not a global optimum proof",
+    "not a flight or hardware accuracy result",
+    "paired healthy counterfactuals are not deployable inputs",
+    "high average precision does not establish an operational threshold",
+    "localization or classification is not automatically root-cause identification"
+  ],
+  "test_counts": {"dor": 52, "m2n": 36, "fec": 73, "isgn": 95, "total": 256}
+}

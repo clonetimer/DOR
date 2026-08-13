@@ -165,6 +165,8 @@ def _validate_request(request: Mapping[str, Any]) -> None:
             raise ValueError(f"selection.{key} must be in [0,1]")
     if int((request.get("evaluation") or {}).get("min_slice_rows", 3)) < 1:
         raise ValueError("evaluation.min_slice_rows must be positive")
+    if int((request.get("calibration") or {}).get("min_normal_rows", 10)) < 1:
+        raise ValueError("calibration.min_normal_rows must be positive")
     seeds = (request.get("search") or {}).get("seeds")
     if seeds is not None and not seeds:
         raise ValueError("search.seeds must not be empty")
@@ -636,7 +638,11 @@ def _resolve_sensor_groups(
     for group, patterns in configured.items():
         resolved: list[str] = []
         for pattern in map(str, patterns):
-            hits = [c for c in raw_features if c == pattern or c.startswith(f"{pattern}__")]
+            if pattern.endswith(".*"):
+                prefix = pattern[:-1]
+                hits = [c for c in raw_features if c.startswith(prefix)]
+            else:
+                hits = [c for c in raw_features if c == pattern or c.startswith(f"{pattern}__")]
             if not hits:
                 raise ValueError(f"robustness sensor group {group!r} pattern {pattern!r} matches no raw feature")
             resolved.extend(hits)
@@ -766,7 +772,9 @@ def _select_stage(stage: str, records: list[dict[str, Any]], practical_margin: f
     stable = float(np.mean(wins)) if wins else 0.0
     if medians[best] - medians[runner] >= practical_margin and stable >= stability:
         return {"status": "SELECTED", "selected_candidate_id": best, "retained_candidate_ids": [best], "candidate_median_scores": medians, "rejected_candidates": {k: sorted(set(v)) for k, v in rejected.items()}, "reason": f"constraint-qualified utility margin and restart stability passed ({stable:.3f})"}
-    retained = [cid for cid in order if medians[best] - medians[cid] < practical_margin]
+    # If restart evidence cannot establish a winner, preserve at least the top
+    # two alternatives even when their median gap exceeds the practical margin.
+    retained = _unique([best, runner] + [cid for cid in order if medians[best] - medians[cid] < practical_margin])
     return {"status": "ALTERNATIVES", "selected_candidate_id": None, "retained_candidate_ids": retained, "candidate_median_scores": medians, "rejected_candidates": {k: sorted(set(v)) for k, v in rejected.items()}, "reason": "constraint-qualified validation evidence does not distinguish a stable practical winner"}
 
 
@@ -834,9 +842,18 @@ def _test_audit(
         detection_states.append(state)
         cfg = sup.get("detection") or {}; y = _stage_target(frame, "DETECTION", cfg)
         metric = _metric_detection(y[test_rows], score, str(cfg.get("normal_label")), "average_precision") if y is not None else float("nan")
-        records.append({"candidate_id": rec["candidate_id"], "stage": "DETECTION", "average_precision": metric})
+        row = {"candidate_id": rec["candidate_id"], "stage": "DETECTION", "average_precision": metric, "predicted_abnormal_rows": int(state.sum())}
+        if y is not None:
+            abnormal = np.asarray(y[test_rows]).astype(str) != str(cfg.get("normal_label"))
+            row["abnormal_rows"] = int(abnormal.sum())
+            row["normal_rows"] = int((~abnormal).sum())
+            row["abnormal_recall_at_threshold"] = float(np.mean(state[abnormal])) if abnormal.any() else None
+            row["normal_specificity_at_threshold"] = float(np.mean(~state[~abnormal])) if (~abnormal).any() else None
+        records.append(row)
     if detection_states:
-        gate = np.all(np.stack(detection_states, axis=1), axis=1)
+        # Prediction executes downstream for detector disagreement (ALTERNATIVES)
+        # and suppresses it only when every retained detector says NORMAL.
+        gate = np.any(np.stack(detection_states, axis=1), axis=1)
     for rec in models:
         stage = str(rec["stage"])
         if stage == "DETECTION":
@@ -848,11 +865,29 @@ def _test_audit(
         x = frame.iloc[test_rows][rec["feature_columns"]].to_numpy(dtype=float)
         evaluated = int(gate.sum())
         row: dict[str, Any] = {"candidate_id": rec["candidate_id"], "stage": stage, "test_rows": len(test_rows), "executed_rows": evaluated, "teacher_forced": False}
+        detection_cfg = sup.get("detection") or {}
+        detection_truth = _stage_target(frame, "DETECTION", detection_cfg) if detection_cfg.get("label_column") else None
+        abnormal = np.ones(len(test_rows), dtype=bool) if detection_truth is None else np.asarray(detection_truth[test_rows]).astype(str) != str(detection_cfg.get("normal_label"))
+        row["abnormal_test_rows"] = int(abnormal.sum())
+        row["executed_abnormal_rows"] = int(np.sum(gate & abnormal))
+        row["abnormal_gate_recall"] = float(np.mean(gate[abnormal])) if abnormal.any() else None
         if evaluated:
             pred = np.asarray(model.predict(x[gate]))
             truth = np.asarray(y[test_rows][gate])
             if stage in {"LOCALIZATION", "CLASSIFICATION"}:
                 row["macro_f1_on_executed"] = float(f1_score(truth, pred, average="macro", zero_division=0))
+                if abnormal.any():
+                    abnormal_executed = gate[abnormal]
+                    abnormal_truth = np.asarray(y[test_rows][abnormal])
+                    abnormal_prediction = np.asarray(model.predict(x[abnormal]))
+                    if abnormal_truth.ndim == 2:
+                        full_pred = np.zeros_like(abnormal_truth, dtype=int)
+                        full_pred[abnormal_executed] = abnormal_prediction[abnormal_executed].astype(int)
+                        row["macro_f1_end_to_end_faults"] = float(f1_score(abnormal_truth.astype(int), full_pred, average="macro", zero_division=0))
+                    else:
+                        full_pred = np.full(int(abnormal.sum()), "__NOT_EXECUTED__", dtype=object)
+                        full_pred[abnormal_executed] = abnormal_prediction[abnormal_executed].astype(str)
+                        row["macro_f1_end_to_end_faults"] = float(f1_score(abnormal_truth.astype(str), full_pred.astype(str), average="macro", zero_division=0))
             else:
                 if pred.ndim == 1: pred = pred[:, None]
                 if truth.ndim == 1: truth = truth[:, None]
@@ -863,7 +898,7 @@ def _test_audit(
                     row["interval_joint_coverage_on_executed"] = float(np.mean(np.all(np.abs(truth - pred) <= radius, axis=1)))
                     row["interval_alpha"] = alpha
         records.append(row)
-    return {"contract": "DOR-END-TO-END-TEST-AUDIT/1.0", "state": "RUN", "selection_uses_test": False, "gate_rule": "all retained detectors abnormal", "records": records}
+    return {"contract": "DOR-END-TO-END-TEST-AUDIT/1.0", "state": "RUN", "selection_uses_test": False, "gate_rule": "execute downstream unless all retained detectors are normal; disagreement is ALTERNATIVES", "records": records}
 
 
 def _audit_markdown(summary: Mapping[str, Any]) -> str:
@@ -1087,6 +1122,11 @@ def run_auto_design(
         if finite_scores:
             cutoff = finite_scores[min(len(finite_scores) - 1, max(0, math.ceil(len(finite_scores) / 2) - 1))]
             survivors = {cid for cid, (score, _, _, eligible) in provisional.items() if eligible and np.isfinite(score) and score >= cutoff - practical_margin}
+            ranked = sorted(
+                ((score, cid) for cid, (score, _, _, eligible) in provisional.items() if eligible and np.isfinite(score)),
+                reverse=True,
+            )
+            survivors.update(cid for _, cid in ranked[:2])
         else:
             survivors = {cid for cid, (_, _, _, eligible) in provisional.items() if eligible}
         for cid in sorted(survivors):
@@ -1206,6 +1246,10 @@ def run_auto_design(
         elif artifact.is_file():
             artifact.unlink()
     model_index = retained_models
+    retained_model_ids = {str(rec["candidate_id"]) for rec in model_index}
+    missing_retained = sorted(retained_ids - retained_model_ids)
+    if missing_retained:
+        raise RuntimeError(f"retained candidates lack fitted deployment artifacts: {missing_retained}")
     bundle = {
         "contract": BUNDLE_CONTRACT, "producer": "DOR Auto Diagnostic Architect",
         "device_id": card["device_id"], "bindings": binding, "modality": manifest.get("modality", "TABULAR"),
@@ -1224,10 +1268,24 @@ def run_auto_design(
     _write_json(out / "pipeline_bundle" / "bundle.json", bundle)
     _write_json(out / "mechanism_stress_audit.json", _mechanism_stress_audit(frame, masks, manifest, request, model_index, mechanism_features))
     _write_json(out / "end_to_end_test_audit.json", _test_audit(frame, masks, manifest, out / "pipeline_bundle", model_index, alpha))
+    calibration_cfg = request.get("calibration") or {}
+    minimum_normal_calibration = int(calibration_cfg.get("min_normal_rows", 10))
+    normal_calibration_rows: int | None = None
+    threshold_status = "NOT_APPLICABLE"
+    if detection_target is not None and any(rec["stage"] == "DETECTION" for rec in model_index):
+        normal_calibration_rows = int(np.sum(masks["calibration"] & (detection_target.astype(str) == str(detection_cfg.get("normal_label")))))
+        threshold_status = "READY" if normal_calibration_rows >= minimum_normal_calibration else "INSUFFICIENT_NORMAL_CALIBRATION"
+    overall_status = "UNSUPPORTED" if not model_index else ("CONDITIONALLY_QUALIFIED" if threshold_status == "INSUFFICIENT_NORMAL_CALIBRATION" else "QUALIFIED")
     qualification_payload = {
-        "contract": "DOR-AUTO-DESIGN-QUALIFICATION/1.0", "status": "QUALIFIED" if model_index else "UNSUPPORTED",
+        "contract": "DOR-AUTO-DESIGN-QUALIFICATION/1.0", "status": overall_status,
         "stages": [q.to_dict() for q in qualifications], "role_counts": {k: int(v.sum()) for k, v in masks.items()},
         "leakage_guard_passed": True,
+        "calibration_readiness": {
+            "detection_threshold_status": threshold_status,
+            "normal_calibration_rows": normal_calibration_rows,
+            "minimum_normal_calibration_rows": minimum_normal_calibration,
+            "claim_boundary": "rank metrics do not establish an operational threshold",
+        },
     }
     _write_json(out / "qualification.json", qualification_payload)
     _write_json(out / "mechanism_features.json", {"contract": "DOR-MECHANISM-FEATURES/1.0", "features": mechanism_records})
@@ -1258,7 +1316,11 @@ def predict_pipeline(bundle_dir: str | Path, data_path: str | Path, output_path:
     for column in missing_raw:
         owners = [
             str(group) for group, patterns in group_patterns.items()
-            if any(column == str(pattern) or column.startswith(f"{pattern}__") for pattern in patterns)
+            if any(
+                column.startswith(str(pattern)[:-1]) if str(pattern).endswith(".*")
+                else column == str(pattern) or column.startswith(f"{pattern}__")
+                for pattern in patterns
+            )
         ]
         if len(owners) != 1:
             raise ValueError(f"missing raw feature {column!r} is not covered by exactly one declared sensor group")

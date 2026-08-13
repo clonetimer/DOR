@@ -33,9 +33,14 @@ dor benchmark-plan --dataset-id uci-hydraulic \
 
 dor uci-hydraulic-prepare --archive condition-monitoring-hydraulic.zip \
   --out prepared_uci_hydraulic
+
+dor spacecraft-prepare --dataset-root whole_spacecraft_phm_dataset_v6_0 \
+  --out prepared_spacecraft --feature-profile causal_raw
 ```
 
 目录会明确区分“数据存在该监督”和“当前 DOR 已能安全消费该监督”。研究证据、差距与 U1—U7 更新路线见 `docs/PUBLIC_DATASET_AND_LITERATURE_GAP_AUDIT_CN.md`。
+
+航天器适配器逐样本读取文件树，禁止把注入参数、事件真值或标签路径用作特征，并按 `trajectory_pair_id` 整组切分。`causal_raw` 是去除状态/有效位、创新量和残差的严格视图；`deployable_full` 只适合作为对照。ADCS v5.2.2 与 PHM v6.0 的全量结果目前是 `CONDITIONALLY_QUALIFIED`，不是飞行部署结论，详见 `docs/SPACECRAFT_DATASET_FULL_TEST_CN.md`。
 
 ---
 

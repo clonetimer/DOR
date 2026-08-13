@@ -76,6 +76,7 @@ def test_auto_design_four_stage_bundle_and_predict(tmp_path: Path):
     out = tmp_path / "out"
     result = run_auto_design(card, manifest, data, request, out)
     assert result["status"] == "QUALIFIED"
+    assert result["qualification"]["calibration_readiness"]["detection_threshold_status"] == "READY"
     assert {x["stage"] for x in result["qualification"]["stages"] if x["status"] == "QUALIFIED"} == {
         "DETECTION", "LOCALIZATION", "CLASSIFICATION", "IDENTIFICATION"
     }
