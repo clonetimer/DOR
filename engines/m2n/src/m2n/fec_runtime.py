@@ -44,7 +44,9 @@ def infer_fec_contacts(contact_csv: str|Path, reference_json: str|Path, fec_root
     root=fec.RootCalibrationReference(np.asarray(d['root_ref']['scores'],float),tuple((s.path,s.equivalence_id,1.0,1) for s in specs),d['root_ref']['scope'],frozenset(d['root_ref']['dependency_set']),d['root_ref']['provenance'])
     E=fec.evidence(X,leaf); st=fec.coordinate(E,specs,A=A,G=G,operators=ops,expected_contact_count=len(specs)); p=fec.calibrated_p(root,st.root_E,specs,A=A,G=G)
     cs=d['contact_support']; med=np.asarray(cs['median']); scale=np.asarray(cs['scale']); refd=np.asarray(cs['distances']); dist=np.sqrt(np.mean(((X-med[None,:])/scale[None,:])**2,axis=1)); S_contact=fec.support_p(refd,dist)
-    S_m2n=fec.support_p(np.asarray(d['m2n_support_reference'],float),np.asarray(df['m2n_normal_support_distance'],float)); S_m2n=S_m2n*(1-np.clip(np.asarray(df.get('m2n_normal_support_ood_fraction',0.0),float),0,1)); S_ref=np.minimum(S_contact,S_m2n)
+    S_m2n=fec.support_p(np.asarray(d['m2n_support_reference'],float),np.asarray(df['m2n_normal_support_distance'],float))
+    in_support=np.asarray(df.get('m2n_mechanism_evidence_in_support_fraction',1-np.clip(np.asarray(df.get('m2n_normal_support_ood_fraction',0.0),float),0,1)),float)
+    S_m2n=S_m2n*np.clip(in_support,0,1); S_ref=np.minimum(S_contact,S_m2n)
     pol=d['policy']; decisions=[]
     for i in range(len(df)):
         if S_ref[i] < pol['min_S_ref']: dec='REFERENCE_UNSUPPORTED'
@@ -54,6 +56,10 @@ def infer_fec_contacts(contact_csv: str|Path, reference_json: str|Path, fec_root
         elif p[i] <= pol['alpha']: dec='ANOMALOUS_EVIDENCE'
         else: dec='NORMAL_EVIDENCE'
         decisions.append(dec)
-    out=pd.DataFrame({'time_s':df['time_s'] if 'time_s' in df else np.arange(len(df)),'root_E':st.root_E,'p_root':p,'A_mean_present':st.A_mean_present,'C_presence':st.C_presence,'C_effective':st.C_effective,'S_ref':S_ref,'decision':decisions})
+    out_data={'time_s':df['time_s'] if 'time_s' in df else np.arange(len(df))}
+    if 'm2n_independent_context' in df:
+        out_data['m2n_independent_context']=df['m2n_independent_context']
+    out_data.update({'root_E':st.root_E,'p_root':p,'A_mean_present':st.A_mean_present,'C_presence':st.C_presence,'C_effective':st.C_effective,'S_ref':S_ref,'decision':decisions})
+    out=pd.DataFrame(out_data)
     for j,c in enumerate(contacts): out['E_contact__'+c]=E[:,j]
     pth=Path(output_csv); pth.parent.mkdir(parents=True,exist_ok=True); out.to_csv(pth,index=False); return pth

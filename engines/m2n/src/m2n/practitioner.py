@@ -13,8 +13,10 @@ import torch
 
 from .goal_design import (
     SUPPORTED_TEMPLATES,
+    SUPPORTED_SCHEMA_VERSIONS,
     _candidate_from_payload,
     _inference_required_columns,
+    _evidence_coordinates,
     _predict,
     _read_csv,
     _split_indices,
@@ -56,6 +58,7 @@ def _required_columns(spec: Mapping[str, Any]) -> tuple[str, ...]:
     sup = spec.get('supervision', {})
     cols: list[str] = []
     template = spec.get('template')
+
     if template == 'second_order_mechanics':
         for key in ('position_column', 'velocity_column', 'target_acceleration_column'):
             if sup.get(key):
@@ -73,6 +76,19 @@ def _required_columns(spec: Mapping[str, Any]) -> tuple[str, ...]:
     dcfg = spec.get('data', {})
     if dcfg.get('split_column'):
         cols.append(str(dcfg['split_column']))
+    if dcfg.get('time_column'):
+        cols.append(str(dcfg['time_column']))
+    qcfg = spec.get('qualification', {})
+    if isinstance(qcfg, Mapping) and qcfg.get('independent_context_column'):
+        cols.append(str(qcfg['independent_context_column']))
+    mc = spec.get('modeling_contract', {})
+    if isinstance(mc, Mapping):
+        cols.extend(map(str, mc.get('input_columns') or []))
+        cols.extend(map(str, mc.get('target_columns') or []))
+        if mc.get('label_column'):
+            cols.append(str(mc['label_column']))
+        if mc.get('time_column'):
+            cols.append(str(mc['time_column']))
     return tuple(dict.fromkeys(cols))
 
 
@@ -94,14 +110,68 @@ def validate_device_card(spec_path: str | Path) -> PractitionerCheckResult:
 
     diag['schema_version'] = spec.get('schema_version')
     diag['template'] = spec.get('template')
-    if str(spec.get('schema_version')) not in ('1.0', '2.0', '2.1'):
-        errors.append("schema_version must be '1.0', '2.0', or '2.1'")
+    if str(spec.get('schema_version')) not in SUPPORTED_SCHEMA_VERSIONS:
+        errors.append(f'schema_version must be one of {SUPPORTED_SCHEMA_VERSIONS}')
     template = spec.get('template')
     if template not in SUPPORTED_TEMPLATES:
         errors.append(f'unsupported template {template!r}; supported={sorted(SUPPORTED_TEMPLATES)}')
     for key in ('data', 'mechanism', 'knowledge', 'supervision'):
         if key not in spec:
             errors.append(f'missing top-level section: {key}')
+
+    if spec.get('modeling_contract') is not None:
+        try:
+            from .model_family import ModelingContract
+            mc = ModelingContract.from_mapping(spec['modeling_contract'])
+            diag['modeling_contract'] = mc.to_dict()
+            actions.append('run: m2n model-plan --spec <device_card.json> [--data <data.csv>]')
+            if mc.input_representation.value == 'MULTIVARIATE_SEQUENCE':
+                actions.append('run: m2n temporal-design --spec <device_card.json> --data <sequence.csv> --out <output_dir>')
+        except Exception as e:
+            errors.append(f'invalid modeling_contract: {e}')
+
+    qcfg = spec.get('qualification', {})
+    if not isinstance(qcfg, dict):
+        errors.append('qualification must be a JSON object when provided')
+        qcfg = {}
+    context_col = qcfg.get('independent_context_column')
+    evidence_scope=str(qcfg.get('evidence_scope','PRODUCTION')).upper()
+    if evidence_scope not in ('PRODUCTION','BLINDED_FOR_VALIDATION'):
+        errors.append("qualification.evidence_scope must be 'PRODUCTION' or 'BLINDED_FOR_VALIDATION'")
+    if evidence_scope=='BLINDED_FOR_VALIDATION' and not context_col:
+        errors.append('BLINDED_FOR_VALIDATION requires qualification.independent_context_column')
+    if context_col:
+        diag['independent_context_qualification'] = {
+            'column': str(context_col),
+            'evidence_scope': evidence_scope,
+            'min_train_independent_contexts': qcfg.get('min_train_independent_contexts'),
+            'min_validation_independent_contexts': qcfg.get('min_validation_independent_contexts'),
+        }
+        missing_limits = [
+            k for k in ('min_train_independent_contexts', 'min_validation_independent_contexts')
+            if qcfg.get(k) is None
+        ]
+        if len(missing_limits)==1:
+            errors.append('min_train_independent_contexts and min_validation_independent_contexts must be supplied together')
+        elif len(missing_limits)==2 and evidence_scope=='PRODUCTION':
+            warnings.append(
+                'production independent-context qualification has no evidence-justified context minimums; '
+                'architecture qualification will fail closed to AMBIGUOUS'
+            )
+        elif len(missing_limits)==2 and evidence_scope=='BLINDED_FOR_VALIDATION':
+            warnings.append(
+                'BLINDED_FOR_VALIDATION permits controlled architecture falsification without claiming production sample adequacy'
+            )
+        for key in ('min_train_independent_contexts', 'min_validation_independent_contexts'):
+            if qcfg.get(key) is None:
+                continue
+            value=qcfg.get(key)
+            if isinstance(value,bool) or not isinstance(value,int) or value < 1:
+                errors.append(f'{key} must be a positive integer')
+        if not isinstance(spec.get('data'), dict) or not spec.get('data', {}).get('split_column'):
+            warnings.append(
+                'independent contexts are declared without an explicit split_column; row-wise random splitting may place one context in both train and validation'
+            )
 
     if template == 'generic_mechanism_graph' and isinstance(spec.get('mechanism'), dict):
         mech = spec['mechanism']
@@ -176,6 +246,9 @@ def validate_device_card(spec_path: str | Path) -> PractitionerCheckResult:
 def _infer_time_columns(spec: Mapping[str, Any] | None, data: Mapping[str, np.ndarray]) -> tuple[str, ...]:
     cols: list[str] = []
     if spec:
+        dcfg = spec.get('data', {})
+        if dcfg.get('time_column'):
+            cols.append(str(dcfg['time_column']))
         sup = spec.get('supervision', {})
         der = sup.get('derive_acceleration') or {}
         if der.get('time_column'):
@@ -183,7 +256,7 @@ def _infer_time_columns(spec: Mapping[str, Any] | None, data: Mapping[str, np.nd
         for req in spec.get('backends', {}).get('requests', []) or []:
             if isinstance(req, dict) and req.get('time_column'):
                 cols.append(str(req['time_column']))
-    for c in ('time_s', 'time', 'timestamp'):
+    for c in ('time_s', 't_s', 'time', 'timestamp'):
         if c in data:
             cols.append(c)
     return tuple(dict.fromkeys(cols))
@@ -220,6 +293,14 @@ def inspect_tabular_data(data_path: str | Path, spec_path: str | Path | None = N
                 errors.append(f'missing columns required by device card: {missing}')
                 actions.append('fix supervision/input mappings or add the missing sensor/data columns')
 
+    modeling_numeric_columns: set[str] = set()
+    if spec and isinstance(spec.get('modeling_contract'), Mapping):
+        mc = spec['modeling_contract']
+        modeling_numeric_columns.update(map(str, mc.get('input_columns') or []))
+        modeling_numeric_columns.update(map(str, mc.get('target_columns') or []))
+        if mc.get('time_column'):
+            modeling_numeric_columns.add(str(mc['time_column']))
+
     col_diag: dict[str, Any] = {}
     for c, a0 in data.items():
         a = np.asarray(a0)
@@ -237,6 +318,27 @@ def inspect_tabular_data(data_path: str | Path, spec_path: str | Path | None = N
         else:
             vals, counts = np.unique(a.astype(str), return_counts=True)
             cd['unique_count'] = int(len(vals)); cd['top_values'] = {str(v): int(k) for v, k in zip(vals[:10], counts[:10])}
+            if c in modeling_numeric_columns:
+                try:
+                    af = np.asarray(a, dtype=float)
+                    finite = np.isfinite(af)
+                    cd['modeling_numeric'] = True
+                    cd['nonfinite_count'] = int(np.sum(~finite))
+                    if np.any(finite):
+                        cd['min'] = float(np.nanmin(af[finite])); cd['max'] = float(np.nanmax(af[finite])); cd['std'] = float(np.nanstd(af[finite]))
+                    if not np.all(finite):
+                        errors.append(
+                            f'modeling-contract numeric column {c!r} contains {int(np.sum(~finite))} non-finite values; '
+                            'declare and apply an evidence-justified preprocessing/missing-data strategy before model design'
+                        )
+                except Exception:
+                    cd['modeling_numeric'] = True
+                    blank_count = int(sum(not str(x).strip() for x in np.asarray(a, dtype=object)))
+                    cd['blank_or_nonnumeric_count'] = blank_count if blank_count else None
+                    errors.append(
+                        f'modeling-contract numeric column {c!r} contains blank or non-numeric values; '
+                        'declare and apply an evidence-justified preprocessing/missing-data strategy before model design'
+                    )
         col_diag[c] = cd
     diag['column_diagnostics'] = col_diag
 
@@ -244,18 +346,39 @@ def inspect_tabular_data(data_path: str | Path, spec_path: str | Path | None = N
         if tc not in data or np.asarray(data[tc]).dtype.kind not in 'fiu':
             continue
         t = np.asarray(data[tc], float)
-        dt = np.diff(t)
-        td = {'strictly_increasing': bool(np.all(dt > 0)), 'duplicate_or_reverse_steps': int(np.sum(dt <= 0))}
-        if len(dt) and np.all(np.isfinite(dt)):
-            pos = dt[dt > 0]
-            if len(pos):
-                med = float(np.median(pos)); td['median_dt'] = med
-                td['dt_cv'] = float(np.std(pos) / max(np.mean(pos), 1e-15))
-                if td['dt_cv'] > 0.05:
-                    warnings.append(f'time column {tc!r} is irregularly sampled (dt CV={td["dt_cv"]:.3g}); verify the estimator supports this')
-        if td['duplicate_or_reverse_steps']:
-            errors.append(f'time column {tc!r} is not strictly increasing')
-            actions.append('sort/deduplicate time and preserve the corresponding sensor rows before deriving rates')
+        context_col = None if not spec else spec.get('qualification', {}).get('independent_context_column')
+        if context_col and str(context_col) in data:
+            context=np.asarray(data[str(context_col)])
+            per_context=[]; all_pos=[]; bad_total=0
+            for cid in np.unique(context):
+                ii=np.flatnonzero(context==cid); tt=t[ii]; dt=np.diff(tt)
+                bad=int(np.sum(dt<=0)); bad_total+=bad
+                pos=dt[dt>0]
+                if len(pos): all_pos.extend(pos.tolist())
+                per_context.append({'context':_as_jsonable(cid),'rows':int(len(ii)),'duplicate_or_reverse_steps':bad})
+            td={'context_aware':True,'context_column':str(context_col),'contexts_checked':int(len(per_context)),
+                'strictly_increasing_within_context':bool(bad_total==0),'duplicate_or_reverse_steps_within_context':int(bad_total),
+                'per_context':per_context[:20]}
+            if all_pos:
+                pos=np.asarray(all_pos,float); td['median_dt']=float(np.median(pos)); td['dt_cv']=float(np.std(pos)/max(np.mean(pos),1e-15))
+                if td['dt_cv']>0.05:
+                    warnings.append(f'time column {tc!r} is irregular within independent contexts (dt CV={td["dt_cv"]:.3g}); verify the estimator supports this')
+            if bad_total:
+                errors.append(f'time column {tc!r} is not strictly increasing within independent contexts')
+                actions.append('sort/deduplicate time within each independent context before deriving rates or windowing evidence')
+        else:
+            dt = np.diff(t)
+            td = {'context_aware':False,'strictly_increasing': bool(np.all(dt > 0)), 'duplicate_or_reverse_steps': int(np.sum(dt <= 0))}
+            if len(dt) and np.all(np.isfinite(dt)):
+                pos = dt[dt > 0]
+                if len(pos):
+                    med = float(np.median(pos)); td['median_dt'] = med
+                    td['dt_cv'] = float(np.std(pos) / max(np.mean(pos), 1e-15))
+                    if td['dt_cv'] > 0.05:
+                        warnings.append(f'time column {tc!r} is irregularly sampled (dt CV={td["dt_cv"]:.3g}); verify the estimator supports this')
+            if td['duplicate_or_reverse_steps']:
+                errors.append(f'time column {tc!r} is not strictly increasing')
+                actions.append('sort/deduplicate time and preserve the corresponding sensor rows before deriving rates')
         diag.setdefault('time_diagnostics', {})[tc] = td
 
     if spec and not errors:
@@ -267,6 +390,62 @@ def inspect_tabular_data(data_path: str | Path, spec_path: str | Path | None = N
                 warnings.append(f'train split has only {len(tri)} rows; declared minimum is {int(qcfg.get("min_train_rows", 50))}')
             if len(vai) < int(qcfg.get('min_validation_rows', 20)):
                 warnings.append(f'validation split has only {len(vai)} rows; declared minimum is {int(qcfg.get("min_validation_rows", 20))}')
+            context_col=qcfg.get('independent_context_column')
+            if context_col:
+                context_col=str(context_col)
+                if context_col not in data:
+                    errors.append(f'missing declared independent context column: {context_col!r}')
+                else:
+                    context=np.asarray(data[context_col])
+                    trc=np.unique(context[tri]); vac=np.unique(context[vai]); overlap=np.intersect1d(trc,vac)
+                    diag['split'].update({
+                        'independent_context_column':context_col,
+                        'train_independent_contexts':int(len(trc)),
+                        'validation_independent_contexts':int(len(vac)),
+                        'independent_context_overlap':int(len(overlap)),
+                    })
+                    if len(overlap):
+                        errors.append(
+                            f'independent context column {context_col!r} has {len(overlap)} contexts present in both train and validation'
+                        )
+                        actions.append('split by whole independent contexts before architecture qualification')
+                    scope=str(qcfg.get('evidence_scope','PRODUCTION')).upper()
+                    diag['split']['independent_context_evidence_scope']=scope
+                    mt=qcfg.get('min_train_independent_contexts'); mv=qcfg.get('min_validation_independent_contexts')
+                    if (mt is None) != (mv is None):
+                        errors.append('independent-context minimums must be supplied together or both omitted')
+                    elif mt is None and scope=='PRODUCTION':
+                        warnings.append(
+                            'production independent-context qualification has no evidence-justified context minimums; '
+                            'm2n design will fail closed to AMBIGUOUS'
+                        )
+                        actions.append('declare evidence-justified train/validation independent-context minimums before production architecture competition')
+                    elif mt is None and scope=='BLINDED_FOR_VALIDATION':
+                        warnings.append('independent-context evidence is BLINDED_FOR_VALIDATION only; production sample adequacy remains unqualified')
+                        if len(trc)<2 or len(vac)<2:
+                            warnings.append('BLINDED_FOR_VALIDATION has fewer than two train or validation independent contexts')
+                    else:
+                        mt=int(mt); mv=int(mv)
+                        if len(trc)<mt or len(vac)<mv:
+                            warnings.append(
+                                f'independent context support is below the declared minimum: '
+                                f'train={len(trc)} (<{mt}), validation={len(vac)} (<{mv})'
+                            )
+                            actions.append('collect more independent normal contexts or revise the task; do not satisfy this gate by duplicating within-context rows')
+                    mc=spec.get('modeling_contract') or {}
+                    constraints=(mc.get('constraints') or {}) if isinstance(mc, Mapping) else {}
+                    if constraints.get('temporal_context_support'):
+                        from .model_family import ModelingContract
+                        from .temporal_design import _context_support_analysis
+                        contract=ModelingContract.from_mapping(mc)
+                        cs,_=_context_support_analysis(spec,contract,data)
+                        diag['split']['temporal_context_support']=cs
+                        if cs.get('enabled') and int(cs.get('validation_out_of_support_contexts',0))>0:
+                            warnings.append(
+                                f"{int(cs['validation_out_of_support_contexts'])} validation independent contexts are outside the empirical train temporal-context envelope; "
+                                'temporal-design can reserve them for extrapolation audit instead of architecture ranking'
+                            )
+                            actions.append('review temporal context support and preserve out-of-support contexts as extrapolation evidence rather than silently mixing them into architecture selection')
             if spec.get('template') == 'second_order_mechanics':
                 vcol = spec.get('supervision', {}).get('velocity_column')
                 if vcol in data:
@@ -280,8 +459,13 @@ def inspect_tabular_data(data_path: str | Path, spec_path: str | Path | None = N
         except Exception as e:
             errors.append(f'cannot resolve declared train/validation split: {e}')
 
+    if any('modeling-contract numeric column' in e for e in errors):
+        actions.append(
+            'repair/qualify missing or non-numeric modeling inputs before design; do not silently zero-fill invalid telemetry packets'
+        )
     if not errors and not actions:
-        actions.append('data preflight is acceptable; run m2n design')
+        is_temporal=bool(spec and isinstance(spec.get('modeling_contract'),dict) and str(spec['modeling_contract'].get('input_representation','')).upper()=='MULTIVARIATE_SEQUENCE')
+        actions.append('data preflight is acceptable; run m2n temporal-design' if is_temporal else 'data preflight is acceptable; run m2n design')
     elif warnings and not errors:
         actions.append('review warnings; warnings are not automatically a PASS for physical identifiability')
     status = 'FAIL' if errors else ('WARN' if warnings else 'PASS')
@@ -410,9 +594,12 @@ def predict_design_bundle(design_dir: str | Path, data_path: str | Path, output_
     predictions: list[np.ndarray] = []
     candidate_ids: list[str] = []
     names: tuple[str, ...] | None = None
+    identity_spec: Mapping[str, Any] | None = None
     for mp in model_paths:
-        payload = torch.load(mp, map_location='cpu', weights_only=False)
+        payload = torch.load(mp, map_location='cpu', weights_only=True)
         spec, model = _candidate_from_payload(payload)
+        if identity_spec is None:
+            identity_spec = spec
         missing = [c for c in _inference_required_columns(spec) if c not in data]
         if missing:
             raise ValueError(f'missing inference columns: {missing}')
@@ -432,6 +619,12 @@ def predict_design_bundle(design_dir: str | Path, data_path: str | Path, output_
     names = tuple(names or ())
     headers: list[str] = []
     arrays: list[np.ndarray] = []
+    if identity_spec is not None:
+        t,context,time_col=_evidence_coordinates(identity_spec,data)
+        if context is not None:
+            headers.append('m2n_independent_context'); arrays.append(np.asarray(context))
+        if time_col is not None:
+            headers.append('time_s'); arrays.append(np.asarray(t,float))
     for ci, cid in enumerate(candidate_ids):
         safe = ''.join(ch if ch.isalnum() else '_' for ch in cid)[:80]
         for j, name in enumerate(names):

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "m2n-toolkit"
-version = "2.3.1"
+version = "2.12.0+dor.1"
 description = "M2N practitioner toolkit: mechanism-aware Scientific-ML design plus finite diagnostic model orchestration for fault diagnosis"
 readme = "README.md"
 requires-python = ">=3.10"

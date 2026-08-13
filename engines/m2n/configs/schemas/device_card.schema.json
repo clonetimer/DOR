@@ -1,25 +1,193 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "m2n://schemas/device_card.schema.json",
-  "title": "M2N Device Card v2.2",
+  "title": "M2N Device Card v2.12",
   "type": "object",
-  "required": ["schema_version", "template", "data", "mechanism", "knowledge", "supervision"],
+  "required": [
+    "schema_version",
+    "template",
+    "data",
+    "mechanism",
+    "knowledge",
+    "supervision"
+  ],
   "properties": {
-    "schema_version": {"enum": ["1.0", "2.0", "2.1"]},
-    "template": {"enum": ["second_order_mechanics", "separable_peak_response", "generic_mechanism_graph"]},
-    "goal": {"type": "object"},
-    "data": {"type": "object"},
-    "mechanism": {"type": "object"},
-    "knowledge": {"type": "object"},
-    "supervision": {"type": "object"},
-    "qualification": {"type": "object"},
-    "training": {"type": "object"},
-    "selection": {"type": "object"},
-    "backends": {"type": "object"},
-    "k3_policy": {"type": "object"},
-    "physics_biases": {"type": "array"},
-    "bias_policy": {"type": "object"},
-    "task_semantics": {"type": "object"}
+    "schema_version": {
+      "enum": [
+        "1.0",
+        "2.0",
+        "2.1",
+        "2.2",
+        "2.3",
+        "2.4",
+        "2.5",
+        "2.6",
+        "2.7",
+        "2.8",
+        "2.9",
+        "2.10",
+        "2.11",
+        "2.12"
+      ]
+    },
+    "template": {
+      "enum": [
+        "second_order_mechanics",
+        "separable_peak_response",
+        "generic_mechanism_graph"
+      ]
+    },
+    "goal": {
+      "type": "object"
+    },
+    "data": {
+      "type": "object",
+      "properties": {
+        "split_column": {
+          "type": "string"
+        },
+        "train_values": {
+          "type": "array"
+        },
+        "validation_values": {
+          "type": "array"
+        },
+        "time_column": {
+          "type": "string",
+          "description": "Optional local time coordinate; when independent_context_column is declared, monotonicity is checked within each context."
+        }
+      },
+      "additionalProperties": true
+    },
+    "mechanism": {
+      "type": "object"
+    },
+    "knowledge": {
+      "type": "object"
+    },
+    "supervision": {
+      "type": "object"
+    },
+    "qualification": {
+      "type": "object",
+      "properties": {
+        "independent_context_column": {
+          "type": "string"
+        },
+        "evidence_scope": {
+          "enum": [
+            "PRODUCTION",
+            "BLINDED_FOR_VALIDATION"
+          ],
+          "default": "PRODUCTION"
+        },
+        "min_train_independent_contexts": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "min_validation_independent_contexts": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "min_train_rows": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "min_validation_rows": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "additionalProperties": true
+    },
+    "training": {
+      "type": "object"
+    },
+    "selection": {
+      "type": "object"
+    },
+    "backends": {
+      "type": "object"
+    },
+    "k3_policy": {
+      "type": "object"
+    },
+    "physics_biases": {
+      "type": "array"
+    },
+    "bias_policy": {
+      "type": "object"
+    },
+    "task_semantics": {
+      "type": "object"
+    },
+    "modeling_contract": {
+      "type": "object",
+      "description": "Optional modeling-only contract used by m2n model-plan and qualified design paths. It does not encode fault ontology, evidence calibration or diagnosis semantics.",
+      "required": [
+        "objective",
+        "input_representation"
+      ],
+      "properties": {
+        "objective": {
+          "enum": [
+            "STATIC_REGRESSION",
+            "NORMALITY_MODELING",
+            "CATEGORICAL_PREDICTION",
+            "DYNAMICS_IDENTIFICATION",
+            "OPERATOR_LEARNING"
+          ]
+        },
+        "input_representation": {
+          "enum": [
+            "TABULAR",
+            "MULTIVARIATE_SEQUENCE",
+            "FUNCTION",
+            "REGULAR_GRID_FIELD"
+          ]
+        },
+        "mechanism_usage": {
+          "enum": [
+            "REQUIRED",
+            "PREFERRED",
+            "OPTIONAL",
+            "NONE"
+          ],
+          "default": "OPTIONAL"
+        },
+        "prediction_unit": {
+          "type": "string"
+        },
+        "input_columns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "target_columns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "label_column": {
+          "type": "string"
+        },
+        "time_column": {
+          "type": "string"
+        },
+        "required_outputs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "constraints": {
+          "type": "object"
+        }
+      },
+      "additionalProperties": true
+    }
   },
   "additionalProperties": true
 }

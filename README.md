@@ -1,6 +1,6 @@
-# DOR Diagnostic Stack v0.7.0.dev0 — Auto Diagnostic Architect Development Preview
+# DOR Diagnostic Stack v0.8.0.dev0 — Model-Family and Temporal Integration Preview
 
-> v0.7.0.dev0 新增独立的 Auto Diagnostic Architect 通道；v0.6 根因闭环状态仍是 executable prototype / not closed，不能因新增设计功能而视为真实 ADAPT 根因验证完成。
+> v0.8.0.dev0 在原 Auto Diagnostic Architect 上增加模型族资格、时序/波形候选、独立上下文/工况支持、辨识桥和多任务仲裁。根因与跨设备泛化仍受证据边界约束，不能据此宣称任意设备全局最优。
 
 ## 自动诊断模型设计预览
 
@@ -46,7 +46,9 @@ dor spacecraft-prepare --dataset-root whole_spacecraft_phm_dataset_v6_0 \
 
 # DOR Diagnostic Stack v0.6.0 — Propagation / Root-Cause Development Prototype
 
-**组件基线：DOR 0.6.0 DEV PROTO / ISGN 2.2.0 / M2N 2.3.1 / FEC 2.4.0**
+**源码组件基线：DOR 0.8.0.dev0 / ISGN 2.2.0 / M2N 2.12.0+dor.1 / FEC 2.4.0**
+
+新增入口：`m2n model-plan`、`m2n temporal-design`、`m2n predict-temporal`、`dor identify-plan`、`dor identify`、`dor multi-task-arbitrate`、`dor vertical-validate` 和 `dor freeze-gate`。设计与证据边界见 `docs/EXTERNAL_TOOLKIT_INTEGRATION_DESIGN_CN.md`。
 
 参考文献吸收阶段 1 已在当前开发树加入安全符号编译、fixed-step UDE、ISGN 发现路由、FEC mask held-out audit 和 DOR mask 样本预算门。实现边界、269 项全量回归和遗留实验见 `docs/REFERENCE_ASSIMILATION_STAGE1_CN.md`；这些开发能力尚未升级上述发布基线版本号。
 

@@ -26,6 +26,10 @@ def qualify_tabular_design(
     target_columns: Sequence[str],
     train_idx: np.ndarray,
     validation_idx: np.ndarray,
+    independent_context: np.ndarray | None=None,
+    independent_context_evidence_scope: str='PRODUCTION',
+    min_train_independent_contexts: int | None=None,
+    min_validation_independent_contexts: int | None=None,
     min_train_rows: int=50,
     min_validation_rows: int=20,
     min_target_std: float=1e-10,
@@ -57,8 +61,96 @@ def qualify_tabular_design(
         if not np.all(np.isfinite(a[use])):
             return AutoQualificationResult('UNSUPPORTED','PARTIAL',(f'non-finite values in required column {c!r}',),diag)
     reasons=[]
+    scope=str(independent_context_evidence_scope or 'PRODUCTION').upper()
+    if scope not in ('PRODUCTION','BLINDED_FOR_VALIDATION'):
+        return AutoQualificationResult(
+            'UNSUPPORTED','PARTIAL',
+            (f'unsupported independent-context evidence scope: {scope!r}',),diag,
+        )
+    diag['independent_context_evidence_scope']=scope
+    if scope=='BLINDED_FOR_VALIDATION' and independent_context is None:
+        return AutoQualificationResult(
+            'UNSUPPORTED','PARTIAL',
+            ('BLINDED_FOR_VALIDATION requires an explicit independent-context column; row-level samples cannot establish controlled context-to-context falsification',),diag,
+        )
     if len(train_idx)<min_train_rows or len(validation_idx)<min_validation_rows:
         reasons.append(f'insufficient rows: train={len(train_idx)}, validation={len(validation_idx)}')
+    if independent_context is not None:
+        context=np.asarray(independent_context)
+        n=len(next(iter(data.values()))) if data else 0
+        if len(context)!=n:
+            return AutoQualificationResult(
+                'UNSUPPORTED','PARTIAL',
+                (f'independent context vector length {len(context)} does not match data rows {n}',),diag,
+            )
+        use=np.r_[train_idx,validation_idx]
+        if context.dtype.kind in 'fiu':
+            bad=~np.isfinite(np.asarray(context,float)[use])
+        else:
+            selected=np.asarray(context,dtype=object)[use]
+            bad=np.asarray([x is None or not str(x).strip() for x in selected],dtype=bool)
+        if np.any(bad):
+            return AutoQualificationResult(
+                'UNSUPPORTED','PARTIAL',
+                ('independent context column contains missing/non-finite values in train or validation rows',),diag,
+            )
+        train_context=np.unique(context[train_idx])
+        validation_context=np.unique(context[validation_idx])
+        diag['n_train_independent_contexts']=int(len(train_context))
+        diag['n_validation_independent_contexts']=int(len(validation_context))
+        diag['train_rows_per_independent_context']={
+            'min':int(min(np.sum(context[train_idx]==x) for x in train_context)),
+            'max':int(max(np.sum(context[train_idx]==x) for x in train_context)),
+        } if len(train_context) else {'min':0,'max':0}
+        diag['validation_rows_per_independent_context']={
+            'min':int(min(np.sum(context[validation_idx]==x) for x in validation_context)),
+            'max':int(max(np.sum(context[validation_idx]==x) for x in validation_context)),
+        } if len(validation_context) else {'min':0,'max':0}
+        overlap=np.intersect1d(train_context,validation_context)
+        diag['independent_context_split_overlap_count']=int(len(overlap))
+        if len(overlap):
+            return AutoQualificationResult(
+                'UNSUPPORTED','PARTIAL',
+                (f'independent contexts overlap train and validation splits ({len(overlap)} overlapping contexts); validation is not independent',),diag,
+            )
+        missing_min=(min_train_independent_contexts is None, min_validation_independent_contexts is None)
+        if missing_min[0] != missing_min[1]:
+            return AutoQualificationResult(
+                'UNSUPPORTED','PARTIAL',
+                ('independent-context minimums must be supplied together or both omitted',),diag,
+            )
+        if not any(missing_min):
+            mt=int(min_train_independent_contexts); mv=int(min_validation_independent_contexts)
+            if mt < 1 or mv < 1:
+                return AutoQualificationResult(
+                    'UNSUPPORTED','PARTIAL',
+                    ('independent-context minimums must both be positive integers',),diag,
+                )
+            diag['min_train_independent_contexts']=mt
+            diag['min_validation_independent_contexts']=mv
+            context_minimums_met=len(train_context)>=mt and len(validation_context)>=mv
+            diag['production_independent_context_qualified']=bool(scope=='PRODUCTION' and context_minimums_met)
+            if not context_minimums_met:
+                reasons.append(
+                    'insufficient independent contexts: '
+                    f'train={len(train_context)} (<{mt}), validation={len(validation_context)} (<{mv})'
+                )
+        elif scope=='PRODUCTION':
+            diag['production_independent_context_qualified']=False
+            reasons.append(
+                'production independent-context qualification requires evidence-justified '
+                'min_train_independent_contexts and min_validation_independent_contexts; qualification fails closed'
+            )
+        else:
+            diag['production_independent_context_qualified']=False
+            diag['qualification_limitation']=(
+                'BLINDED_FOR_VALIDATION permits controlled architecture falsification without claiming production sample adequacy'
+            )
+            if len(train_context)<2 or len(validation_context)<2:
+                reasons.append(
+                    'BLINDED_FOR_VALIDATION needs at least two disjoint train and two validation independent contexts '
+                    'to audit context-to-context stability'
+                )
     target_std={c:float(np.std(np.asarray(data[c],float)[train_idx])) for c in tgt}
     diag['target_train_std']=target_std
     for c,s in target_std.items():

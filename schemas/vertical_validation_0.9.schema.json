@@ -1,0 +1,17 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "title":"DOR Vertical Validation v0.9",
+  "type":"object",
+  "required":["contract","target_domain","status","reason","task_summary","missing_gates","cases","errors","safety"],
+  "properties":{
+    "contract":{"const":"DOR-VERTICAL-VALIDATION/0.9"},
+    "target_domain":{"type":"string"},
+    "status":{"enum":["FULLY_VALIDATED","PARTIALLY_VALIDATED","BLOCKED"]},
+    "reason":{"type":"string"},
+    "task_summary":{"type":"object"},
+    "missing_gates":{"type":"array","items":{"type":"string"}},
+    "cases":{"type":"array","items":{"type":"object","required":["case_id","domain","task","evidence_grade","state","provenance"],"properties":{"case_id":{"type":"string"},"domain":{"type":"string"},"subsystem":{"type":["string","null"]},"task":{"enum":["DETECTION","CLASSIFICATION","LOCALIZATION","ROOT_CAUSE","IDENTIFICATION"]},"evidence_grade":{"enum":["UNIT_TEST","CONTROLLED_SYNTHETIC","SOURCE_ANCHORED_SYNTHETIC_MECHANISM","HIGH_FIDELITY_SYSTEM_SIMULATION","REAL_HARDWARE_TESTBED","REAL_IN_ORBIT"]},"state":{"enum":["PASS","PARTIAL","FAIL","NOT_RUN"]},"artifact":{"type":["string","null"]},"artifact_sha256":{"type":["string","null"]},"provenance":{"type":"string"},"limitations":{"type":"array","items":{"type":"string"}}}}},
+    "errors":{"type":"array","items":{"type":"string"}},
+    "safety":{"type":"object"}
+  }
+}

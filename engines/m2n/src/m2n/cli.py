@@ -177,6 +177,36 @@ def policy_preview(spec_path: str, out_path: str | None=None) -> int:
     return 2 if bad else 0
 
 
+def model_plan(spec_path: str, data_path: str | None=None, out_path: str | None=None) -> int:
+    import json
+    from .model_family import load_and_plan_model_families
+    plan=load_and_plan_model_families(spec_path,data_path)
+    text=json.dumps(plan.to_dict(),indent=2,ensure_ascii=False)
+    print(text)
+    if out_path: Path(out_path).write_text(text+'\n',encoding='utf-8')
+    return 0 if plan.status in ('READY','CONDITIONAL') else 2
+
+
+def temporal_design(spec_path: str, data_path: str, out_dir: str) -> int:
+    from .temporal_design import run_temporal_design
+    r=run_temporal_design(spec_path,data_path,out_dir)
+    print('M2N temporal design')
+    print('-------------------')
+    print('qualification:',r.qualification.get('status'))
+    print('status       :',r.status)
+    print('selected     :',r.selected_candidate_id or '-')
+    print('task         :',r.task)
+    print('output_dir   :',r.output_dir)
+    return 0 if r.status in ('SELECTED','AMBIGUOUS') else 2
+
+
+def predict_temporal(design_dir: str, data_path: str, out_path: str) -> int:
+    from .temporal_design import predict_temporal_design
+    p=predict_temporal_design(design_dir,data_path,out_path)
+    print(f'Wrote temporal design predictions: {p}')
+    return 0
+
+
 def design(spec_path: str, data_path: str, out_dir: str) -> int:
     from .goal_design import run_goal_driven_design
     from .practitioner import write_next_actions, seal_design_bundle
@@ -467,6 +497,12 @@ def main(argv=None) -> int:
     idp.add_argument('--data',required=True); idp.add_argument('--spec',default=None); idp.add_argument('--out',default=None)
     pv=sub.add_parser('policy-preview',help='preview physics-bias routing and representation eligibility before training')
     pv.add_argument('--spec',required=True); pv.add_argument('--out',default=None)
+    mp=sub.add_parser('model-plan',help='qualify model families for an explicit modeling contract without training')
+    mp.add_argument('--spec',required=True); mp.add_argument('--data',default=None); mp.add_argument('--out',default=None)
+    td=sub.add_parser('temporal-design',help='train and select qualified temporal candidates')
+    td.add_argument('--spec',required=True); td.add_argument('--data',required=True); td.add_argument('--out',required=True)
+    tp=sub.add_parser('predict-temporal',help='run a frozen temporal model or retained portfolio')
+    tp.add_argument('--design-dir',required=True); tp.add_argument('--data',required=True); tp.add_argument('--out',required=True)
     dp=sub.add_parser('design',help='run goal-driven M2N design from device_card.json + normal CSV')
     dp.add_argument('--spec',required=True); dp.add_argument('--data',required=True); dp.add_argument('--out',required=True)
     dd=sub.add_parser('diagnostic-design',help='qualify, train and compare a finite set of fault-diagnostic models from an explicit diagnostic request')
@@ -503,6 +539,9 @@ def main(argv=None) -> int:
     if a.cmd=='validate': return validate_practitioner(a.spec,a.data,a.out)
     if a.cmd=='inspect-data': return inspect_data_cli(a.data,a.spec,a.out)
     if a.cmd=='policy-preview': return policy_preview(a.spec,a.out)
+    if a.cmd=='model-plan': return model_plan(a.spec,a.data,a.out)
+    if a.cmd=='temporal-design': return temporal_design(a.spec,a.data,a.out)
+    if a.cmd=='predict-temporal': return predict_temporal(a.design_dir,a.data,a.out)
     if a.cmd=='design': return design(a.spec,a.data,a.out)
     if a.cmd=='diagnostic-design': return diagnostic_design(a.request,a.data,a.out)
     if a.cmd=='diagnostic-predict': return diagnostic_predict(a.design_dir,a.data,a.out)
