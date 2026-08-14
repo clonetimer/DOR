@@ -71,4 +71,5 @@ def project_mechanism_scope(public: PublicDataset, *, target_states: Sequence[st
     }
     return PublicDataset(X=X,U=U,trajectory_id=public.trajectory_id.copy(),schema=schema,
                          dt=float(public.dt),regime=public.regime,
-                         variant=f"{public.variant}-{variant_suffix}")
+                         variant=f"{public.variant}-{variant_suffix}",
+                         sample_time_s=(None if public.sample_time_s is None else np.asarray(public.sample_time_s,dtype=np.float64).copy()))

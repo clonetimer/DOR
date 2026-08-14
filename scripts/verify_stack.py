@@ -14,10 +14,10 @@ def sha256(p:Path):
 def main():
     checks=[]
     wheels={
-      'isgn':'isgn_toolkit-2.2.0-py3-none-any.whl',
-      'm2n':'m2n_toolkit-2.12.0+dor.1-py3-none-any.whl',
-      'fec':'fec_toolkit-2.4.0-py3-none-any.whl',
-      'dor':'dor_diagnostic_stack-0.8.0.dev0-py3-none-any.whl',
+      'isgn':'isgn_toolkit-2.3.0+timer.1-py3-none-any.whl',
+      'm2n':'m2n_toolkit-2.16.1+timer.1-py3-none-any.whl',
+      'fec':'fec_toolkit-2.4.2+timer.1-py3-none-any.whl',
+      'dor':'dor_diagnostic_stack-1.0.2+timer.1-py3-none-any.whl',
     }
     for k,n in wheels.items():
         p=ROOT/'wheels'/n; checks.append({'check':f'wheel:{k}','ok':p.is_file() and p.stat().st_size>0,'sha256':sha256(p) if p.is_file() else None})
@@ -26,7 +26,9 @@ def main():
       'diagnostic_plan_0.4.schema.json','diagnosis_bundle_0.4.schema.json',
       'fault_ontology_0.5.schema.json','mechanism_component_map_0.5.schema.json','localization_result_0.5.schema.json','localization_batch_0.5.schema.json','root_cause_result_0.6.schema.json',
       'fault_identification_request_0.7.schema.json','fault_identification_result_0.7.schema.json','isgn_identification_evidence_0.7.schema.json','isgn_mechanism_baseline_0.7.schema.json',
-      'multitask_diagnosis_0.8.schema.json','vertical_validation_0.9.schema.json','development_freeze_gate_1.0.schema.json'
+      'multitask_diagnosis_0.8.schema.json','vertical_validation_0.9.schema.json','development_freeze_gate_1.0.schema.json',
+      'auto_design_request_1.0.schema.json','device_mechanism_card_1.0.schema.json',
+      'multimodal_dataset_manifest_1.0.schema.json','public_diagnostic_dataset_catalog_1.0.schema.json'
     ]
     for n in schemas:
         p=ROOT/'schemas'/n; checks.append({'check':f'schema:{n}','ok':p.is_file()})

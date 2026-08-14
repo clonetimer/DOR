@@ -25,6 +25,8 @@ from fec.extensions.reference_bundle_store import (
     save_reference_bundle_manager,
 )
 from fec.extensions.evidence_provenance import (
+    AssetReferenceScope,
+    OperatingContextIdentity,
     ModalityAvailability,
     ReferenceCompatibilityContract,
     SourceDomain,
@@ -37,17 +39,39 @@ def _claims(value: str | None) -> set[str]:
     return {x.strip() for x in value.split(",") if x.strip()}
 
 
-def _reference_compatibility_from_config(cfg) -> ReferenceCompatibilityContract | None:
+def _reference_compatibility_from_config(
+    cfg, *, commissioned: bool = False
+) -> ReferenceCompatibilityContract | None:
     rc = cfg.get("reference_contract")
     if not rc:
         return None
     modalities = rc.get("modalities", {})
     availability = None if not modalities else ModalityAvailability.from_mapping(modalities)
     domain = rc.get("source_domain")
+    source_domain = None if domain is None else SourceDomain(str(domain))
+    ctx_cfg = rc.get("operating_context")
+    operating_context = None
+    if ctx_cfg is not None:
+        if not isinstance(ctx_cfg, dict) or not ctx_cfg.get("namespace"):
+            raise ValueError("reference_contract.operating_context requires namespace and attributes")
+        operating_context = OperatingContextIdentity.from_mapping(
+            str(ctx_cfg["namespace"]), ctx_cfg.get("attributes", {})
+        )
+    if commissioned:
+        return ReferenceCompatibilityContract.commissioned(
+            availability=availability,
+            provider_fingerprints=rc.get("provider_fingerprints", []),
+            source_domain=source_domain,
+            asset_scope=AssetReferenceScope.from_dict(rc.get("asset_scope")),
+            operating_context=operating_context,
+        )
     return ReferenceCompatibilityContract.from_runtime(
         availability=availability,
         provider_fingerprints=rc.get("provider_fingerprints", []),
-        source_domain=None if domain is None else SourceDomain(str(domain)),
+        source_domain=source_domain,
+        operating_context=operating_context,
+        asset_id=rc.get("runtime_asset_id"),
+        fleet_group_id=rc.get("runtime_fleet_group_id"),
     )
 
 
@@ -103,7 +127,8 @@ def _commission_manager(args, cfg, cols, specs, A, G) -> tuple[ReferenceBundleMa
     X_root = read_csv_matrix(args.commission_root, cols)
     X_sentinel = read_csv_matrix(args.commission_sentinel, cols)
     dep = frozenset(str(x) for x in cfg.get("calibration", {}).get("dependency_set", []))
-    compatibility = _reference_compatibility_from_config(cfg)
+    compatibility = _reference_compatibility_from_config(cfg, commissioned=True)
+    sentinel_compatibility = _reference_compatibility_from_config(cfg)
     manager = ReferenceBundleManager(
         alpha=float(cfg.get("policy", {}).get("alpha", 0.05)),
         min_sentinel_samples=int(cfg.get("production_calibration", {}).get("min_sentinel_samples", 20)),
@@ -137,7 +162,7 @@ def _commission_manager(args, cfg, cols, specs, A, G) -> tuple[ReferenceBundleMa
         X_sentinel,
         sentinel_data_ids={args.sentinel_data_id},
         allow_conservative=bool(args.allow_conservative_commissioning),
-        sentinel_compatibility=compatibility,
+        sentinel_compatibility=sentinel_compatibility,
     )
     promoted = False
     if validation.accepted_for_promotion:
@@ -173,7 +198,8 @@ def _refresh_manager(args, manager, cfg, cols, specs, A, G) -> dict | None:
         ),
     )
     dep = frozenset(str(x) for x in cfg.get("calibration", {}).get("dependency_set", []))
-    compatibility = _reference_compatibility_from_config(cfg)
+    compatibility = _reference_compatibility_from_config(cfg, commissioned=True)
+    sentinel_compatibility = _reference_compatibility_from_config(cfg)
     meta = ReferenceBundleMeta(
         bundle_id=args.refresh_bundle_id,
         key=args.key,
@@ -203,7 +229,7 @@ def _refresh_manager(args, manager, cfg, cols, specs, A, G) -> dict | None:
         sentinel_data_ids={args.refresh_sentinel_data_id},
         allow_conservative=bool(args.allow_conservative_refresh),
         protect_active_power=True,
-        sentinel_compatibility=compatibility,
+        sentinel_compatibility=sentinel_compatibility,
     )
     promoted = False
     if validation.accepted_for_promotion:
@@ -261,7 +287,7 @@ def cmd_production(args) -> int:
             "state": "REFERENCE_UNSUPPORTED",
             "manager_source": source,
             "active": manager.active_info(args.key),
-            "runtime_reference_compatibility": None if runtime_compatibility is None else runtime_compatibility.to_dict(),
+            "runtime_reference_compatibility": None if runtime_compatibility is None else runtime_compatibility.to_runtime_dict(),
             "calibration_reason": cal.reason,
             "calibration_diagnostics": dict(cal.diagnostics),
         }
@@ -310,7 +336,7 @@ def cmd_production(args) -> int:
         "commissioning": commissioning,
         "refresh": refresh,
         "active": manager.active_info(args.key),
-        "runtime_reference_compatibility": None if runtime_compatibility is None else runtime_compatibility.to_dict(),
+        "runtime_reference_compatibility": None if runtime_compatibility is None else runtime_compatibility.to_runtime_dict(),
         "calibration_state": cal.state,
         "calibration_reason": cal.reason,
         "calibration_diagnostics": dict(cal.diagnostics),
@@ -328,7 +354,6 @@ def cmd_verify_state(args) -> int:
     manager = load_reference_bundle_manager(args.state)
     print(json.dumps({"state": "VALID", "manifest": manager.manifest()}, indent=2, default=str))
     return 0
-
 
 
 def cmd_class_calibrate(args) -> int:
@@ -425,16 +450,13 @@ def cmd_class_context_infer(args) -> int:
 def cmd_mask_calibration_audit(args) -> int:
     from fec.extensions.mask_calibration_audit import write_mask_calibration_audit
     out = write_mask_calibration_audit(
-        args.scores,
-        args.reference,
-        args.output,
+        args.scores, args.reference, args.output,
         min_test_group_size=args.min_test_group_size,
         coverage_tolerance=args.coverage_tolerance,
     )
     report = json.loads(Path(out).read_text(encoding="utf-8"))
     print(json.dumps({
-        "state": "OK",
-        "output": str(Path(out).resolve()),
+        "state": "OK", "output": str(Path(out).resolve()),
         "supported_fraction": report["supported_fraction"],
         "all_observed_masks_supported": report["all_observed_masks_supported"],
         "all_supported_groups_pass": report["all_supported_groups_pass"],
@@ -442,8 +464,9 @@ def cmd_mask_calibration_audit(args) -> int:
     }, indent=2))
     return 0
 
+
 def build_parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(prog="fec", description="FEC v2.4 toolkit CLI")
+    p = argparse.ArgumentParser(prog="fec", description="FEC v2.4.2 Stable-derived DOR-integrated toolkit CLI")
     sp = p.add_subparsers(dest="command", required=True)
 
     run = sp.add_parser("run", help="minimal non-production run on precomputed Contact columns")

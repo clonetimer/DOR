@@ -5,9 +5,11 @@ from isgn.api import recover_graph, save_checkpoint, load_checkpoint, fit_normal
 
 def test_npz_roundtrip(tmp_path):
     ds,_=simulate('thermal',2,T=20,seed=1)
+    ds.sample_time_s=np.broadcast_to(np.arange(ds.X.shape[1],dtype=float)*ds.dt,ds.X.shape[:2]).copy()
     p=tmp_path/'d.npz'; save_npz(ds,p); d2=load_npz(p)
     assert d2.X.shape==ds.X.shape and d2.U.shape==ds.U.shape
     assert d2.schema==ds.schema
+    assert np.array_equal(d2.sample_time_s,ds.sample_time_s)
 
 def test_recovery_checkpoint_and_phm(tmp_path):
     tr,_=simulate('tank',6,T=50,seed=1); va,_=simulate('tank',4,T=50,seed=2)

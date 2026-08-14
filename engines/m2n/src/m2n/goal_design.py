@@ -36,7 +36,7 @@ from .design_session import run_design_session
 
 
 SUPPORTED_TEMPLATES = {'second_order_mechanics', 'separable_peak_response', 'generic_mechanism_graph'}
-SUPPORTED_SCHEMA_VERSIONS = ('1.0','2.0','2.1','2.2','2.3','2.4','2.5','2.6','2.7','2.8','2.9','2.10','2.11','2.12')
+SUPPORTED_SCHEMA_VERSIONS = ('1.0','2.0','2.1','2.2','2.3','2.4','2.5','2.6','2.7','2.8','2.9','2.10','2.11','2.12','2.13','2.14','2.15','2.16')
 
 
 def _sha256(path: Path) -> str:

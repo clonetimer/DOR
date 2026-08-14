@@ -37,7 +37,9 @@ from .reference_bundle import (
     ReferenceBundleMeta,
 )
 
-SCHEMA_VERSION = "fec.reference_bundle_store.v1"
+SCHEMA_VERSION = "fec.reference_bundle_store.v3"
+LEGACY_SCHEMA_VERSIONS = frozenset({"fec.reference_bundle_store.v1", "fec.reference_bundle_store.v2"})
+LOADABLE_SCHEMA_VERSIONS = LEGACY_SCHEMA_VERSIONS | {SCHEMA_VERSION}
 
 
 class ReferenceBundleStoreError(RuntimeError):
@@ -292,9 +294,10 @@ def load_reference_bundle_manager(path: str | os.PathLike[str]) -> ReferenceBund
         envelope = json.loads(source.read_text(encoding="utf-8"))
     except Exception as exc:
         raise ReferenceBundleStoreError(f"cannot read reference bundle store: {exc}") from exc
-    if envelope.get("schema_version") != SCHEMA_VERSION:
+    envelope_schema = envelope.get("schema_version")
+    if envelope_schema not in LOADABLE_SCHEMA_VERSIONS:
         raise ReferenceBundleStoreError(
-            f"unsupported reference bundle store schema: {envelope.get('schema_version')!r}"
+            f"unsupported reference bundle store schema: {envelope_schema!r}"
         )
     payload = envelope.get("payload")
     if not isinstance(payload, dict):
@@ -305,7 +308,8 @@ def load_reference_bundle_manager(path: str | os.PathLike[str]) -> ReferenceBund
         raise ReferenceBundleIntegrityError(
             f"reference bundle store integrity check failed: expected={expected!r}, actual={actual!r}"
         )
-    if payload.get("schema_version") != SCHEMA_VERSION:
+    payload_schema = payload.get("schema_version")
+    if payload_schema != envelope_schema or payload_schema not in LOADABLE_SCHEMA_VERSIONS:
         raise ReferenceBundleStoreError("payload schema version mismatch")
     if payload.get("leaf_provider") != CoreEmpiricalLeafProvider.name:
         raise ReferenceBundleStoreError(f"unsupported leaf provider: {payload.get('leaf_provider')!r}")

@@ -29,9 +29,11 @@ def test_bridge_rejects_invalid_window():
     spec,ont,mmap=inputs(); r=build_isgn_identification_evidence(spec,ds(2,6,1),ds(3,5,2),ont,mmap,window_evidence_validity='CONTEXT_UNSUPPORTED')
     assert r['status']=='UNSUPPORTED'
 
-def test_bridge_preserves_unidentifiable_unexcited_edge():
+def test_bridge_fails_closed_when_isgn23_observation_gate_blocks_unexcited_fault_window():
     spec,ont,mmap=inputs(); r=build_isgn_identification_evidence(spec,ds(2,8,1),ds(3,4,2,const_u=True),ont,mmap)
-    assert not r['changes'][0]['identifiable'] and not r['changes'][0]['supported']
+    assert r['status']=='UNIDENTIFIABLE'
+    assert r['changes']==[]
+    assert r['observation_gate']['abnormal']['status']=='OBSERVATION_INSUFFICIENT'
 
 
 def test_supported_drift_with_ambiguous_component_mapping_is_alternatives():

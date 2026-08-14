@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-"""Non-invasive DOR adapter over ISGN 2.2 PHM differential APIs.
+"""Non-invasive DOR adapter over ISGN 2.3 PHM differential APIs.
 
 This module does not modify ISGN Core.  It converts a COMPLETE mechanism
 baseline plus normal/authorized-abnormal PublicDataset artifacts into the DOR
@@ -74,7 +74,7 @@ def build_isgn_identification_evidence(
         'mechanism_source':(mechanism_spec.get('provenance') or {}).get('source'),
         'normal_sha256':normal_source_sha256,
         'abnormal_sha256':abnormal_source_sha256,
-        'isgn_api':'ISGN 2.2 fit_normal_phm + calibrate_phm_health + anchored_parameter_drift'
+        'isgn_api':'ISGN 2.3 assess_observation + fit_normal_phm + calibrate_phm_health + anchored_parameter_drift'
       }
     }
     if errors:
@@ -85,7 +85,21 @@ def build_isgn_identification_evidence(
         base.update(status='UNSUPPORTED',errors=['abnormal window evidence validity is not VALID']); return base
 
     # Lazy import keeps DOR's discrete path independent of ISGN availability.
-    from isgn import fit_normal_phm, anchored_parameter_drift, calibrate_phm_health
+    from isgn import assess_observation, fit_normal_phm, anchored_parameter_drift, calibrate_phm_health
+    normal_obs = assess_observation(normal_ds)
+    abnormal_obs = assess_observation(abnormal_ds)
+    base['observation_gate'] = {
+      'normal': normal_obs.to_dict(),
+      'abnormal': abnormal_obs.to_dict(),
+      'policy': 'FAIL_CLOSED_ON_OBSERVATION_INSUFFICIENT',
+    }
+    blocked = [name for name, rep in [('normal', normal_obs), ('abnormal', abnormal_obs)] if str(rep.status).upper() == 'OBSERVATION_INSUFFICIENT']
+    if blocked:
+        base.update(
+          status='UNIDENTIFIABLE',
+          errors=[f"ISGN 2.3 observation gate reports OBSERVATION_INSUFFICIENT for {', '.join(blocked)} data; DOR blocks physical identification rather than treating history rescue/timebase failure as mechanism truth"],
+        )
+        return base
     graph={str(k):[str(x) for x in v] for k,v in mechanism_spec['graph'].items()}
     nominal=fit_normal_phm(normal_ds,graph,operators=mechanism_spec.get('operators') or {},operator_parameters=mechanism_spec.get('operator_parameters') or {})
     cal=calibrate_phm_health(normal_ds,nominal)

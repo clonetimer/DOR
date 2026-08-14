@@ -19,6 +19,7 @@ from .selection import ArchitectureSelectionPolicy, select_architecture
 class TemporalModelKind(str, Enum):
     SUMMARY_MLP = 'SUMMARY_MLP'
     WAVEFORM_FEATURE_LINEAR = 'WAVEFORM_FEATURE_LINEAR'
+    WAVEFORM_ORDER_LINEAR = 'WAVEFORM_ORDER_LINEAR'
     LINEAR_AR = 'LINEAR_AR'
     K1_INTEGRATOR = 'K1_INTEGRATOR'
     BOUNDED_INTEGRATOR = 'BOUNDED_INTEGRATOR'
@@ -35,10 +36,13 @@ class TemporalCandidate:
     kind: TemporalModelKind
     task: str
     reason: str
+    config: Mapping[str, Any] | None = None
 
     def to_dict(self) -> dict[str, Any]:
         d = asdict(self)
         d['kind'] = self.kind.value
+        if self.config is None:
+            d.pop('config', None)
         return d
 
 
@@ -57,6 +61,7 @@ class TemporalQualification:
     reasons: tuple[str, ...]
     candidates: tuple[TemporalCandidate, ...]
     context_support: Mapping[str, Any] | None = None
+    forecast_evaluation: Mapping[str, Any] | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -74,6 +79,8 @@ class TemporalDesignSummary:
     selection: Mapping[str, Any] | None
     qualification: Mapping[str, Any]
     task: str
+    candidate_one_step_validation_risks: Mapping[str, Sequence[float]] | None = None
+    forecast_evaluation: Mapping[str, Any] | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -84,8 +91,57 @@ class TemporalDesignSummary:
             'selection': self.selection,
             'qualification': self.qualification,
             'task': self.task,
+            **({'candidate_one_step_validation_risks': {k: list(map(float, v)) for k, v in self.candidate_one_step_validation_risks.items()}} if self.candidate_one_step_validation_risks is not None else {}),
+            **({'forecast_evaluation': dict(self.forecast_evaluation)} if self.forecast_evaluation is not None else {}),
         }
 
+
+
+def _forecast_evaluation_policy(contract: ModelingContract, min_sequence_length: int | None = None) -> dict[str, Any]:
+    """Resolve the model-selection forecast semantics.
+
+    v2.16 keeps legacy one-step ranking as the default.  Recursive rollout is
+    opt-in and deliberately narrow: the initial native implementation only
+    supports closed autoregressive state forecasts where input_columns and
+    target_columns are identical and ordered the same.  This prevents M2M from
+    silently inventing future exogenous inputs.
+    """
+    cfg = dict((contract.constraints or {}).get('forecast_evaluation') or {})
+    if not cfg:
+        return {
+            'mode': 'ONE_STEP',
+            'horizon_steps': 1,
+            'metric': 'CONTEXT_BALANCED_STANDARDIZED_RMSE',
+            'closed_loop': False,
+        }
+    mode = str(cfg.get('mode', 'ONE_STEP')).upper()
+    if mode not in {'ONE_STEP', 'RECURSIVE_ROLLOUT'}:
+        raise ValueError(f"unsupported forecast_evaluation.mode {mode!r}")
+    try:
+        horizon = int(cfg.get('horizon_steps', 1))
+    except (TypeError, ValueError):
+        raise ValueError('forecast_evaluation.horizon_steps must be an integer') from None
+    if horizon < 1:
+        raise ValueError('forecast_evaluation.horizon_steps must be >= 1')
+    if mode == 'ONE_STEP' and horizon != 1:
+        raise ValueError('forecast_evaluation mode ONE_STEP requires horizon_steps=1')
+    if mode == 'RECURSIVE_ROLLOUT' and horizon < 2:
+        raise ValueError('forecast_evaluation mode RECURSIVE_ROLLOUT requires horizon_steps>=2')
+    out = {
+        'mode': mode,
+        'horizon_steps': horizon,
+        'metric': 'CONTEXT_BALANCED_ENDPOINT_RMSE',
+        'closed_loop': mode == 'RECURSIVE_ROLLOUT',
+    }
+    if min_sequence_length is not None:
+        tcfg = dict((contract.constraints or {}).get('temporal_training') or {})
+        default_lb = max(2, min(12, min_sequence_length // 4 if min_sequence_length >= 8 else min_sequence_length - 1))
+        lookback = int(tcfg.get('lookback', default_lb))
+        if lookback >= min_sequence_length:
+            lookback = max(1, min_sequence_length - 1)
+        out['resolved_lookback'] = int(lookback)
+        out['max_supported_horizon_steps'] = max(0, int(min_sequence_length - lookback))
+    return out
 
 def _split_values(spec: Mapping[str, Any]) -> tuple[str, tuple[str, ...], tuple[str, ...]]:
     d = spec.get('data') or {}
@@ -400,6 +456,132 @@ def _context_support_flag_from_frozen(q: Mapping[str, Any], length: int, duratio
             return 'OUT_OF_SUPPORT'
     return 'IN_SUPPORT'
 
+
+def _waveform_feature_config_errors(wcfg: Mapping[str, Any], min_len: int) -> list[str]:
+    errors: list[str] = []
+    window = wcfg.get('sample_window')
+    feature_set = str(wcfg.get('feature_set', 'TIME_DOMAIN_V1')).upper()
+    if not isinstance(window, (list, tuple)) or len(window) != 2:
+        errors.append('waveform representation requires sample_window=[start,end) declared before model selection')
+        return errors
+    try:
+        ws, we = int(window[0]), int(window[1])
+    except (TypeError, ValueError):
+        ws, we = -1, -1
+    if ws < 0 or we <= ws or we > min_len:
+        errors.append(f'waveform sample_window must satisfy 0 <= start < end <= min_sequence_length ({min_len})')
+    if feature_set != 'TIME_DOMAIN_V1':
+        errors.append(f'unsupported waveform feature_set {feature_set!r}; native deterministic feature baseline supports TIME_DOMAIN_V1')
+    return errors
+
+
+def _waveform_order_config_errors(
+    wcfg: Mapping[str, Any],
+    contract: ModelingContract,
+    data: Mapping[str, np.ndarray],
+    contexts: Sequence[tuple[str, np.ndarray]],
+    min_len: int,
+) -> list[str]:
+    errors = _waveform_feature_config_errors(wcfg, min_len)
+    ocfg = dict(wcfg.get('order_domain') or {})
+    if not ocfg:
+        errors.append('WAVEFORM_ORDER_LINEAR requires waveform_representation.order_domain')
+        return errors
+    rot_col = str(ocfg.get('rotation_frequency_column', ''))
+    signal_cols = tuple(map(str, ocfg.get('signal_columns') or ()))
+    try:
+        sample_rate = float(ocfg.get('sample_rate_hz'))
+    except (TypeError, ValueError):
+        sample_rate = math.nan
+    carrier = ocfg.get('carrier_band_hz')
+    orders = ocfg.get('characteristic_orders')
+    try:
+        harmonics = int(ocfg.get('harmonics', 1))
+    except (TypeError, ValueError):
+        harmonics = 0
+    sidebands = ocfg.get('sidebands', [0.0])
+    if not rot_col or rot_col not in contract.input_columns:
+        errors.append('waveform order-domain representation requires rotation_frequency_column in modeling_contract.input_columns')
+    if not signal_cols or any(c not in contract.input_columns or c == rot_col for c in signal_cols):
+        errors.append('waveform order-domain signal_columns must be a non-empty subset of modeling_contract.input_columns excluding rotation_frequency_column')
+    if not np.isfinite(sample_rate) or sample_rate <= 0:
+        errors.append('waveform order-domain sample_rate_hz must be finite and positive')
+    if not isinstance(carrier, (list, tuple)) or len(carrier) != 2:
+        errors.append('waveform order-domain carrier_band_hz must be [low, high]')
+    else:
+        try:
+            clo, chi = float(carrier[0]), float(carrier[1])
+        except (TypeError, ValueError):
+            clo, chi = math.nan, math.nan
+        if not (np.isfinite(clo) and np.isfinite(chi) and 0 <= clo < chi <= 0.5 * sample_rate):
+            errors.append('waveform order-domain carrier_band_hz must satisfy 0 <= low < high <= Nyquist')
+    try:
+        order_vals = tuple(map(float, orders or ()))
+    except (TypeError, ValueError):
+        order_vals = ()
+    if not order_vals or any((not np.isfinite(v) or v <= 0) for v in order_vals):
+        errors.append('waveform order-domain characteristic_orders must contain finite positive engineering-declared orders')
+    try:
+        sideband_vals = tuple(map(float, sidebands or ()))
+    except (TypeError, ValueError):
+        sideband_vals = ()
+    if harmonics < 1 or not sideband_vals or any(not np.isfinite(v) for v in sideband_vals):
+        errors.append('waveform order-domain harmonics must be >=1 and sidebands must contain finite order offsets')
+    if rot_col in data:
+        try:
+            rv = np.asarray(data[rot_col], dtype=float)
+            for c, idx in contexts:
+                vals = rv[idx]
+                if np.any(~np.isfinite(vals)) or np.any(vals <= 0) or float(np.max(vals) - np.min(vals)) > 1e-9 * max(1.0, float(np.max(np.abs(vals)))):
+                    errors.append(f'rotation frequency must be finite, positive and constant within context {c!r}')
+                    break
+        except (TypeError, ValueError):
+            errors.append(f'rotation frequency column {rot_col!r} must be numeric')
+    return errors
+
+
+def _explicit_representation_candidate_specs(contract: ModelingContract) -> tuple[list[tuple[str, TemporalModelKind, dict[str, Any]]] | None, list[str]]:
+    constraints = dict(contract.constraints or {})
+    raw = constraints.get('representation_candidates')
+    if raw is None:
+        return None, []
+    errors: list[str] = []
+    if not isinstance(raw, (list, tuple)) or not raw:
+        return [], ['constraints.representation_candidates must be a non-empty array when supplied']
+    out: list[tuple[str, TemporalModelKind, dict[str, Any]]] = []
+    seen: set[str] = set()
+    allowed = {TemporalModelKind.WAVEFORM_FEATURE_LINEAR, TemporalModelKind.WAVEFORM_ORDER_LINEAR}
+    for i, item in enumerate(raw):
+        if not isinstance(item, Mapping):
+            errors.append(f'representation_candidates[{i}] must be an object')
+            continue
+        cid = str(item.get('id', '')).strip()
+        if not cid:
+            errors.append(f'representation_candidates[{i}].id is required')
+            continue
+        cid_key = cid.casefold()
+        if cid_key in seen:
+            errors.append(f'duplicate representation candidate id {cid!r}')
+            continue
+        seen.add(cid_key)
+        try:
+            kind = TemporalModelKind(str(item.get('kind', '')).upper())
+        except ValueError:
+            errors.append(f'representation candidate {cid!r} has unknown kind {item.get("kind")!r}')
+            continue
+        if kind not in allowed:
+            errors.append(
+                f'representation candidate {cid!r} kind {kind.value!r} is not parameterized in v2.16; '
+                'supported kinds are WAVEFORM_FEATURE_LINEAR and WAVEFORM_ORDER_LINEAR'
+            )
+            continue
+        wcfg = item.get('waveform_representation')
+        if not isinstance(wcfg, Mapping):
+            errors.append(f'representation candidate {cid!r} requires waveform_representation object')
+            continue
+        out.append((cid, kind, dict(wcfg)))
+    return out, errors
+
 def qualify_temporal_design(spec: Mapping[str, Any], data: Mapping[str, np.ndarray]) -> TemporalQualification:
     contract = ModelingContract.from_mapping(spec.get('modeling_contract') or {})
     reasons: list[str] = []
@@ -475,29 +657,89 @@ def qualify_temporal_design(spec: Mapping[str, Any], data: Mapping[str, np.ndarr
     if not val_ctx:
         reasons.append('no validation independent contexts found')
 
+    forecast_evaluation = None
+    try:
+        forecast_evaluation = _forecast_evaluation_policy(contract, min_len)
+    except ValueError as exc:
+        reasons.append(f'forecast_evaluation contract invalid: {exc}')
+    if forecast_evaluation and forecast_evaluation.get('mode') == 'RECURSIVE_ROLLOUT':
+        if contract.objective != ModelingObjective.DYNAMICS_IDENTIFICATION:
+            reasons.append('forecast_evaluation RECURSIVE_ROLLOUT is currently supported only for DYNAMICS_IDENTIFICATION')
+        if tuple(contract.input_columns) != tuple(contract.target_columns):
+            reasons.append('forecast_evaluation RECURSIVE_ROLLOUT initial native support requires input_columns == target_columns in identical order so future exogenous inputs are never invented')
+        semantics = _target_semantics(contract)
+        if semantics != 'EUCLIDEAN':
+            reasons.append('forecast_evaluation RECURSIVE_ROLLOUT initial native support requires EUCLIDEAN target semantics')
+        h = int(forecast_evaluation.get('horizon_steps', 1))
+        max_h = int(forecast_evaluation.get('max_supported_horizon_steps', 0))
+        if h > max_h:
+            reasons.append(f'forecast_evaluation horizon_steps={h} exceeds the minimum-sequence supported horizon {max_h} after the resolved lookback')
+
     candidates: list[TemporalCandidate] = []
+    if (contract.constraints or {}).get('representation_candidates') is not None and contract.objective != ModelingObjective.CATEGORICAL_PREDICTION:
+        reasons.append('parameterized representation_candidates are currently implemented only for CATEGORICAL_PREDICTION with WAVEFORM_SEQUENCE; other objectives must use their existing qualified paths')
     if contract.objective == ModelingObjective.CATEGORICAL_PREDICTION:
         if contract.input_representation == InputRepresentation.WAVEFORM_SEQUENCE:
-            wcfg=dict((contract.constraints or {}).get('waveform_representation') or {})
-            window=wcfg.get('sample_window')
-            feature_set=str(wcfg.get('feature_set','TIME_DOMAIN_V1')).upper()
-            if not isinstance(window,(list,tuple)) or len(window)!=2:
-                reasons.append('WAVEFORM_SEQUENCE requires constraints.waveform_representation.sample_window=[start,end) so the region of interest is declared before label-based model selection')
-            else:
-                try: ws,we=int(window[0]),int(window[1])
-                except (TypeError,ValueError): ws,we=-1,-1
-                if ws < 0 or we <= ws or we > min_len:
-                    reasons.append(f'waveform sample_window must satisfy 0 <= start < end <= min_sequence_length ({min_len})')
-                elif feature_set != 'TIME_DOMAIN_V1':
-                    reasons.append(f'unsupported waveform feature_set {feature_set!r}; v2.10 supports TIME_DOMAIN_V1')
+            wcfg = dict((contract.constraints or {}).get('waveform_representation') or {})
+            if 'order_domain_candidates' in wcfg:
+                reasons.append('waveform_representation.order_domain_candidates is not a supported contract field; use constraints.representation_candidates so each representation has an explicit candidate id and full configuration')
+            explicit_specs, explicit_errors = _explicit_representation_candidate_specs(contract)
+            reasons.extend(explicit_errors)
+            if explicit_specs is None:
+                feature_errors = _waveform_feature_config_errors(wcfg, min_len)
+                if feature_errors:
+                    reasons.extend(feature_errors)
                 else:
                     candidates.append(TemporalCandidate('waveform_feature_linear', TemporalModelKind.WAVEFORM_FEATURE_LINEAR, 'SEQUENCE_TO_CLASS', 'deterministic ridge classifier on declared-region time-domain waveform features; retained so representation can compete with raw sequence models'))
+                if wcfg.get('order_domain'):
+                    order_errors = _waveform_order_config_errors(wcfg, contract, data, contexts, min_len)
+                    if order_errors:
+                        reasons.extend(order_errors)
+                    else:
+                        candidates.append(TemporalCandidate('waveform_order_linear', TemporalModelKind.WAVEFORM_ORDER_LINEAR, 'SEQUENCE_TO_CLASS', 'deterministic ridge classifier on an engineering-declared envelope/order representation normalized by measured rotation frequency'))
+            else:
+                for cid, kind, candidate_wcfg in explicit_specs:
+                    if kind is TemporalModelKind.WAVEFORM_FEATURE_LINEAR:
+                        errs = _waveform_feature_config_errors(candidate_wcfg, min_len)
+                        reason = 'deterministic ridge classifier on a candidate-specific declared-region time-domain waveform representation'
+                    else:
+                        errs = _waveform_order_config_errors(candidate_wcfg, contract, data, contexts, min_len)
+                        reason = 'deterministic ridge classifier on a candidate-specific engineering-declared order-domain waveform representation'
+                    if errs:
+                        reasons.extend([f'representation candidate {cid!r}: {e}' for e in errs])
+                    else:
+                        candidates.append(TemporalCandidate(cid, kind, 'SEQUENCE_TO_CLASS', reason, {'waveform_representation': candidate_wcfg}))
         candidates.append(TemporalCandidate('summary_mlp', TemporalModelKind.SUMMARY_MLP, 'SEQUENCE_TO_CLASS', 'order-free sequence summary baseline; retained so temporal order must earn its complexity'))
         if min_len >= 3:
             candidates.append(TemporalCandidate('tcn', TemporalModelKind.TCN, 'SEQUENCE_TO_CLASS', 'causal/local convolutional temporal pattern candidate'))
             candidates.append(TemporalCandidate('gru', TemporalModelKind.GRU, 'SEQUENCE_TO_CLASS', 'recurrent latent-state temporal candidate'))
         if min_len >= 4:
             candidates.append(TemporalCandidate('transformer', TemporalModelKind.TRANSFORMER, 'SEQUENCE_TO_CLASS', 'attention-based long-range interaction candidate'))
+    elif contract.objective == ModelingObjective.STATIC_REGRESSION:
+        if contract.input_representation == InputRepresentation.WAVEFORM_SEQUENCE:
+            wcfg=dict((contract.constraints or {}).get('waveform_representation') or {})
+            window=wcfg.get('sample_window'); feature_set=str(wcfg.get('feature_set','TIME_DOMAIN_V1')).upper()
+            if not contract.target_columns:
+                reasons.append('STATIC_REGRESSION waveform contract requires target_columns')
+            if not isinstance(window,(list,tuple)) or len(window)!=2:
+                reasons.append('WAVEFORM_SEQUENCE requires constraints.waveform_representation.sample_window=[start,end) for sequence-to-vector regression')
+            else:
+                try: ws,we=int(window[0]),int(window[1])
+                except (TypeError,ValueError): ws,we=-1,-1
+                if ws < 0 or we <= ws or we > min_len:
+                    reasons.append(f'waveform sample_window must satisfy 0 <= start < end <= min_sequence_length ({min_len})')
+                elif feature_set != 'TIME_DOMAIN_V1':
+                    reasons.append(f'unsupported waveform feature_set {feature_set!r}; v2.13 supports TIME_DOMAIN_V1')
+                else:
+                    candidates.append(TemporalCandidate('waveform_feature_linear', TemporalModelKind.WAVEFORM_FEATURE_LINEAR, 'SEQUENCE_TO_VECTOR', 'deterministic ridge regressor on declared-region time-domain waveform features'))
+            candidates.append(TemporalCandidate('summary_mlp', TemporalModelKind.SUMMARY_MLP, 'SEQUENCE_TO_VECTOR', 'order-free sequence summary regression baseline'))
+            if min_len >= 3:
+                candidates.append(TemporalCandidate('tcn', TemporalModelKind.TCN, 'SEQUENCE_TO_VECTOR', 'pooled convolutional sequence-to-vector regressor'))
+                candidates.append(TemporalCandidate('gru', TemporalModelKind.GRU, 'SEQUENCE_TO_VECTOR', 'recurrent sequence-to-vector regressor'))
+            if min_len >= 4:
+                candidates.append(TemporalCandidate('transformer', TemporalModelKind.TRANSFORMER, 'SEQUENCE_TO_VECTOR', 'attention-based sequence-to-vector regressor'))
+        else:
+            reasons.append('native temporal STATIC_REGRESSION currently requires WAVEFORM_SEQUENCE; tabular static regression remains outside temporal-design')
     elif contract.objective in (ModelingObjective.NORMALITY_MODELING, ModelingObjective.DYNAMICS_IDENTIFICATION):
         physics_cfg = dict((contract.constraints or {}).get('temporal_physics') or {})
         if contract.objective == ModelingObjective.DYNAMICS_IDENTIFICATION and contract.mechanism_usage in (MechanismUsage.PREFERRED, MechanismUsage.REQUIRED):
@@ -599,14 +841,20 @@ def qualify_temporal_design(spec: Mapping[str, Any], data: Mapping[str, np.ndarr
     else:
         reasons.append(f'native temporal-design does not yet implement objective {contract.objective.value}')
 
+    candidate_ids=[c.id.casefold() for c in candidates]
+    duplicate_ids=sorted({cid for cid in candidate_ids if candidate_ids.count(cid)>1})
+    if duplicate_ids:
+        reasons.append(f'duplicate temporal candidate ids after qualification: {duplicate_ids}')
+
     allowed=(contract.constraints or {}).get('temporal_candidates')
     if allowed is not None:
         wanted={str(x).upper() for x in allowed}
         known={x.value for x in TemporalModelKind}
-        bad=sorted(wanted-known)
+        known_ids={c.id.upper() for c in candidates}
+        bad=sorted(wanted-known-known_ids)
         if bad:
-            reasons.append(f'unknown temporal candidate kinds requested: {bad}')
-        candidates=[c for c in candidates if c.kind.value in wanted]
+            reasons.append(f'unknown temporal candidate kinds/ids requested: {bad}')
+        candidates=[c for c in candidates if c.kind.value in wanted or c.id.upper() in wanted]
 
     semantics=_target_semantics(contract)
     if semantics not in ('EUCLIDEAN','UNIT_QUATERNION'):
@@ -616,7 +864,7 @@ def qualify_temporal_design(spec: Mapping[str, Any], data: Mapping[str, np.ndarr
 
     status = 'READY'
     if reasons:
-        hard = any(('missing' in r or 'required' in r or 'crosses split' in r or 'not strictly increasing' in r or 'regular sampling' in r or 'no train' in r or 'no validation' in r) for r in reasons)
+        hard = any(('missing' in r or 'required' in r or 'requires' in r or 'crosses split' in r or 'not strictly increasing' in r or 'regular sampling' in r or 'no train' in r or 'no validation' in r or r.startswith('forecast_evaluation contract invalid') or r.startswith('forecast_evaluation horizon_steps=')) for r in reasons)
         status = 'UNSUPPORTED' if hard else 'AMBIGUOUS'
     q = spec.get('qualification') or {}
     min_train = q.get('min_train_independent_contexts') if isinstance(q, Mapping) else None
@@ -650,7 +898,7 @@ def qualify_temporal_design(spec: Mapping[str, Any], data: Mapping[str, np.ndarr
             reasons.append(
                 f"{int(context_support['validation_out_of_support_contexts'])} validation contexts fall outside the empirical train context envelope and are reserved for extrapolation audit, not architecture ranking"
             )
-    return TemporalQualification(status, context_col, time_col, split_col, len(train_ctx), len(val_ctx), min_len, max_len, regular, rel, tuple(reasons), tuple(candidates), context_support)
+    return TemporalQualification(status, context_col, time_col, split_col, len(train_ctx), len(val_ctx), min_len, max_len, regular, rel, tuple(reasons), tuple(candidates), context_support, forecast_evaluation)
 
 
 class _SummaryMLP(nn.Module):
@@ -709,6 +957,93 @@ class _WaveformFeatureLinear(nn.Module):
         if torch.any(lengths < self.end):
             raise ValueError('waveform prediction context is shorter than the frozen feature sample window')
         f=_waveform_time_domain_features(x,self.start,self.end)
+        z=(f-self.feature_mean)/self.feature_std
+        return self.out(z)
+
+
+def _waveform_order_features(
+    x: torch.Tensor, lengths: torch.Tensor, start: int, end: int,
+    signal_indices: Sequence[int], rotation_index: int,
+    input_mean: Sequence[float], input_std: Sequence[float],
+    sample_rate_hz: float, carrier_band_hz: Sequence[float],
+    characteristic_orders: Sequence[float], harmonics: int, sidebands: Sequence[float],
+) -> torch.Tensor:
+    """Envelope/order features tied to an explicitly declared rotating mechanism.
+
+    The feature bank does not infer shaft speed or characteristic orders from labels.
+    Rotation frequency is read from a context-constant input column; characteristic
+    orders, carrier band, harmonics and sidebands are declared by the modeling contract.
+    """
+    if start < 0 or end <= start or end > x.shape[1] or torch.any(lengths < end):
+        raise ValueError('invalid or unsupported waveform order sample window')
+    if not signal_indices:
+        raise ValueError('waveform order representation requires at least one signal channel')
+    z=x[:,start:end,:].index_select(2,torch.as_tensor(list(signal_indices),dtype=torch.long,device=x.device))
+    z=z-z.mean(1,keepdim=True)
+    n=z.shape[1]
+    freqs=torch.fft.rfftfreq(n,d=1.0/float(sample_rate_hz),device=x.device,dtype=x.dtype)
+    lo,hi=float(carrier_band_hz[0]),float(carrier_band_hz[1])
+    mask=((freqs>=lo)&(freqs<=hi)).to(x.dtype)[None,:,None]
+    spec=torch.fft.rfft(z,dim=1)
+    filtered=torch.fft.irfft(spec*mask,n=n,dim=1)
+    # Analytic signal / Hilbert envelope using the standard FFT multiplier.
+    F=torch.fft.fft(filtered,dim=1)
+    h=torch.zeros(n,dtype=x.dtype,device=x.device)
+    h[0]=1.0
+    if n%2==0:
+        h[n//2]=1.0; h[1:n//2]=2.0
+    else:
+        h[1:(n+1)//2]=2.0
+    analytic=torch.fft.ifft(F*h[None,:,None],dim=1)
+    env=torch.abs(analytic); env=env-env.mean(1,keepdim=True)
+    win=torch.hann_window(n,periodic=True,dtype=x.dtype,device=x.device)
+    amp=torch.abs(torch.fft.rfft(env*win[None,:,None],dim=1))
+    norm=amp[:,1:,:].median(dim=1).values.clamp_min(1e-12)
+    mu=torch.as_tensor(input_mean,dtype=x.dtype,device=x.device)
+    sd=torch.as_tensor(input_std,dtype=x.dtype,device=x.device)
+    rot=x[:,0,rotation_index]*sd[rotation_index]+mu[rotation_index]
+    if torch.any(~torch.isfinite(rot)) or torch.any(rot<=0):
+        raise ValueError('rotation frequency must be finite and positive for order-domain prediction')
+    desired=[]
+    for base in characteristic_orders:
+        for hnum in range(1,int(harmonics)+1):
+            for sb in sidebands:
+                desired.append(float(hnum)*float(base)+float(sb))
+    feats=[]
+    df=float(sample_rate_hz)/float(n)
+    nb=amp.shape[1]
+    for order in desired:
+        if order<=0:
+            a=torch.zeros((x.shape[0],len(signal_indices)),dtype=x.dtype,device=x.device)
+        else:
+            pos=(rot*order/df).clamp(0.0,float(nb-1))
+            i0=torch.floor(pos).to(torch.long); i1=torch.clamp(i0+1,max=nb-1); w=(pos-i0.to(x.dtype))[:,None]
+            bidx=torch.arange(x.shape[0],device=x.device)[:,None]
+            cidx=torch.arange(len(signal_indices),device=x.device)[None,:]
+            a0=amp[bidx,i0[:,None],cidx]; a1=amp[bidx,i1[:,None],cidx]
+            a=a0*(1.0-w)+a1*w
+        feats.append(torch.log1p(a/norm))
+    return torch.cat(feats,dim=1)
+
+
+class _WaveformOrderLinear(nn.Module):
+    def __init__(self,n_in:int,n_out:int,start:int,end:int,signal_indices:Sequence[int],rotation_index:int,
+                 input_mean,input_std,sample_rate_hz:float,carrier_band_hz:Sequence[float],
+                 characteristic_orders:Sequence[float],harmonics:int,sidebands:Sequence[float],feature_mean,feature_std):
+        super().__init__(); self.n_in=n_in; self.start=int(start); self.end=int(end)
+        self.signal_indices=tuple(map(int,signal_indices)); self.rotation_index=int(rotation_index)
+        self.sample_rate_hz=float(sample_rate_hz); self.carrier_band_hz=tuple(map(float,carrier_band_hz))
+        self.characteristic_orders=tuple(map(float,characteristic_orders)); self.harmonics=int(harmonics); self.sidebands=tuple(map(float,sidebands))
+        self.register_buffer('input_mean_buf',torch.as_tensor(input_mean,dtype=torch.float64))
+        self.register_buffer('input_std_buf',torch.as_tensor(input_std,dtype=torch.float64))
+        self.register_buffer('feature_mean',torch.as_tensor(feature_mean,dtype=torch.float64))
+        self.register_buffer('feature_std',torch.as_tensor(feature_std,dtype=torch.float64))
+        nf=len(self.signal_indices)*len(self.characteristic_orders)*self.harmonics*len(self.sidebands)
+        self.out=nn.Linear(nf,n_out)
+    def forward(self,x:torch.Tensor,lengths:torch.Tensor)->torch.Tensor:
+        f=_waveform_order_features(x,lengths,self.start,self.end,self.signal_indices,self.rotation_index,
+                                   self.input_mean_buf,self.input_std_buf,self.sample_rate_hz,self.carrier_band_hz,
+                                   self.characteristic_orders,self.harmonics,self.sidebands)
         z=(f-self.feature_mean)/self.feature_std
         return self.out(z)
 
@@ -952,8 +1287,8 @@ def _macro_f1(y_true: np.ndarray,y_pred: np.ndarray,n_classes:int)->float:
 
 
 
-def _train_waveform_feature_linear(train_seq,train_y,val_seq,val_y,n_features:int,n_classes:int,contract:ModelingContract):
-    cfg=dict((contract.constraints or {}).get('waveform_representation') or {})
+def _train_waveform_feature_linear(train_seq,train_y,val_seq,val_y,n_features:int,n_classes:int,contract:ModelingContract,waveform_config:Mapping[str,Any]|None=None):
+    cfg=dict(waveform_config or (contract.constraints or {}).get('waveform_representation') or {})
     start,end=map(int,cfg['sample_window']); alpha=float(cfg.get('ridge_alpha',1.0))
     if not np.isfinite(alpha) or alpha < 0:
         raise ValueError('waveform_representation.ridge_alpha must be finite and non-negative')
@@ -978,6 +1313,83 @@ def _train_waveform_feature_linear(train_seq,train_y,val_seq,val_y,n_features:in
         pred=model(xva,lva).argmax(1).cpu().numpy()
     f1=_macro_f1(np.asarray(val_y),pred,n_classes)
     return max(1.0-f1,1e-8),model
+
+def _sequence_vector_risk(pred_z: np.ndarray, y_z: np.ndarray) -> float:
+    pred_z=np.asarray(pred_z,dtype=float); y_z=np.asarray(y_z,dtype=float)
+    return max(float(np.sqrt(np.mean((pred_z-y_z)**2))),1e-8)
+
+
+def _train_waveform_order_linear(train_seq,train_y,val_seq,val_y,n_features:int,n_classes:int,contract:ModelingContract,input_mean,input_std,waveform_config:Mapping[str,Any]|None=None):
+    wcfg=dict(waveform_config or (contract.constraints or {}).get('waveform_representation') or {}); ocfg=dict(wcfg.get('order_domain') or {})
+    start,end=map(int,wcfg['sample_window']); alpha=float(ocfg.get('ridge_alpha',1.0))
+    signal_cols=tuple(map(str,ocfg['signal_columns'])); rot_col=str(ocfg['rotation_frequency_column'])
+    signal_indices=[contract.input_columns.index(c) for c in signal_cols]; rotation_index=contract.input_columns.index(rot_col)
+    sample_rate=float(ocfg['sample_rate_hz']); carrier=tuple(map(float,ocfg['carrier_band_hz'])); orders=tuple(map(float,ocfg['characteristic_orders']))
+    harmonics=int(ocfg.get('harmonics',1)); sidebands=tuple(map(float,ocfg.get('sidebands',[0.0])))
+    if not np.isfinite(alpha) or alpha<0: raise ValueError('waveform order-domain ridge_alpha must be finite and non-negative')
+    xtr,ltr=_pad_sequences(train_seq,n_features); xva,lva=_pad_sequences(val_seq,n_features)
+    with torch.no_grad():
+        ftr=_waveform_order_features(xtr,ltr,start,end,signal_indices,rotation_index,input_mean,input_std,sample_rate,carrier,orders,harmonics,sidebands).cpu().numpy()
+        fva=_waveform_order_features(xva,lva,start,end,signal_indices,rotation_index,input_mean,input_std,sample_rate,carrier,orders,harmonics,sidebands).cpu().numpy()
+    fmu=ftr.mean(0); fsd=ftr.std(0); fsd=np.where(fsd>1e-12,fsd,1.0)
+    ztr=(ftr-fmu)/fsd
+    Y=-np.ones((len(train_y),n_classes),dtype=float); Y[np.arange(len(train_y)),np.asarray(train_y,dtype=int)]=1.0
+    counts=np.bincount(np.asarray(train_y,dtype=int),minlength=n_classes).astype(float)
+    sw=np.asarray([1.0/max(counts[int(i)],1.0) for i in train_y],dtype=float); sw=sw/max(sw.mean(),1e-12)
+    A=np.column_stack([ztr,np.ones(len(ztr))]); W=sw[:,None]; reg=np.eye(A.shape[1])*alpha; reg[-1,-1]=0.0
+    lhs=A.T@(W*A)+reg; rhs=A.T@(W*Y)
+    try: theta=np.linalg.solve(lhs,rhs)
+    except np.linalg.LinAlgError: theta=np.linalg.lstsq(lhs,rhs,rcond=None)[0]
+    model=_WaveformOrderLinear(n_features,n_classes,start,end,signal_indices,rotation_index,input_mean,input_std,sample_rate,carrier,orders,harmonics,sidebands,fmu,fsd).double().eval()
+    with torch.no_grad():
+        model.out.weight.copy_(torch.as_tensor(theta[:-1].T,dtype=torch.float64)); model.out.bias.copy_(torch.as_tensor(theta[-1],dtype=torch.float64))
+        pred=model(xva,lva).argmax(1).cpu().numpy()
+    return max(1.0-_macro_f1(np.asarray(val_y),pred,n_classes),1e-8),model
+
+
+def _train_waveform_feature_regression(train_seq,train_y_z,val_seq,val_y_z,n_features:int,n_out:int,contract:ModelingContract):
+    cfg=dict((contract.constraints or {}).get('waveform_representation') or {})
+    start,end=map(int,cfg['sample_window']); alpha=float(cfg.get('ridge_alpha',1.0))
+    if not np.isfinite(alpha) or alpha < 0:
+        raise ValueError('waveform_representation.ridge_alpha must be finite and non-negative')
+    xtr,ltr=_pad_sequences(train_seq,n_features); xva,lva=_pad_sequences(val_seq,n_features)
+    with torch.no_grad():
+        ftr=_waveform_time_domain_features(xtr,start,end).cpu().numpy()
+        fva=_waveform_time_domain_features(xva,start,end).cpu().numpy()
+    fmu=ftr.mean(0); fsd=ftr.std(0); fsd=np.where(fsd>1e-12,fsd,1.0)
+    ztr=(ftr-fmu)/fsd
+    A=np.column_stack([ztr,np.ones(len(ztr))])
+    reg=np.eye(A.shape[1])*alpha; reg[-1,-1]=0.0
+    lhs=A.T@A+reg; rhs=A.T@np.asarray(train_y_z,dtype=float)
+    try: theta=np.linalg.solve(lhs,rhs)
+    except np.linalg.LinAlgError: theta=np.linalg.lstsq(lhs,rhs,rcond=None)[0]
+    model=_WaveformFeatureLinear(n_features,n_out,start,end,fmu,fsd).double().eval()
+    with torch.no_grad():
+        model.out.weight.copy_(torch.as_tensor(theta[:-1].T,dtype=torch.float64))
+        model.out.bias.copy_(torch.as_tensor(theta[-1],dtype=torch.float64))
+        pred=model(xva,lva).cpu().numpy()
+    return _sequence_vector_risk(pred,val_y_z),model
+
+
+def _train_sequence_regression_candidate(kind:TemporalModelKind, train_seq, train_y_z, val_seq, val_y_z, n_features:int, n_out:int, seed:int, cfg:Mapping[str,Any]):
+    _set_seed(seed); hidden=int(cfg.get('hidden_size',24)); epochs=int(cfg.get('epochs',40)); lr=float(cfg.get('lr',0.01)); wd=float(cfg.get('weight_decay',1e-4))
+    xtr,ltr=_pad_sequences(train_seq,n_features); xva,lva=_pad_sequences(val_seq,n_features); max_len=max(xtr.shape[1],xva.shape[1])
+    if kind is TemporalModelKind.SUMMARY_MLP: model=_SummaryMLP(n_features,n_out,hidden).double()
+    elif kind is TemporalModelKind.TCN: model=_TCNHead(n_features,n_out,hidden,classification=True).double()
+    elif kind is TemporalModelKind.GRU: model=_GRUHead(n_features,n_out,hidden).double()
+    elif kind is TemporalModelKind.TRANSFORMER: model=_TransformerHead(n_features,n_out,hidden,max_len,classification=True).double()
+    else: raise ValueError(kind)
+    Ytr=torch.as_tensor(train_y_z,dtype=torch.float64); Yva=torch.as_tensor(val_y_z,dtype=torch.float64)
+    opt=torch.optim.Adam(model.parameters(),lr=lr,weight_decay=wd); best=None; best_loss=math.inf
+    for _ in range(epochs):
+        model.train(); opt.zero_grad(); pred=model(xtr,ltr); loss=nn.functional.mse_loss(pred,Ytr); loss.backward(); opt.step()
+        model.eval()
+        with torch.no_grad(): vl=float(nn.functional.mse_loss(model(xva,lva),Yva).item())
+        if vl<best_loss: best_loss=vl; best={k:v.detach().clone() for k,v in model.state_dict().items()}
+    if best: model.load_state_dict(best)
+    model.eval()
+    with torch.no_grad(): pred=model(xva,lva).cpu().numpy()
+    return _sequence_vector_risk(pred,val_y_z),model
 
 def _train_class_candidate(kind:TemporalModelKind, train_seq, train_y, val_seq, val_y, n_features:int, n_classes:int, seed:int, cfg:Mapping[str,Any]):
     _set_seed(seed); hidden=int(cfg.get('hidden_size',24)); epochs=int(cfg.get('epochs',40)); lr=float(cfg.get('lr',0.01)); wd=float(cfg.get('weight_decay',1e-4))
@@ -1035,6 +1447,76 @@ def _context_forecast_risk(pred_z: np.ndarray, y_z: np.ndarray, groups: np.ndarr
     else:
         per=[float(np.sqrt(np.mean((pred_z[groups==c]-y_z[groups==c])**2))) for c in np.unique(groups)]
     return max(float(np.mean(per)),1e-8)
+
+
+
+def _recursive_closed_loop_endpoint_predictions(
+    model: nn.Module,
+    x_context: np.ndarray,
+    lookback: int,
+    horizon_steps: int,
+    input_mean: np.ndarray,
+    input_std: np.ndarray,
+    target_mean: np.ndarray,
+    target_std: np.ndarray,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Return endpoint predictions and their context-relative row positions.
+
+    The initial v2.16 rollout contract is intentionally closed: model inputs
+    and targets have identical columns/order.  Predicted targets are converted
+    back to raw engineering units, then re-normalized as the next model input.
+    No future exogenous measurements are fabricated.
+    """
+    x = np.asarray(x_context, dtype=float)
+    if x.ndim != 2:
+        raise ValueError('recursive rollout expects a 2-D context sequence')
+    if x.shape[1] != len(target_mean) or len(input_mean) != len(target_mean):
+        raise ValueError('recursive rollout requires a closed input/target state with matching dimensions')
+    preds: list[np.ndarray] = []
+    positions: list[int] = []
+    stop = len(x) - int(horizon_steps) + 1
+    for start in range(int(lookback), stop):
+        win = np.asarray(x[start-lookback:start], dtype=float).copy()
+        pred_z = None
+        for _ in range(int(horizon_steps)):
+            tx = torch.as_tensor(win[None, :, :], dtype=torch.float64)
+            lengths = torch.full((1,), int(lookback), dtype=torch.long)
+            with torch.no_grad():
+                pred_z = model(tx, lengths).detach().cpu().numpy()[0]
+            pred_raw = pred_z * target_std + target_mean
+            next_input_z = (pred_raw - input_mean) / input_std
+            win = np.vstack([win[1:], next_input_z])
+        preds.append(np.asarray(pred_z, dtype=float))
+        positions.append(start + int(horizon_steps) - 1)
+    if not preds:
+        return np.empty((0, len(target_mean)), dtype=float), np.empty((0,), dtype=int)
+    return np.stack(preds), np.asarray(positions, dtype=int)
+
+
+def _recursive_closed_loop_endpoint_risk(
+    model: nn.Module,
+    validation_items,
+    y_z_all: np.ndarray,
+    lookback: int,
+    horizon_steps: int,
+    input_mean: np.ndarray,
+    input_std: np.ndarray,
+    target_mean: np.ndarray,
+    target_std: np.ndarray,
+) -> float:
+    per_context: list[float] = []
+    for _, idx, x_context in validation_items:
+        pred_z, pos = _recursive_closed_loop_endpoint_predictions(
+            model, x_context, lookback, horizon_steps,
+            input_mean, input_std, target_mean, target_std,
+        )
+        if len(pos) == 0:
+            continue
+        target_z = np.asarray(y_z_all, dtype=float)[np.asarray(idx, dtype=int)[pos]]
+        per_context.append(float(np.sqrt(np.mean((pred_z - target_z) ** 2))))
+    if not per_context:
+        raise ValueError('recursive rollout evaluation produced no validation endpoints at the requested horizon')
+    return max(float(np.mean(per_context)), 1e-8)
 
 
 def _train_forecast_candidate(kind:TemporalModelKind,xtr,ytr,xva,yva,gva,seed:int,cfg:Mapping[str,Any], semantics:str, ymu:np.ndarray, ysd:np.ndarray):
@@ -1207,8 +1689,8 @@ def run_temporal_design(spec_path:str|Path,data_path:str|Path,out_dir:str|Path)-
         (out/'temporal_design_result.json').write_text(json.dumps(s.to_dict(),indent=2,ensure_ascii=False),encoding='utf-8'); return s
     seqs,mu,sd=_context_split_sequences(spec,contract,data); cfg=_training_cfg(spec); seeds=tuple(map(int,cfg.get('seeds') or (101,202,303)))
     if len(seeds)<2: raise ValueError('temporal design requires at least two optimizer seeds/restarts')
-    risks={}; final_models={}; metadata={}
-    task='SEQUENCE_TO_CLASS' if contract.objective==ModelingObjective.CATEGORICAL_PREDICTION else 'ONE_STEP_FORECAST'
+    risks={}; final_models={}; metadata={}; one_step_risks=None
+    task='SEQUENCE_TO_CLASS' if contract.objective==ModelingObjective.CATEGORICAL_PREDICTION else ('SEQUENCE_TO_VECTOR' if contract.objective==ModelingObjective.STATIC_REGRESSION else 'ONE_STEP_FORECAST')
     if task=='SEQUENCE_TO_CLASS':
         labels=np.asarray(data[contract.label_column]).astype(str); train_labels=[]; val_labels=[]; train_seq=[]; val_seq=[]
         all_train=set()
@@ -1226,15 +1708,45 @@ def run_temporal_design(spec_path:str|Path,data_path:str|Path,out_dir:str|Path)-
         n_features=len(contract.input_columns); n_classes=len(classes)
         for cand in q.candidates:
             vals=[]; models=[]; extra={}
+            candidate_wcfg=dict((cand.config or {}).get('waveform_representation') or (contract.constraints or {}).get('waveform_representation') or {})
             if cand.kind is TemporalModelKind.WAVEFORM_FEATURE_LINEAR:
-                r,m=_train_waveform_feature_linear(train_seq,ytr,val_seq,yva,n_features,n_classes,contract)
+                r,m=_train_waveform_feature_linear(train_seq,ytr,val_seq,yva,n_features,n_classes,contract,candidate_wcfg)
                 vals=[r for _ in seeds]; models=[m for _ in seeds]
-                extra={'waveform_representation':dict((contract.constraints or {}).get('waveform_representation') or {})}
+                extra={'waveform_representation':candidate_wcfg}
+            elif cand.kind is TemporalModelKind.WAVEFORM_ORDER_LINEAR:
+                r,m=_train_waveform_order_linear(train_seq,ytr,val_seq,yva,n_features,n_classes,contract,mu,sd,candidate_wcfg)
+                vals=[r for _ in seeds]; models=[m for _ in seeds]
+                extra={'waveform_representation':candidate_wcfg}
             else:
                 for seed in seeds:
                     r,m=_train_class_candidate(cand.kind,train_seq,ytr,val_seq,yva,n_features,n_classes,seed,cfg); vals.append(r); models.append(m)
             risks[cand.id]=vals; final_models[cand.id]=models[int(np.argmin(vals))]
             metadata[cand.id]={'kind':cand.kind.value,'task':task,'classes':classes,**extra}
+    elif task=='SEQUENCE_TO_VECTOR':
+        ycols=contract.target_columns
+        train_seq=[]; val_seq=[]; train_y=[]; val_y=[]
+        yraw=np.column_stack([np.asarray(data[c],dtype=float) for c in ycols])
+        for c,idx,x in seqs['train']:
+            vals=yraw[idx]
+            if not np.allclose(vals,vals[0],rtol=0.0,atol=1e-12): raise ValueError(f'static regression targets must be constant within context {c!r}')
+            train_seq.append(x); train_y.append(vals[0])
+        for c,idx,x in seqs['val']:
+            vals=yraw[idx]
+            if not np.allclose(vals,vals[0],rtol=0.0,atol=1e-12): raise ValueError(f'static regression targets must be constant within context {c!r}')
+            val_seq.append(x); val_y.append(vals[0])
+        train_y=np.asarray(train_y,dtype=float); val_y=np.asarray(val_y,dtype=float)
+        ymu=train_y.mean(0); ysd=train_y.std(0); ysd=np.where(ysd>1e-12,ysd,1.0)
+        ytr=(train_y-ymu)/ysd; yva=(val_y-ymu)/ysd; n_features=len(contract.input_columns); n_out=len(ycols)
+        for cand in q.candidates:
+            vals=[]; models=[]; extra={}
+            if cand.kind is TemporalModelKind.WAVEFORM_FEATURE_LINEAR:
+                r,m=_train_waveform_feature_regression(train_seq,ytr,val_seq,yva,n_features,n_out,contract)
+                vals=[r for _ in seeds]; models=[m for _ in seeds]; extra={'waveform_representation':dict((contract.constraints or {}).get('waveform_representation') or {})}
+            else:
+                for seed in seeds:
+                    r,m=_train_sequence_regression_candidate(cand.kind,train_seq,ytr,val_seq,yva,n_features,n_out,seed,cfg); vals.append(r); models.append(m)
+            risks[cand.id]=vals; final_models[cand.id]=models[int(np.argmin(vals))]
+            metadata[cand.id]={'kind':cand.kind.value,'task':task,'target_columns':list(ycols),'target_mean':ymu.tolist(),'target_std':ysd.tolist(),**extra}
     else:
         ycols=contract.target_columns or contract.input_columns
         yraw=np.column_stack([np.asarray(data[c],dtype=float) for c in ycols])
@@ -1242,26 +1754,39 @@ def run_temporal_design(spec_path:str|Path,data_path:str|Path,out_dir:str|Path)-
         min_len=q.min_sequence_length; semantics=_target_semantics(contract); lookback=int(cfg.get('lookback',max(2,min(12,min_len//4 if min_len>=8 else min_len-1))))
         if lookback>=min_len: lookback=max(1,min_len-1)
         xtr,ytr,gtr=_forecast_windows(seqs['train'],len(contract.input_columns),yz,lookback); xva,yva,gva=_forecast_windows(seqs['val'],len(contract.input_columns),yz,lookback)
+        forecast_eval=dict(q.forecast_evaluation or _forecast_evaluation_policy(contract,min_len))
+        rollout_mode=forecast_eval.get('mode')=='RECURSIVE_ROLLOUT'
+        horizon_steps=int(forecast_eval.get('horizon_steps',1))
+        one_step_risks={}
         for cand in q.candidates:
-            vals=[]; models=[]
+            base_vals=[]; models=[]
             extra={}
             if cand.kind is TemporalModelKind.K1_INTEGRATOR:
                 r,m,gains=_train_k1_integrator_candidate(xtr,ytr,xva,yva,gva,contract,mu,sd,ymu,ysd,semantics)
-                vals=[r for _ in seeds]; models=[m for _ in seeds]; extra={'learned_gains':gains.tolist(),'temporal_physics':dict((contract.constraints or {}).get('temporal_physics') or {})}
+                base_vals=[r for _ in seeds]; models=[m for _ in seeds]; extra={'learned_gains':gains.tolist(),'temporal_physics':dict((contract.constraints or {}).get('temporal_physics') or {})}
             elif cand.kind is TemporalModelKind.BOUNDED_INTEGRATOR:
                 r,m,gains=_train_bounded_integrator_candidate(xtr,ytr,xva,yva,gva,contract,mu,sd,ymu,ysd,semantics)
-                vals=[r for _ in seeds]; models=[m for _ in seeds]; extra={'learned_gains':gains.tolist(),'temporal_physics':dict((contract.constraints or {}).get('temporal_physics') or {})}
+                base_vals=[r for _ in seeds]; models=[m for _ in seeds]; extra={'learned_gains':gains.tolist(),'temporal_physics':dict((contract.constraints or {}).get('temporal_physics') or {})}
             elif cand.kind is TemporalModelKind.AFFINE_STATE_SPACE:
                 r,m,A,B,bias=_train_affine_state_space_candidate(xtr,ytr,xva,yva,gva,contract,mu,sd,ymu,ysd,semantics)
-                vals=[r for _ in seeds]; models=[m for _ in seeds]; extra={'state_matrix_A':A.tolist(),'drive_matrix_B':B.tolist(),'bias':bias.tolist(),'temporal_physics':dict((contract.constraints or {}).get('temporal_physics') or {})}
+                base_vals=[r for _ in seeds]; models=[m for _ in seeds]; extra={'state_matrix_A':A.tolist(),'drive_matrix_B':B.tolist(),'bias':bias.tolist(),'temporal_physics':dict((contract.constraints or {}).get('temporal_physics') or {})}
             elif cand.kind is TemporalModelKind.QUATERNION_KINEMATICS:
                 r,m=_train_quaternion_kinematics_candidate(xva,yva,gva,contract,mu,sd,ymu,ysd,semantics)
-                vals=[r for _ in seeds]; models=[m for _ in seeds]; extra={'temporal_physics':dict((contract.constraints or {}).get('temporal_physics') or {})}
+                base_vals=[r for _ in seeds]; models=[m for _ in seeds]; extra={'temporal_physics':dict((contract.constraints or {}).get('temporal_physics') or {})}
             else:
                 for seed in seeds:
-                    r,m=_train_forecast_candidate(cand.kind,xtr,ytr,xva,yva,gva,seed,cfg,semantics,ymu,ysd); vals.append(r); models.append(m)
+                    r,m=_train_forecast_candidate(cand.kind,xtr,ytr,xva,yva,gva,seed,cfg,semantics,ymu,ysd); base_vals.append(r); models.append(m)
+            one_step_risks[cand.id]=list(base_vals)
+            if rollout_mode:
+                vals=[_recursive_closed_loop_endpoint_risk(m,seqs['val'],yz,lookback,horizon_steps,mu,sd,ymu,ysd) for m in models]
+            else:
+                vals=list(base_vals)
             risks[cand.id]=vals; final_models[cand.id]=models[int(np.argmin(vals))]
-            metadata[cand.id]={'kind':cand.kind.value,'task':task,'lookback':lookback,'target_columns':list(ycols),'target_mean':ymu.tolist(),'target_std':ysd.tolist(),'target_semantics':semantics,**extra}
+            metadata[cand.id]={
+                'kind':cand.kind.value,'task':task,'lookback':lookback,'target_columns':list(ycols),
+                'target_mean':ymu.tolist(),'target_std':ysd.tolist(),'target_semantics':semantics,
+                'forecast_evaluation':forecast_eval,**extra
+            }
     policy_cfg=dict((spec.get('selection') or {})); policy=ArchitectureSelectionPolicy(practical_ratio=float(policy_cfg.get('practical_ratio',0.80)),restart_stability=float(policy_cfg.get('restart_stability',0.75)))
     if len(risks)==1 and contract.mechanism_usage==MechanismUsage.REQUIRED:
         only=next(iter(risks)); med=float(np.median(np.asarray(risks[only],dtype=float)))
@@ -1279,12 +1804,21 @@ def run_temporal_design(spec_path:str|Path,data_path:str|Path,out_dir:str|Path)-
             selection_dict['recommendation']='Retain the finite temporal model portfolio or collect broader independent trajectories; do not force a top-1 temporal architecture.'
         else:
             selection_dict['recommendation']='Freeze the selected temporal candidate for held-out modeling evaluation; diagnostic meaning remains outside M2N.'
+    if task=='ONE_STEP_FORECAST' and selection_dict is not None:
+        fe=dict(q.forecast_evaluation or {})
+        selection_dict['forecast_evaluation']=fe
+        if fe.get('mode')=='RECURSIVE_ROLLOUT':
+            selection_dict['selection_basis']=f"RECURSIVE_ROLLOUT_H{int(fe.get('horizon_steps',1))}"
+            if selection_status=='AMBIGUOUS':
+                selection_dict['recommendation']='Retain the finite temporal model portfolio or collect broader independent trajectories at the declared rollout horizon; do not force a one-step winner onto a longer-horizon deployment contract.'
+            else:
+                selection_dict['recommendation']='Freeze the candidate selected under the declared recursive rollout horizon; one-step diagnostics are retained separately and diagnostic/prognostic meaning remains outside M2N.'
     deploy=[selection_selected] if selection_status=='SELECTED' else list(risks)
     model_dir=out/'models'; model_dir.mkdir(exist_ok=True)
     for cid in deploy:
         payload={'toolkit_format':'M2N_TEMPORAL_MODEL_V1','candidate_id':cid,'model_metadata':metadata[cid],'modeling_contract':contract.to_dict(),'input_columns':list(contract.input_columns),'input_mean':mu.tolist(),'input_std':sd.tolist(),'state_dict':final_models[cid].state_dict()}
         torch.save(payload,model_dir/f'{cid}.pt')
-    result=TemporalDesignSummary(selection_status,selection_selected,str(out),risks,selection_dict,q.to_dict(),task)
+    result=TemporalDesignSummary(selection_status,selection_selected,str(out),risks,selection_dict,q.to_dict(),task,one_step_risks if task=='ONE_STEP_FORECAST' else None,dict(q.forecast_evaluation or {}) if task=='ONE_STEP_FORECAST' else None)
     (out/'temporal_design_result.json').write_text(json.dumps(result.to_dict(),indent=2,ensure_ascii=False),encoding='utf-8')
     (out/'temporal_candidate_plan.json').write_text(json.dumps([x.to_dict() for x in q.candidates],indent=2,ensure_ascii=False),encoding='utf-8')
     (out/'reproduce.txt').write_text(f'm2n temporal-design --spec "{spec_path}" --data "{data_path}" --out "{out}"\n',encoding='utf-8')
@@ -1293,6 +1827,7 @@ def run_temporal_design(spec_path:str|Path,data_path:str|Path,out_dir:str|Path)-
 
 def _infer_model_from_payload(payload:Mapping[str,Any], max_len:int)->nn.Module:
     meta=payload['model_metadata']; kind=TemporalModelKind(meta['kind']); sd=payload['state_dict']; n_in=len(payload['input_columns']); task=meta['task']
+    context_level=task in ('SEQUENCE_TO_CLASS','SEQUENCE_TO_VECTOR')
     classification=task=='SEQUENCE_TO_CLASS'
     if classification: n_out=len(meta['classes'])
     else: n_out=len(meta['target_columns'])
@@ -1301,6 +1836,10 @@ def _infer_model_from_payload(payload:Mapping[str,Any], max_len:int)->nn.Module:
     elif kind is TemporalModelKind.WAVEFORM_FEATURE_LINEAR:
         wcfg=dict(meta.get('waveform_representation') or {}); start,end=map(int,wcfg['sample_window'])
         model=_WaveformFeatureLinear(n_in,n_out,start,end,sd['feature_mean'],sd['feature_std']).double()
+    elif kind is TemporalModelKind.WAVEFORM_ORDER_LINEAR:
+        wcfg=dict(meta.get('waveform_representation') or {}); ocfg=dict(wcfg.get('order_domain') or {}); start,end=map(int,wcfg['sample_window'])
+        signal_indices=[payload['input_columns'].index(str(c)) for c in ocfg['signal_columns']]; rotation_index=payload['input_columns'].index(str(ocfg['rotation_frequency_column']))
+        model=_WaveformOrderLinear(n_in,n_out,start,end,signal_indices,rotation_index,payload['input_mean'],payload['input_std'],float(ocfg['sample_rate_hz']),ocfg['carrier_band_hz'],ocfg['characteristic_orders'],int(ocfg.get('harmonics',1)),ocfg.get('sidebands',[0.0]),sd['feature_mean'],sd['feature_std']).double()
     elif kind is TemporalModelKind.LINEAR_AR:
         lookback=int(meta['lookback']); model=_LinearAR(n_in,n_out,lookback).double()
     elif kind is TemporalModelKind.K1_INTEGRATOR:
@@ -1323,11 +1862,11 @@ def _infer_model_from_payload(payload:Mapping[str,Any], max_len:int)->nn.Module:
         state_idx=[payload['input_columns'].index(c) for c in states]; drive_idx=[payload['input_columns'].index(c) for c in drives]
         model=_QuaternionKinematics(state_idx,drive_idx,float(pcfg['dt']),str(pcfg.get('composition','LEFT')),float(pcfg.get('rate_sign',1.0)),payload['input_mean'],payload['input_std'],meta['target_mean'],meta['target_std']).double()
     elif kind is TemporalModelKind.TCN:
-        hidden=int(sd['conv.0.weight'].shape[0]); model=_TCNHead(n_in,n_out,hidden,classification=classification).double()
+        hidden=int(sd['conv.0.weight'].shape[0]); model=_TCNHead(n_in,n_out,hidden,classification=context_level).double()
     elif kind is TemporalModelKind.GRU:
         hidden=int(sd['gru.weight_hh_l0'].shape[1]); model=_GRUHead(n_in,n_out,hidden).double()
     elif kind is TemporalModelKind.TRANSFORMER:
-        hidden=int(sd['proj.weight'].shape[0]); model=_TransformerHead(n_in,n_out,hidden,max_len,classification=classification).double()
+        hidden=int(sd['proj.weight'].shape[0]); model=_TransformerHead(n_in,n_out,hidden,max_len,classification=context_level).double()
     else: raise ValueError(kind)
     model.load_state_dict(sd); model.eval(); return model
 
@@ -1364,18 +1903,43 @@ def predict_temporal_design(design_dir:str|Path,data_path:str|Path,out_path:str|
                 for cls_i,cls in enumerate(classes): r[f'{cidm}__score__{cls}']=float(probs[pi][i,cls_i])
             r['portfolio_argmax']=classes[int(np.argmax(mean[i]))]
             rows.append(r)
+    elif task=='SEQUENCE_TO_VECTOR':
+        seq=[X[idx] for _,idx in contexts]; xt,lens=_pad_sequences(seq,len(contract.input_columns)); max_len=xt.shape[1]
+        ycols=list(payloads[0]['model_metadata']['target_columns']); ymu=np.asarray(payloads[0]['model_metadata']['target_mean'],float); ysd=np.asarray(payloads[0]['model_metadata']['target_std'],float)
+        preds=[]
+        for pl in payloads:
+            model=_infer_model_from_payload(pl,max_len)
+            with torch.no_grad(): preds.append(model(xt,lens).cpu().numpy()*ysd+ymu)
+        mean=np.mean(np.stack(preds),axis=0)
+        for i,(cid,idx) in enumerate(contexts):
+            duration=float(np.asarray(data[time_col],float)[idx[-1]]-np.asarray(data[time_col],float)[idx[0]]); support=_context_support_details_from_frozen(q,data,idx,len(idx),duration)
+            r={context_col:cid,'time_start':float(np.asarray(data[time_col],float)[idx[0]]),'time_end':float(np.asarray(data[time_col],float)[idx[-1]]),'model_count':len(payloads),'m2n_context_length':int(len(idx)),'m2n_context_duration':duration,'m2n_context_support':support['overall'],'m2n_context_shape_support':support['shape'],'m2n_context_operating_support':support['operating'],'m2n_context_operating_distance':support['operating_distance']}
+            for k,col in enumerate(ycols):
+                r[f'portfolio_prediction__{col}']=float(mean[i,k])
+                if col in data:
+                    vals=np.asarray(data[col],dtype=float)[idx]
+                    if np.allclose(vals,vals[0],rtol=0.0,atol=1e-12):
+                        actual=float(vals[0]); r[f'actual__{col}']=actual; r[f'portfolio_residual__{col}']=actual-float(mean[i,k])
+            for pi,pl in enumerate(payloads):
+                for k,col in enumerate(ycols):
+                    r[f'{pl["candidate_id"]}__prediction__{col}']=float(preds[pi][i,k])
+            rows.append(r)
     else:
         # Forecast each context with the frozen lookback used by each model.  Current v1 bundle requires one common lookback.
         lbs={int(pl['model_metadata']['lookback']) for pl in payloads}
         if len(lbs)!=1: raise ValueError('temporal forecast portfolio requires one common lookback in v1 bundle')
         lookback=next(iter(lbs)); ycols=list(payloads[0]['model_metadata']['target_columns']); ymu=np.asarray(payloads[0]['model_metadata']['target_mean'],float); ysd=np.asarray(payloads[0]['model_metadata']['target_std'],float)
+        forecast_eval=dict(payloads[0]['model_metadata'].get('forecast_evaluation') or {'mode':'ONE_STEP','horizon_steps':1})
+        forecast_mode=str(forecast_eval.get('mode','ONE_STEP')).upper(); forecast_horizon=int(forecast_eval.get('horizon_steps',1))
+        if forecast_mode=='RECURSIVE_ROLLOUT' and tuple(contract.input_columns)!=tuple(contract.target_columns):
+            raise ValueError('frozen recursive-rollout bundle is not closed: input_columns must equal target_columns')
         for cid,idx in contexts:
             if len(idx)<=lookback: continue
             windows=np.stack([X[idx[j-lookback:j]] for j in range(lookback,len(idx))]); tx=torch.as_tensor(windows,dtype=torch.float64); lens=torch.full((len(tx),),lookback,dtype=torch.long)
-            preds=[]
+            preds=[]; models=[]
             semantics=str(payloads[0]['model_metadata'].get('target_semantics','EUCLIDEAN')).upper()
             for pl in payloads:
-                model=_infer_model_from_payload(pl,lookback)
+                model=_infer_model_from_payload(pl,lookback); models.append(model)
                 with torch.no_grad(): p=model(tx,lens).cpu().numpy()*ysd+ymu
                 if semantics=='UNIT_QUATERNION':
                     n=np.linalg.norm(p,axis=1,keepdims=True)
@@ -1391,19 +1955,53 @@ def predict_temporal_design(design_dir:str|Path,data_path:str|Path,out_path:str|
                 mean=mean/np.linalg.norm(mean,axis=1,keepdims=True).clip(min=1e-12)
             else:
                 mean=np.mean(np.stack(preds),axis=0)
+
+            # v2.16 deployment-native horizon output.  One-step columns are kept
+            # unchanged; recursive endpoint columns are additive and populated
+            # only at rows that are true H-step rollout endpoints.
+            rollout_maps=[]; rollout_portfolio={}
+            if forecast_mode=='RECURSIVE_ROLLOUT':
+                for pl,model in zip(payloads,models):
+                    pmu=np.asarray(pl['input_mean'],float); psd=np.asarray(pl['input_std'],float)
+                    pymu=np.asarray(pl['model_metadata']['target_mean'],float); pysd=np.asarray(pl['model_metadata']['target_std'],float)
+                    xctx=(raw[idx]-pmu)/psd
+                    pred_z,pos=_recursive_closed_loop_endpoint_predictions(model,xctx,lookback,forecast_horizon,pmu,psd,pymu,pysd)
+                    pred_raw=pred_z*pysd+pymu
+                    rollout_maps.append({int(pp):np.asarray(v,float) for pp,v in zip(pos,pred_raw)})
+                common_positions=sorted(set.intersection(*(set(m) for m in rollout_maps))) if rollout_maps else []
+                for pp in common_positions:
+                    rollout_portfolio[int(pp)]=np.mean(np.stack([m[int(pp)] for m in rollout_maps]),axis=0)
+
             for j,row_idx in enumerate(idx[lookback:]):
-                duration=float(np.asarray(data[time_col],float)[idx[-1]]-np.asarray(data[time_col],float)[idx[0]]); support=_context_support_details_from_frozen(q,data,idx,len(idx),duration); r={context_col:cid,time_col:float(np.asarray(data[time_col],float)[row_idx]),'model_count':len(payloads),'m2n_context_length':int(len(idx)),'m2n_context_duration':duration,'m2n_context_support':support['overall'],'m2n_context_shape_support':support['shape'],'m2n_context_operating_support':support['operating'],'m2n_context_operating_distance':support['operating_distance']}
+                rel_pos=lookback+j
+                duration=float(np.asarray(data[time_col],float)[idx[-1]]-np.asarray(data[time_col],float)[idx[0]]); support=_context_support_details_from_frozen(q,data,idx,len(idx),duration); r={context_col:cid,time_col:float(np.asarray(data[time_col],float)[row_idx]),'model_count':len(payloads),'m2n_context_length':int(len(idx)),'m2n_context_duration':duration,'m2n_context_support':support['overall'],'m2n_context_shape_support':support['shape'],'m2n_context_operating_support':support['operating'],'m2n_context_operating_distance':support['operating_distance'],'m2n_forecast_mode':forecast_mode,'m2n_forecast_horizon_steps':forecast_horizon}
                 for k,col in enumerate(ycols):
                     r[f'portfolio_prediction__{col}']=float(mean[j,k])
                     if col in data:
                         actual=float(np.asarray(data[col],dtype=float)[row_idx])
                         r[f'actual__{col}']=actual
                         r[f'portfolio_residual__{col}']=actual-float(mean[j,k])
+                    if forecast_mode=='RECURSIVE_ROLLOUT':
+                        key=f'portfolio_rollout_h{forecast_horizon}_prediction__{col}'
+                        rkey=f'portfolio_rollout_h{forecast_horizon}_residual__{col}'
+                        if rel_pos in rollout_portfolio:
+                            rv=float(rollout_portfolio[rel_pos][k]); r[key]=rv
+                            r[rkey]=(float(np.asarray(data[col],dtype=float)[row_idx])-rv) if col in data else float('nan')
+                        else:
+                            r[key]=float('nan'); r[rkey]=float('nan')
                 for pi,pl in enumerate(payloads):
                     for k,col in enumerate(ycols):
                         predv=float(preds[pi][j,k]); r[f'{pl["candidate_id"]}__prediction__{col}']=predv
                         if col in data:
                             r[f'{pl["candidate_id"]}__residual__{col}']=float(np.asarray(data[col],dtype=float)[row_idx])-predv
+                        if forecast_mode=='RECURSIVE_ROLLOUT':
+                            key=f'{pl["candidate_id"]}__rollout_h{forecast_horizon}__prediction__{col}'
+                            rkey=f'{pl["candidate_id"]}__rollout_h{forecast_horizon}__residual__{col}'
+                            if rel_pos in rollout_maps[pi]:
+                                rv=float(rollout_maps[pi][rel_pos][k]); r[key]=rv
+                                r[rkey]=(float(np.asarray(data[col],dtype=float)[row_idx])-rv) if col in data else float('nan')
+                            else:
+                                r[key]=float('nan'); r[rkey]=float('nan')
                 if semantics=='UNIT_QUATERNION' and all(col in data for col in ycols):
                     actual=np.asarray([float(np.asarray(data[col],dtype=float)[row_idx]) for col in ycols],dtype=float)
                     an=np.linalg.norm(actual)

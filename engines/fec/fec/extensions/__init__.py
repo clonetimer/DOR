@@ -67,9 +67,9 @@ from .reference_bundle_store import (
 
 # v2.1 provenance / missing-modality update
 from .evidence_provenance import (
-    SourceKind, SourceDomain, ModalityStatus, ConstraintType,
+    SourceKind, SourceDomain, ModalityStatus, AssetScopeKind, ConstraintType,
     ProviderIdentity, PhysicsKnowledgeProfile, EvidenceProvenance,
-    ModalityAvailability, ReferenceCompatibilityContract,
+    ModalityAvailability, OperatingContextIdentity, AssetReferenceScope, ReferenceCompatibilityContract,
     LineageOverlap, EvidenceLineageAudit, provider_fingerprint, audit_evidence_lineage,
     SourceAvailabilityState, EvidenceAvailabilityResolution, resolve_evidence_availability,
 )
@@ -79,13 +79,32 @@ from .mask_conditional_class import (
 )
 
 __all__ += [
-    'SourceKind','SourceDomain','ModalityStatus','ConstraintType',
+    'SourceKind','SourceDomain','ModalityStatus','AssetScopeKind','ConstraintType',
     'ProviderIdentity','PhysicsKnowledgeProfile','EvidenceProvenance',
-    'ModalityAvailability','ReferenceCompatibilityContract',
+    'ModalityAvailability','OperatingContextIdentity','AssetReferenceScope','ReferenceCompatibilityContract',
     'LineageOverlap','EvidenceLineageAudit','provider_fingerprint','audit_evidence_lineage',
     'SourceAvailabilityState','EvidenceAvailabilityResolution','resolve_evidence_availability',
     'MaskCalibrationUnavailable','MaskedFusionBatch','MaskCalibrationInfo',
     'fuse_class_evidence_by_mask','MaskConditionalClassConformal',
+]
+
+from .fleet_reference import (
+    FleetAssetAdmissionDecision, FleetReferenceRobustnessDecision,
+    FleetReferenceAssetValidation, FleetReferenceCommissioningDecision,
+    FleetReferenceCommissioningRobustnessDecision,
+    audit_asset_for_fleet_reference, robust_fleet_admission_from_variants,
+    validate_fleet_reference_candidate, robust_fleet_commissioning_from_variants,
+    attest_fleet_reference_robustness,
+    fleet_scope_from_admissions, fleet_scope_from_robust_admissions,
+)
+
+__all__ += [
+    'FleetAssetAdmissionDecision','FleetReferenceRobustnessDecision',
+    'FleetReferenceAssetValidation','FleetReferenceCommissioningDecision',
+    'FleetReferenceCommissioningRobustnessDecision',
+    'audit_asset_for_fleet_reference','robust_fleet_admission_from_variants',
+    'validate_fleet_reference_candidate','robust_fleet_commissioning_from_variants',
+    'attest_fleet_reference_robustness','fleet_scope_from_admissions','fleet_scope_from_robust_admissions',
 ]
 
 # v2.3 class-score persistence/CLI bridge (Extension/Control Plane only)

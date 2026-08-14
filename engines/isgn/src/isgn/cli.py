@@ -18,6 +18,7 @@ from .phm import mechanism_health_evidence, calibrate_phm_health, score_phm_heal
 from .mechanism_recovery import recover_missing_terms
 from .physics_reducer import reduce_algebraic_search_space
 from .trajectory_recovery import recover_missing_dynamics_trajectory
+from .tabulated import fit_tabulated_1d
 
 def _dump(obj,path=None):
     txt=json.dumps(obj,indent=2,ensure_ascii=False,default=lambda x: float(x) if hasattr(x,'item') else str(x))
@@ -130,6 +131,15 @@ def cmd_reduce_physics(a):
     inputs=[x.strip() for x in a.inputs.split(',') if x.strip()]
     r=reduce_algebraic_search_space(tr,va,inputs=inputs,target=a.target,max_total_order=a.max_order,allow_inverse=a.allow_inverse,degree=a.degree,max_terms=a.max_terms)
     _dump(r.to_dict(),a.out)
+
+def cmd_fit_tabulated_1d(a):
+    tr=load_algebraic_npz(a.train); va=load_algebraic_npz(a.val)
+    r=fit_tabulated_1d(tr,va,input=a.input,target=a.target,method=a.method,
+                       duplicate_atol=a.duplicate_atol,min_unique_points=a.min_unique_points)
+    payload=r.to_dict()
+    if a.model:
+        Path(a.model).write_text(json.dumps(payload,indent=2,ensure_ascii=False),encoding='utf-8')
+    _dump(payload,a.out)
 
 def cmd_recover_missing_trajectory(a):
     tr=load_npz(a.train); va=load_npz(a.val)
@@ -380,6 +390,7 @@ def parser():
     q=sp.add_parser('simulate'); q.add_argument('--system',choices=['thermal','tank','motor','msd'],required=True); q.add_argument('--n',type=int,default=32); q.add_argument('--steps',type=int,default=160); q.add_argument('--dt',type=float,default=.05); q.add_argument('--seed',type=int,default=101); q.add_argument('--regime',choices=['iid','near','far'],default='iid'); q.add_argument('--variant',choices=['clean','constitutive','misspecified'],default='clean'); q.add_argument('--out',required=True); q.set_defaults(fn=cmd_simulate)
     q=sp.add_parser('recover-missing',help='recover only dynamics unexplained by fixed partial physics'); q.add_argument('--train',required=True); q.add_argument('--val',required=True); q.add_argument('--target',required=True); q.add_argument('--known-terms',help='JSON object or path, e.g. {"sin(theta)":-3,"u":1}'); q.add_argument('--candidates',required=True,help='JSON list or path of candidate residual terms'); q.add_argument('--out'); q.set_defaults(fn=cmd_recover_missing)
     q=sp.add_parser('reduce-physics',help='reduce an algebraic mechanism search space using units and held-out pairwise structure evidence'); q.add_argument('--train',required=True,help='AlgebraicDataset NPZ'); q.add_argument('--val',required=True,help='AlgebraicDataset NPZ'); q.add_argument('--inputs',required=True,help='comma-separated variables'); q.add_argument('--target',required=True); q.add_argument('--max-order',type=int,default=3); q.add_argument('--allow-inverse',action='store_true'); q.add_argument('--degree',type=int,default=2); q.add_argument('--max-terms',type=int,default=3); q.add_argument('--out'); q.set_defaults(fn=cmd_reduce_physics)
+    q=sp.add_parser('fit-tabulated-1d',help='fit a bounded empirical 1-D constitutive relation; interpolation only, no extrapolation'); q.add_argument('--train',required=True,help='AlgebraicDataset NPZ'); q.add_argument('--val',required=True,help='AlgebraicDataset NPZ'); q.add_argument('--input',required=True); q.add_argument('--target',required=True); q.add_argument('--method',choices=['linear','pchip'],default='pchip'); q.add_argument('--duplicate-atol',type=float,default=1e-8); q.add_argument('--min-unique-points',type=int,default=6); q.add_argument('--model',help='JSON output for Tabulated1D candidate'); q.add_argument('--out'); q.set_defaults(fn=cmd_fit_tabulated_1d)
     q=sp.add_parser('recover-missing-trajectory',help='learn unexplained dynamics from whole trajectories, then distill them into declared mechanism terms'); q.add_argument('--train',required=True); q.add_argument('--val',required=True); q.add_argument('--known-terms',required=True,help='JSON/path: target -> {term: fixed coefficient}'); q.add_argument('--unknown-targets',required=True,help='comma-separated state names receiving a learned residual'); q.add_argument('--candidates',required=True,help='JSON/path: target -> [candidate terms]'); q.add_argument('--hidden',type=int,default=32); q.add_argument('--depth',type=int,default=2); q.add_argument('--epochs',type=int,default=800); q.add_argument('--batch-windows',type=int,default=32); q.add_argument('--window-steps',type=int,default=12); q.add_argument('--learning-rate',type=float,default=2e-3); q.add_argument('--seed',type=int,default=0); q.add_argument('--out'); q.set_defaults(fn=cmd_recover_missing_trajectory)
     q=sp.add_parser('recover'); _common_fit(q); q.add_argument('--constitutive',action='store_true'); q.set_defaults(fn=cmd_recover)
     q=sp.add_parser('complete'); _common_fit(q); q.add_argument('--known-present',required=True);q.add_argument('--known-absent'); q.set_defaults(fn=cmd_complete)

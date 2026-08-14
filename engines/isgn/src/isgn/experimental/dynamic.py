@@ -40,7 +40,8 @@ def transformed_public(public: PublicDataset, choices: Dict[int,DynamicChoice]) 
     U=np.asarray(public.U,dtype=np.float64).copy()
     # U has T-1 command samples; the transform is defined on exactly those interval samples.
     for idx,ch in choices.items(): U[:,:,idx]=transform_numpy(U[:,:,idx],public.dt,ch)
-    return PublicDataset(X=public.X.copy(),U=U.astype(np.float32),trajectory_id=public.trajectory_id.copy(),schema=public.schema,dt=public.dt,regime=public.regime,variant=public.variant)
+    return PublicDataset(X=public.X.copy(),U=U.astype(np.float32),trajectory_id=public.trajectory_id.copy(),schema=public.schema,dt=public.dt,regime=public.regime,variant=public.variant,
+                         sample_time_s=(None if public.sample_time_s is None else np.asarray(public.sample_time_s,dtype=np.float64).copy()))
 
 
 def _discrete_ls_score(train:PublicDataset,val:PublicDataset,input_idx:int,choice:DynamicChoice)->float:

@@ -209,7 +209,7 @@ def _input_schema() -> List[Dict[str, Any]]:
     return [dict(x) for x in _INPUTS]
 
 
-def _build_single(path: str | Path, *, view: str, allow_faulted: bool) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any], Dict[str, Any], int, float]:
+def _build_single(path: str | Path, *, view: str, allow_faulted: bool) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any], Dict[str, Any], int, float, np.ndarray]:
     if view not in _VIEWS:
         raise ValueError(f"unknown EHSS view {view!r}; choose one of {', '.join(available_ehss_views())}")
     p, meta, rows, fields = _read_scenario(path)
@@ -287,7 +287,7 @@ def _build_single(path: str | Path, *, view: str, allow_faulted: bool) -> Tuple[
             "mechanism_use": "simulation_audit_only" if truth else "candidate_observation",
         },
     }
-    return X, U, schema, source, tid, dt
+    return X, U, schema, source, tid, dt, t
 
 
 def load_ehss_scenarios(paths: Iterable[str | Path], *, view: str = "measured-fast", allow_faulted: bool = False) -> EHSSBridgeResult:
@@ -295,8 +295,8 @@ def load_ehss_scenarios(paths: Iterable[str | Path], *, view: str = "measured-fa
     if not paths:
         raise ValueError("at least one EHSS scenario directory is required")
     built = [_build_single(p, view=view, allow_faulted=allow_faulted) for p in paths]
-    first_X, first_U, schema, _, _, first_dt = built[0]
-    for X, U, s, source, tid, dt in built[1:]:
+    first_X, first_U, schema, _, _, first_dt, _ = built[0]
+    for X, U, s, source, tid, dt, time_s in built[1:]:
         if X.shape != first_X.shape or U.shape != first_U.shape:
             raise ValueError("all EHSS trajectories in one PublicDataset must share horizon and view dimensions")
         if abs(dt - first_dt) > max(1e-9, first_dt * 2e-5):
@@ -308,6 +308,7 @@ def load_ehss_scenarios(paths: Iterable[str | Path], *, view: str = "measured-fa
 
     X_all = np.stack([x[0] for x in built], axis=0)
     U_all = np.stack([x[1] for x in built], axis=0)
+    time_all = np.stack([x[6] for x in built], axis=0)
     tids = np.asarray([x[4] for x in built], dtype=np.int64)
     if len(np.unique(tids)) != len(tids):
         raise ValueError("trajectory_id collision detected")
@@ -319,6 +320,7 @@ def load_ehss_scenarios(paths: Iterable[str | Path], *, view: str = "measured-fa
         trajectory_id=tids,
         regime="ehss",
         variant=f"ehss-{view}",
+        sample_time_s=time_all,
     )
 
     selected = list(_VIEWS[view])
@@ -337,6 +339,7 @@ def load_ehss_scenarios(paths: Iterable[str | Path], *, view: str = "measured-fa
             "trajectory_id": [int(x) for x in ds.trajectory_id],
             "regime": ds.regime,
             "variant": ds.variant,
+            "sample_time_s_preserved": ds.sample_time_s is not None,
         },
         "selected_state_channels": selected,
         "omitted_measurement_channels": omitted,

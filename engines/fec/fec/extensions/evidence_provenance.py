@@ -37,6 +37,13 @@ class ModalityStatus(str, Enum):
     MISSING = "missing"
 
 
+class AssetScopeKind(str, Enum):
+    """How narrowly a calibration Reference is allowed to move across assets."""
+
+    ASSET_LOCAL = "asset_local"
+    FLEET_GROUP = "fleet_group"
+
+
 class ConstraintType(str, Enum):
     HARD = "hard"
     SOFT = "soft"
@@ -264,6 +271,152 @@ class ModalityAvailability:
 
 
 @dataclass(frozen=True)
+class OperatingContextIdentity:
+    """Externally declared operating/task context identity for Reference use.
+
+    This is a hard compatibility identity, not a learned context classifier and
+    not an anomaly-responsive feature.  Adapters should build it only from
+    externally defensible operating/task metadata (for example declared load
+    regime, phase, recipe, or DCASE source/target domain).  Values are
+    canonicalized so the same declaration has a deterministic fingerprint.
+    """
+
+    namespace: str
+    attributes: tuple[tuple[str, str], ...]
+
+    def __post_init__(self) -> None:
+        ns = str(self.namespace)
+        if not ns:
+            raise ValueError("operating-context namespace is required")
+        normalized: list[tuple[str, str]] = []
+        names: set[str] = set()
+        for key, encoded in self.attributes:
+            k = str(key)
+            if not k or k in names:
+                raise ValueError("operating-context attribute names must be non-empty and unique")
+            names.add(k)
+            try:
+                value = json.loads(str(encoded))
+            except Exception as exc:
+                raise ValueError(f"invalid canonical operating-context value for {k!r}") from exc
+            value = _normalise_config(value)
+            enc = json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+            normalized.append((k, enc))
+        if not normalized:
+            raise ValueError("at least one operating-context attribute is required")
+        object.__setattr__(self, "namespace", ns)
+        object.__setattr__(self, "attributes", tuple(sorted(normalized, key=lambda kv: kv[0])))
+
+    @classmethod
+    def from_mapping(cls, namespace: str, attributes: Mapping[str, Any]) -> "OperatingContextIdentity":
+        normalized = _normalise_config(attributes)
+        if not isinstance(normalized, dict):
+            raise TypeError("operating-context attributes must be a mapping")
+        return cls(
+            str(namespace),
+            tuple(
+                (str(k), json.dumps(v, sort_keys=True, separators=(",", ":"), ensure_ascii=False))
+                for k, v in normalized.items()
+            ),
+        )
+
+    @property
+    def fingerprint(self) -> str:
+        payload = {
+            "namespace": self.namespace,
+            "attributes": {k: json.loads(v) for k, v in self.attributes},
+        }
+        return "sha256:" + hashlib.sha256(_canonical_json_bytes(payload)).hexdigest()
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "namespace": self.namespace,
+            "attributes": {k: json.loads(v) for k, v in self.attributes},
+            "fingerprint": self.fingerprint,
+        }
+
+    @classmethod
+    def from_dict(cls, obj: Mapping[str, Any] | None) -> "OperatingContextIdentity | None":
+        if obj is None:
+            return None
+        ctx = cls.from_mapping(str(obj["namespace"]), obj.get("attributes", {}))
+        declared = obj.get("fingerprint")
+        if declared is not None and str(declared) != ctx.fingerprint:
+            raise ValueError("operating-context fingerprint does not match canonical attributes")
+        return ctx
+
+
+@dataclass(frozen=True)
+class AssetReferenceScope:
+    """Explicit asset membership for a reusable calibration Reference.
+
+    The contract is intentionally membership-based rather than schema-based:
+    sharing sensors, provider code, or an operating-context label does not by
+    itself prove cross-asset exchangeability.  A fleet-group Reference may be
+    used only by assets that were explicitly admitted into that group.
+    """
+
+    kind: AssetScopeKind
+    admitted_asset_ids: frozenset[str]
+    fleet_group_id: str | None = None
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "kind", AssetScopeKind(self.kind))
+        ids = frozenset(str(x) for x in self.admitted_asset_ids)
+        if not ids or any(not x for x in ids):
+            raise ValueError("admitted_asset_ids must contain non-empty asset ids")
+        object.__setattr__(self, "admitted_asset_ids", ids)
+        if self.kind is AssetScopeKind.ASSET_LOCAL:
+            if len(ids) != 1:
+                raise ValueError("asset_local scope requires exactly one admitted asset")
+            if self.fleet_group_id is not None:
+                raise ValueError("asset_local scope must not declare fleet_group_id")
+        elif self.kind is AssetScopeKind.FLEET_GROUP:
+            if not self.fleet_group_id:
+                raise ValueError("fleet_group scope requires fleet_group_id")
+            object.__setattr__(self, "fleet_group_id", str(self.fleet_group_id))
+
+    @classmethod
+    def asset_local(cls, asset_id: str) -> "AssetReferenceScope":
+        return cls(AssetScopeKind.ASSET_LOCAL, frozenset({str(asset_id)}))
+
+    @classmethod
+    def fleet_group(cls, fleet_group_id: str, admitted_asset_ids: Iterable[str]) -> "AssetReferenceScope":
+        return cls(AssetScopeKind.FLEET_GROUP, frozenset(str(x) for x in admitted_asset_ids), str(fleet_group_id))
+
+    def mismatch_reasons(self, *, asset_id: str | None, fleet_group_id: str | None = None) -> tuple[str, ...]:
+        reasons: list[str] = []
+        if not asset_id:
+            return ("runtime asset_id was not provided",)
+        aid = str(asset_id)
+        if aid not in self.admitted_asset_ids:
+            reasons.append(f"asset_id {aid!r} was not admitted to commissioned reference")
+        if self.kind is AssetScopeKind.FLEET_GROUP:
+            if fleet_group_id != self.fleet_group_id:
+                reasons.append(
+                    f"fleet_group_id expected={self.fleet_group_id!r} actual={fleet_group_id!r}"
+                )
+        return tuple(reasons)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "kind": self.kind.value,
+            "admitted_asset_ids": sorted(self.admitted_asset_ids),
+            "fleet_group_id": self.fleet_group_id,
+        }
+
+    @classmethod
+    def from_dict(cls, obj: Mapping[str, Any] | None) -> "AssetReferenceScope | None":
+        if obj is None:
+            return None
+        return cls(
+            kind=AssetScopeKind(str(obj["kind"])),
+            admitted_asset_ids=frozenset(str(x) for x in obj.get("admitted_asset_ids", [])),
+            fleet_group_id=None if obj.get("fleet_group_id") is None else str(obj["fleet_group_id"]),
+        )
+
+
+@dataclass(frozen=True)
 class ReferenceCompatibilityContract:
     """Reference-side compatibility requirements for runtime use.
 
@@ -275,6 +428,10 @@ class ReferenceCompatibilityContract:
     modality_signature: tuple[tuple[str, str], ...] = ()
     provider_fingerprints: frozenset[str] = frozenset()
     source_domain: SourceDomain | None = None
+    asset_scope: AssetReferenceScope | None = None
+    operating_context: OperatingContextIdentity | None = None
+    runtime_asset_id: str | None = None
+    runtime_fleet_group_id: str | None = None
 
     def __post_init__(self) -> None:
         sig = tuple(sorted(((str(k), ModalityStatus(v).value) for k, v in self.modality_signature), key=lambda kv: kv[0]))
@@ -292,6 +449,42 @@ class ReferenceCompatibilityContract:
         object.__setattr__(self, "provider_fingerprints", fps)
         if self.source_domain is not None:
             object.__setattr__(self, "source_domain", SourceDomain(self.source_domain))
+        if self.asset_scope is not None and not isinstance(self.asset_scope, AssetReferenceScope):
+            raise TypeError("asset_scope must be an AssetReferenceScope or None")
+        if self.operating_context is not None and not isinstance(self.operating_context, OperatingContextIdentity):
+            raise TypeError("operating_context must be an OperatingContextIdentity or None")
+        if self.runtime_asset_id is not None:
+            if not str(self.runtime_asset_id):
+                raise ValueError("runtime_asset_id must be non-empty when provided")
+            object.__setattr__(self, "runtime_asset_id", str(self.runtime_asset_id))
+        if self.runtime_fleet_group_id is not None:
+            if not str(self.runtime_fleet_group_id):
+                raise ValueError("runtime_fleet_group_id must be non-empty when provided")
+            object.__setattr__(self, "runtime_fleet_group_id", str(self.runtime_fleet_group_id))
+
+    @classmethod
+    def commissioned(
+        cls,
+        *,
+        availability: ModalityAvailability | None = None,
+        provider_fingerprints: Iterable[str] = (),
+        source_domain: SourceDomain | str | None = None,
+        asset_scope: AssetReferenceScope | None = None,
+        operating_context: OperatingContextIdentity | None = None,
+    ) -> "ReferenceCompatibilityContract":
+        """Build the persisted requirements of a commissioned Reference.
+
+        Runtime asset identity is deliberately separate from the commissioned
+        scope.  This prevents a state snapshot from accidentally becoming tied
+        to whichever asset happened to execute the commissioning command.
+        """
+        return cls(
+            modality_signature=() if availability is None else availability.signature,
+            provider_fingerprints=frozenset(str(x) for x in provider_fingerprints),
+            source_domain=None if source_domain is None else SourceDomain(source_domain),
+            asset_scope=asset_scope,
+            operating_context=operating_context,
+        )
 
     @classmethod
     def from_runtime(
@@ -300,11 +493,17 @@ class ReferenceCompatibilityContract:
         availability: ModalityAvailability | None = None,
         provider_fingerprints: Iterable[str] = (),
         source_domain: SourceDomain | str | None = None,
+        operating_context: OperatingContextIdentity | None = None,
+        asset_id: str | None = None,
+        fleet_group_id: str | None = None,
     ) -> "ReferenceCompatibilityContract":
         return cls(
             modality_signature=() if availability is None else availability.signature,
             provider_fingerprints=frozenset(str(x) for x in provider_fingerprints),
             source_domain=None if source_domain is None else SourceDomain(source_domain),
+            operating_context=operating_context,
+            runtime_asset_id=None if asset_id is None else str(asset_id),
+            runtime_fleet_group_id=None if fleet_group_id is None else str(fleet_group_id),
         )
 
     def mismatch_reasons(self, runtime: "ReferenceCompatibilityContract") -> tuple[str, ...]:
@@ -320,6 +519,26 @@ class ReferenceCompatibilityContract:
                 f"source_domain expected={self.source_domain.value!r} "
                 f"actual={None if runtime.source_domain is None else runtime.source_domain.value!r}"
             )
+        if self.operating_context is not None:
+            if runtime.operating_context is None:
+                reasons.append("runtime operating_context was not provided")
+            elif runtime.operating_context.fingerprint != self.operating_context.fingerprint:
+                reasons.append(
+                    "operating_context expected="
+                    f"{self.operating_context.fingerprint!r} actual={runtime.operating_context.fingerprint!r}"
+                )
+        elif runtime.operating_context is not None:
+            reasons.append(
+                "commissioned reference has no operating_context binding; recommission or omit the new "
+                "runtime context only under an explicit legacy policy"
+            )
+        if self.asset_scope is not None:
+            reasons.extend(
+                self.asset_scope.mismatch_reasons(
+                    asset_id=runtime.runtime_asset_id,
+                    fleet_group_id=runtime.runtime_fleet_group_id,
+                )
+            )
         return tuple(reasons)
 
     def compatible_with(self, runtime: "ReferenceCompatibilityContract") -> bool:
@@ -330,7 +549,17 @@ class ReferenceCompatibilityContract:
             "modality_signature": [list(x) for x in self.modality_signature],
             "provider_fingerprints": sorted(self.provider_fingerprints),
             "source_domain": None if self.source_domain is None else self.source_domain.value,
+            "asset_scope": None if self.asset_scope is None else self.asset_scope.to_dict(),
+            "operating_context": None if self.operating_context is None else self.operating_context.to_dict(),
+            # runtime identity is intentionally not persisted as part of the commissioned reference.
         }
+
+    def to_runtime_dict(self) -> dict[str, Any]:
+        """Diagnostic/report representation including actual runtime asset identity."""
+        out = self.to_dict()
+        out["runtime_asset_id"] = self.runtime_asset_id
+        out["runtime_fleet_group_id"] = self.runtime_fleet_group_id
+        return out
 
     @classmethod
     def from_dict(cls, obj: Mapping[str, Any] | None) -> "ReferenceCompatibilityContract | None":
@@ -341,6 +570,8 @@ class ReferenceCompatibilityContract:
             modality_signature=tuple((str(x[0]), str(x[1])) for x in obj.get("modality_signature", [])),
             provider_fingerprints=frozenset(str(x) for x in obj.get("provider_fingerprints", [])),
             source_domain=None if domain is None else SourceDomain(str(domain)),
+            asset_scope=AssetReferenceScope.from_dict(obj.get("asset_scope")),
+            operating_context=OperatingContextIdentity.from_dict(obj.get("operating_context")),
         )
 
 
@@ -440,6 +671,7 @@ class SourceAvailabilityState:
 
     source_id: str
     modality_id: str
+    asset_id: str
     available: bool
     effective_status: ModalityStatus
     provider_fingerprints: tuple[str, ...] = ()
@@ -450,6 +682,7 @@ class SourceAvailabilityState:
         return {
             "source_id": self.source_id,
             "modality_id": self.modality_id,
+            "asset_id": self.asset_id,
             "available": self.available,
             "effective_status": self.effective_status.value,
             "provider_fingerprints": list(self.provider_fingerprints),
@@ -530,6 +763,9 @@ class EvidenceAvailabilityResolution:
         source_domain: SourceDomain | str | None,
         additional_provider_fingerprints: Iterable[str] = (),
         require_selected_available: bool = True,
+        asset_id: str | None = None,
+        fleet_group_id: str | None = None,
+        operating_context: OperatingContextIdentity | None = None,
     ) -> ReferenceCompatibilityContract:
         """Construct a compatibility contract from resolved lineage.
 
@@ -541,19 +777,35 @@ class EvidenceAvailabilityResolution:
         by_id = self.by_source
         fps = {str(x) for x in additional_provider_fingerprints}
         unavailable: list[str] = []
+        selected_assets: set[str] = set()
         for source_id in selected_sources.values():
             if source_id is None:
                 continue
             state = by_id[str(source_id)]
+            selected_assets.add(state.asset_id)
             if not state.available:
                 unavailable.append(state.source_id)
             fps.update(state.provider_fingerprints)
         if require_selected_available and unavailable:
             raise ValueError(f"selected runtime sources are unavailable: {sorted(unavailable)}")
+        if len(selected_assets) > 1:
+            raise ValueError(
+                "selected runtime sources span multiple asset_ids: " + repr(sorted(selected_assets))
+            )
+        derived_asset_id = next(iter(selected_assets), None)
+        if asset_id is not None and derived_asset_id is not None and str(asset_id) != derived_asset_id:
+            raise ValueError(
+                f"explicit runtime asset_id {str(asset_id)!r} does not match selected-source asset_id "
+                f"{derived_asset_id!r}"
+            )
+        runtime_asset_id = derived_asset_id if asset_id is None else str(asset_id)
         return ReferenceCompatibilityContract.from_runtime(
             availability=availability,
             provider_fingerprints=fps,
             source_domain=source_domain,
+            operating_context=operating_context,
+            asset_id=runtime_asset_id,
+            fleet_group_id=fleet_group_id,
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -599,6 +851,7 @@ def resolve_evidence_availability(
             SourceAvailabilityState(
                 p.source_id,
                 p.modality_id,
+                p.asset_id,
                 False,
                 ModalityStatus.MISSING,
                 (),
@@ -667,6 +920,7 @@ def resolve_evidence_availability(
         state = SourceAvailabilityState(
             source_id=p.source_id,
             modality_id=p.modality_id,
+            asset_id=p.asset_id,
             available=available,
             effective_status=effective,
             provider_fingerprints=fps,

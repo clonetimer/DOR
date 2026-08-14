@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fec-toolkit"
-version = "2.4.0"
-description = "FEC PHM evidence substrate with context-conditioned anomaly/class score calibration bridges"
+version = "2.4.2+timer.1"
+description = "FEC 2.4 Stable-derived evidence substrate with fleet/context governance and DOR score bridges"
 requires-python = ">=3.10"
 dependencies = ["numpy>=2.0"]
 

@@ -152,6 +152,12 @@ def formalize_manifest(
     out.setdefault("mechanism", {}).setdefault("status", "NOT_PROVIDED")
     out.setdefault("leakage_guard", {}).setdefault("group_columns", [])
     out.setdefault("provenance", {})
+    # v1.0.1 integration safety: DOR context hierarchy is not an authorization
+    # mechanism for cross-asset Reference exchangeability.  Fleet-group scope
+    # requires the dedicated FEC fleet commissioning route and is deliberately
+    # not executed by the simple external-score bridge chain.
+    out.setdefault("reference_scope", {"kind": "UNSPECIFIED", "note": "legacy/default scope; declare ASSET_LOCAL or FLEET_GROUP explicitly for new deployments"})
+    out.setdefault("deployment", {})
     out["data"]["path"] = str(data_path)
     out["data"]["sha256"] = out["data"].get("sha256") or sha256_file(data_path)
     return out
@@ -173,6 +179,17 @@ def qualify_task(
     next_actions: list[str] = []
     checks: dict[str, Any] = {}
     task = str(manifest.get("task") or request.get("task") or "").upper()
+
+    scope = manifest.get("reference_scope") or {"kind": "UNSPECIFIED"}
+    scope_kind = str(scope.get("kind", "UNSPECIFIED")).upper()
+    checks["reference_scope"] = {"kind": scope_kind, "asset_id": scope.get("asset_id"), "fleet_group_id": scope.get("fleet_group_id"), "member_asset_ids": list(scope.get("member_asset_ids") or [])}
+    if scope_kind == "UNSPECIFIED":
+        warnings.append("reference_scope is UNSPECIFIED; DOR will not interpret any pooled reference as fleet-commissioned. New multi-asset deployments should declare ASSET_LOCAL or FLEET_GROUP explicitly.")
+    elif scope_kind == "FLEET_GROUP":
+        warnings.append("FLEET_GROUP scope requires FEC asset-stratified fleet commissioning; the simple DOR score-bridge executor must not treat DOR context pooling as fleet admission.")
+        next_actions.append("commission the fleet Reference through FEC validate_fleet_reference_candidate()/robustness guards, then use a fleet-aware application adapter; do not bypass with generic score-bridge pooling")
+    elif scope_kind != "ASSET_LOCAL":
+        reasons.append(f"unknown reference_scope.kind {scope_kind!r}")
 
     if task not in SUPPORTED_RUNTIME_TASKS:
         reasons.append(f"DOR v0.4 runtime does not execute task {task!r}; supported tasks are {sorted(SUPPORTED_RUNTIME_TASKS)}")
@@ -326,6 +343,7 @@ def make_effective_m2n_request(request: dict[str, Any], manifest: dict[str, Any]
 
 def engine_admissions(manifest: dict[str, Any], q: TaskQualification) -> tuple[EngineAdmission, ...]:
     mech = manifest.get("mechanism") or {}
+    scope_kind = str((manifest.get("reference_scope") or {}).get("kind", "UNSPECIFIED")).upper()
     mech_status = str(mech.get("status", "NOT_PROVIDED")).upper()
     if mech_status in {"NOT_PROVIDED", "DEFERRED", "UNCERTIFIED", "UNIDENTIFIABLE"}:
         isgn = EngineAdmission(
@@ -356,8 +374,12 @@ def engine_admissions(manifest: dict[str, Any], q: TaskQualification) -> tuple[E
         dor = EngineAdmission("DOR", "BLOCKED", ("calibrated evidence unavailable",), ("CalibratedEvidenceBundle",), ("DiagnosisBundle",))
     else:
         m2n = EngineAdmission("M2N", "RUN", ("task/data roles satisfy DOR admission; M2N may qualify finite model families using train/validation only",), ("DatasetManifest", "M2N diagnostic request", "data"), ("DiagnosticModelBundle", "score packs"))
-        fec = EngineAdmission("FEC", "RUN", ("independent calibration role exists; DOR v0.4 may use only exact or explicitly declared ancestor context levels and remains fail-closed otherwise",), ("retained M2N score packs",), ("context-conditioned calibrated evidence",))
-        dor = EngineAdmission("DOR", "RUN", ("DOR will arbitrate only FEC-supported evidence and preserve alternatives/abstention",), ("FEC outputs",), ("DiagnosisBundle",))
+        if scope_kind == "FLEET_GROUP":
+            fec = EngineAdmission("FEC", "BLOCKED", ("fleet-group Reference scope cannot use the simple DOR external-score calibration bridge; FEC v2.4.2 requires asset-stratified fleet commissioning and promotion guards",), ("retained M2N score packs", "FEC fleet commissioning decision"), ("commissioned fleet Reference",))
+            dor = EngineAdmission("DOR", "BLOCKED", ("fleet Reference is not commissioned through the required FEC fleet path; DOR context hierarchy cannot authorize cross-asset Reference sharing",), ("commissioned fleet FEC evidence",), ("DiagnosisBundle",))
+        else:
+            fec = EngineAdmission("FEC", "RUN", ("independent calibration role exists; DOR may use only exact or explicitly declared ancestor context levels within the declared/legacy asset scope and remains fail-closed otherwise",), ("retained M2N score packs",), ("context-conditioned calibrated evidence",))
+            dor = EngineAdmission("DOR", "RUN", ("DOR will arbitrate only FEC-supported evidence and preserve alternatives/abstention",), ("FEC outputs",), ("DiagnosisBundle",))
     return isgn, m2n, fec, dor
 
 
@@ -395,6 +417,7 @@ def build_plan(
         "context_discovery_from_test_labels": False,
         "context_discovery_from_test_scores": False,
         "implicit_context_pooling": False,
+        "deployment_forecast_evaluation": (manifest.get("deployment") or {}).get("forecast_evaluation"),
     }
     plan_id = f"dor04-{uuid.uuid5(uuid.NAMESPACE_URL, prov['data_sha256'] + '|' + task).hex[:16]}"
     return DiagnosticPlan(plan_id, task, q, admissions, tuple(steps), prov)

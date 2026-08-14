@@ -515,3 +515,77 @@ def test_temporal_prediction_exposes_operating_condition_support(tmp_path:Path):
     assert first['va_far']['m2n_context_shape_support']=='IN_SUPPORT'
     assert first['va_far']['m2n_context_operating_support']=='OUT_OF_SUPPORT'
     assert float(first['va_far']['m2n_context_operating_distance']) > 0
+
+
+def _closed_rollout_case():
+    rows=[]
+    # Smooth but slightly curved scalar state; contexts stay independent.
+    for c in range(8):
+        split='train' if c<5 else 'val'
+        x=1.0+0.05*c
+        for t in range(14):
+            rows.append((f'c{c}',float(t),split,x))
+            x=0.985*x-0.002+0.0002*t
+    a=np.asarray(rows,dtype=object)
+    return {
+        'cycle_id':a[:,0], 't_s':a[:,1].astype(float), 'split':a[:,2],
+        'x1':a[:,3].astype(float),
+    }
+
+
+def _closed_rollout_spec(horizon=4):
+    spec=_spec('DYNAMICS_IDENTIFICATION')
+    spec['schema_version']='2.16'
+    spec['modeling_contract']['input_columns']=['x1']
+    spec['modeling_contract']['target_columns']=['x1']
+    spec['modeling_contract']['constraints']={
+        'temporal_candidates':['LINEAR_AR','TCN'],
+        'temporal_training':{'epochs':2,'hidden_size':6,'seeds':[1,2],'lr':0.02,'lookback':3},
+        'forecast_evaluation':{'mode':'RECURSIVE_ROLLOUT','horizon_steps':horizon},
+    }
+    return spec
+
+
+def test_recursive_rollout_qualification_ready_for_closed_state():
+    q=qualify_temporal_design(_closed_rollout_spec(4),_closed_rollout_case())
+    assert q.status=='READY'
+    assert q.forecast_evaluation['mode']=='RECURSIVE_ROLLOUT'
+    assert q.forecast_evaluation['horizon_steps']==4
+    assert q.forecast_evaluation['resolved_lookback']==3
+
+
+def test_recursive_rollout_rejects_future_exogenous_inputs():
+    spec=_closed_rollout_spec(4)
+    spec['modeling_contract']['input_columns']=['x1','x2']
+    d=_closed_rollout_case(); d['x2']=0.5*np.asarray(d['x1'])
+    q=qualify_temporal_design(spec,d)
+    assert q.status=='UNSUPPORTED'
+    assert any('input_columns == target_columns' in r for r in q.reasons)
+
+
+def test_recursive_rollout_rejects_horizon_beyond_sequence_support():
+    q=qualify_temporal_design(_closed_rollout_spec(20),_closed_rollout_case())
+    assert q.status=='UNSUPPORTED'
+    assert any('exceeds the minimum-sequence supported horizon' in r for r in q.reasons)
+
+
+def test_recursive_rollout_design_preserves_one_step_risks_and_predicts_horizon(tmp_path:Path):
+    spec=_closed_rollout_spec(4); d=_closed_rollout_case()
+    sp=tmp_path/'spec_rollout.json'; dp=tmp_path/'rollout.csv'
+    sp.write_text(json.dumps(spec),encoding='utf-8'); _write_csv(dp,d)
+    r=run_temporal_design(sp,dp,tmp_path/'rollout_out')
+    assert r.status in ('SELECTED','AMBIGUOUS')
+    assert r.forecast_evaluation['mode']=='RECURSIVE_ROLLOUT'
+    assert r.candidate_one_step_validation_risks is not None
+    assert set(r.candidate_one_step_validation_risks)==set(r.candidate_validation_risks)
+    pred=predict_temporal_design(tmp_path/'rollout_out',dp,tmp_path/'rollout_pred.csv')
+    import csv as _csv
+    rows=list(_csv.DictReader(open(pred)))
+    assert rows
+    assert rows[0]['m2n_forecast_mode']=='RECURSIVE_ROLLOUT'
+    assert rows[0]['m2n_forecast_horizon_steps']=='4'
+    key='portfolio_rollout_h4_prediction__x1'
+    assert key in rows[0]
+    vals=[row[key].lower() for row in rows]
+    assert any(v not in ('nan','') for v in vals)
+    assert any(v=='nan' for v in vals)

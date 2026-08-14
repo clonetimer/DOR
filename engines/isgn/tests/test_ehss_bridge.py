@@ -55,6 +55,8 @@ def test_real_contract_shapes_and_pressure_dimension(tmp_path):
     out=load_ehss_scenario(p,view='measured-fast')
     assert out.dataset.X.shape==(1,40,9)
     assert out.dataset.U.shape==(1,39,4)
+    assert out.dataset.sample_time_s is not None
+    assert out.dataset.sample_time_s.shape == out.dataset.X.shape[:2]
     assert out.contract['production_mechanism_eligible'] is True
     names=[x['name'] for x in out.dataset.schema['states']]
     assert 'temperature_a' not in names and 'pressure_a' in names

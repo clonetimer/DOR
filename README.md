@@ -1,6 +1,10 @@
-# DOR Diagnostic Stack v0.8.0.dev0 — Model-Family and Temporal Integration Preview
+# DOR Diagnostic Stack v1.0.2+timer.1 — Satellite R4-derived Integration
 
-> v0.8.0.dev0 在原 Auto Diagnostic Architect 上增加模型族资格、时序/波形候选、独立上下文/工况支持、辨识桥和多任务仲裁。根因与跨设备泛化仍受证据边界约束，不能据此宣称任意设备全局最优。
+> 本版本选择性吸收 DOR Satellite R4：新增 ISGN 时间观测门、M2N 预测时距资格与 FEC 资产/舰队 Reference 治理，同时保留 Auto Diagnostic Architect、安全符号编译、UDE 和模态掩码审计。根因与跨设备泛化仍受证据边界约束，不能据此宣称任意设备全局最优。
+
+源码组件：DOR `1.0.2+timer.1` / ISGN `2.3.0+timer.1` / M2N `2.16.1+timer.1` / FEC `2.4.2+timer.1`。
+
+2026-08-14 fresh full regression：DOR 101 + ISGN 109 + M2N 95 + FEC 118 = **423 passed**。吸收决策、机制边界和测试计划见 `docs/DOR_V102_R4_ASSIMILATION_CN.md`，实施台账见 `docs/IMPLEMENTATION_LEDGER_DOR_V102_R4_CN.md`。
 
 ## 自动诊断模型设计预览
 
@@ -21,6 +25,15 @@ dor auto-predict --bundle design_output/pipeline_bundle --data deployment.csv --
 ```
 
 当前“最合适”严格表示声明预算、候选集合与 validation 合同内的稳定最佳或等价集合，不表示全局 NAS 最优。缺少定位、分类或辨识监督时相应阶段返回 `UNSUPPORTED`，不会隐式生成伪标签。详见 `docs/AUTO_DIAGNOSTIC_ARCHITECT_CN.md` 和实施台账 `docs/IMPLEMENTATION_LEDGER_AUTO_DESIGN_CN.md`。
+
+R4 的递归预测必须显式绑定部署时距：
+
+```bash
+dor forecast-bind --manifest dataset_manifest.json --device-card device_card.json --output bound_device_card.json
+m2n temporal-design --spec bound_device_card.json --data sequence.csv --out temporal_output
+```
+
+若未声明时距、声明冲突、需要未来外生输入、时间基不完整或跨资产 Reference 未经 FEC commissioning，相关路径拒答而不是猜测。
 
 2026-08-13 更新后，候选选择还可执行最差工况、缺失传感器、模型字节、结构复杂度代理与开发机推理时延门禁。近两年数据/论文证据、明确差距和 G1—G10 计划见 `docs/RECENT_2024_2026_EVIDENCE_GAP_AND_UPDATE_PLAN_CN.md`；原始音频/视觉、污染训练、基础模型和生命周期闭环仍属于未完成项。
 
@@ -46,7 +59,7 @@ dor spacecraft-prepare --dataset-root whole_spacecraft_phm_dataset_v6_0 \
 
 # DOR Diagnostic Stack v0.6.0 — Propagation / Root-Cause Development Prototype
 
-**源码组件基线：DOR 0.8.0.dev0 / ISGN 2.2.0 / M2N 2.12.0+dor.1 / FEC 2.4.0**
+**当前源码组件基线：DOR 1.0.2+timer.1 / ISGN 2.3.0+timer.1 / M2N 2.16.1+timer.1 / FEC 2.4.2+timer.1**
 
 新增入口：`m2n model-plan`、`m2n temporal-design`、`m2n predict-temporal`、`dor identify-plan`、`dor identify`、`dor multi-task-arbitrate`、`dor vertical-validate` 和 `dor freeze-gate`。设计与证据边界见 `docs/EXTERNAL_TOOLKIT_INTEGRATION_DESIGN_CN.md`。
 

@@ -59,11 +59,13 @@ def test_public_regime_projection_extracts_only_complete_dwell_windows():
     N,T=2,13; X=np.zeros((N,T,1)); U=np.zeros((N,T-1,1))
     for k in range(N): X[k,:,0]=np.arange(T)+k; U[k,:,0]=k
     schema={'states':[{'name':'x'}],'inputs':[{'name':'u'}]}
-    ds=PublicDataset(X,U,np.arange(N),schema,.1,'parent')
+    sample_time=np.broadcast_to(np.arange(T,dtype=float)*.1,(N,T)).copy()
+    ds=PublicDataset(X,U,np.arange(N),schema,.1,'parent',sample_time_s=sample_time)
     labels=np.array([['A']*6+['B']*6,['A']*4+['B']*8],dtype=object)
     trans=np.zeros_like(labels,dtype=bool); trans[:,5:7]=True
     p=RegimePartition(labels,'controller','observed_control',trans)
     a=project_public_regime_windows(ds,p,regime='A',window_steps=3,stride_steps=3,min_windows=2)
     assert a.X.shape[1:]==(4,1) and a.U.shape[1:]==(3,1)
     assert a.regime=='A'
+    assert a.sample_time_s is not None and a.sample_time_s.shape[:2]==a.X.shape[:2]
     assert all(w['end_interval']<=5 for w in a.schema['regime_projection']['parent_windows'])

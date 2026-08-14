@@ -10,6 +10,7 @@ from m2n.practitioner import (
     predict_design_bundle,
     seal_design_bundle,
     validate_device_card,
+    _required_columns,
     verify_design_bundle,
     write_next_actions,
 )
@@ -68,3 +69,66 @@ def test_design_bundle_seal_verify_and_predict(tmp_path: Path):
     (out/'NEXT_ACTIONS.md').write_text('mutated',encoding='utf-8')
     check2=verify_design_bundle(out)
     assert check2.status=='FAIL'
+
+
+def test_inspect_modeling_contract_numeric_columns_fail_on_blank_telemetry(tmp_path: Path):
+    spec={
+        'schema_version':'2.6','template':'generic_mechanism_graph',
+        'data':{'split_column':'split','train_values':['train'],'validation_values':['val'],'time_column':'t_s'},
+        'mechanism':{'inputs':[{'name':'x','dim':{}}], 'nodes':[{'id':'yhat','op':'positive_gain','inputs':['x'],'params':{'learnable':True,'init':1.0,'gain_dim':{}}}], 'outputs':[{'name':'yhat','dim':{}}]},
+        'knowledge':{'slots':[{'id':'local','level':'K1','role':'local','input_dims':[{}],'output_dim':{},'exact_family':'gain','learnable_parameters':['g'],'knowledge_source':'DECLARED_ENGINEERING'}]},
+        'supervision':{'input_columns':{'x':'x'},'output_columns':{'yhat':'x'}},
+        'qualification':{'independent_context_column':'cycle_id','evidence_scope':'BLINDED_FOR_VALIDATION'},
+        'modeling_contract':{
+            'objective':'DYNAMICS_IDENTIFICATION','input_representation':'MULTIVARIATE_SEQUENCE','mechanism_usage':'PREFERRED',
+            'prediction_unit':'INDEPENDENT_CONTEXT','input_columns':['x','u'],'target_columns':['x'],'time_column':'t_s',
+            'constraints':{'temporal_training':{'lookback':2}},
+        },
+    }
+    sp=tmp_path/'card.json'; sp.write_text(json.dumps(spec),encoding='utf-8')
+    dp=tmp_path/'telemetry.csv'
+    with dp.open('w',newline='',encoding='utf-8') as f:
+        w=csv.writer(f); w.writerow(['cycle_id','t_s','split','x','u'])
+        w.writerows([[0,0,'train',1.0,0.1],[0,1,'train','',0.2],[1,0,'val',2.0,0.1],[1,1,'val',2.1,0.2]])
+    r=inspect_tabular_data(dp,sp)
+    assert r.status=='FAIL'
+    assert any("modeling-contract numeric column 'x'" in e for e in r.errors)
+    assert any('do not silently zero-fill' in a for a in r.actions)
+    assert 'x' in _required_columns(spec)
+
+
+def test_published_schema_versions_match_runtime_contract():
+    import json
+    from pathlib import Path
+    from m2n.goal_design import SUPPORTED_SCHEMA_VERSIONS
+
+    schema_path = Path(__file__).resolve().parents[1] / "configs" / "schemas" / "device_card.schema.json"
+    schema = json.loads(schema_path.read_text())
+    published = tuple(schema["properties"]["schema_version"]["enum"])
+    assert published == SUPPORTED_SCHEMA_VERSIONS
+
+
+def test_published_input_representations_match_runtime_contract():
+    import json
+    from pathlib import Path
+    from m2n.model_family import InputRepresentation
+
+    schema_path = Path(__file__).resolve().parents[1] / "configs" / "schemas" / "device_card.schema.json"
+    schema = json.loads(schema_path.read_text())
+    published = tuple(schema["properties"]["modeling_contract"]["properties"]["input_representation"]["enum"])
+    runtime = tuple(x.value for x in InputRepresentation)
+    assert published == runtime
+
+
+def test_published_schema_exposes_parameterized_representation_candidates():
+    import json
+    from pathlib import Path
+
+    schema_path = Path(__file__).resolve().parents[1] / "configs" / "schemas" / "device_card.schema.json"
+    schema = json.loads(schema_path.read_text())
+    rc = schema["properties"]["modeling_contract"]["properties"]["constraints"]["properties"]["representation_candidates"]
+    assert rc["type"] == "array"
+    assert tuple(rc["items"]["properties"]["kind"]["enum"]) == (
+        "WAVEFORM_FEATURE_LINEAR", "WAVEFORM_ORDER_LINEAR"
+    )
+    assert set(rc["items"]["required"]) == {"id", "kind", "waveform_representation"}

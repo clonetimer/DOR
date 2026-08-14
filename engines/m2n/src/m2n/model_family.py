@@ -286,18 +286,18 @@ def qualify_model_families(
             st, rs = 'CONDITIONAL', ('classical ML may participate only with an explicit mechanism-feature/residual interface; mechanism use must not be silently discarded',)
         else:
             st, rs = 'ELIGIBLE', ('tabular modeling objective and supervision are compatible with classical ML candidates',)
-    elif obj == ModelingObjective.CATEGORICAL_PREDICTION and rep == InputRepresentation.WAVEFORM_SEQUENCE:
+    elif obj in (ModelingObjective.CATEGORICAL_PREDICTION, ModelingObjective.STATIC_REGRESSION) and rep == InputRepresentation.WAVEFORM_SEQUENCE:
         if missing:
             st, rs = 'NOT_ELIGIBLE', (f'contract-required data columns are missing: {list(missing)}',)
         elif mech == MechanismUsage.REQUIRED:
             st, rs = 'NOT_ELIGIBLE', ('generic feature-based classifiers do not by themselves satisfy a REQUIRED mechanism-preservation contract',)
         else:
-            st, rs = 'CONDITIONAL', ('waveform classification requires an explicit qualified feature representation before classical ML can compete; v2.10 provides a deterministic time-domain waveform feature baseline when an engineering region-of-interest is declared',)
+            st, rs = 'CONDITIONAL', ('waveform modeling requires an explicit qualified feature representation before classical ML can compete; v2.15 provides deterministic time-domain waveform classification/regression, engineering-declared order-domain classification, and explicit competition among multiple candidate-specific waveform representations when their configurations are declared before selection',)
     elif obj == ModelingObjective.DYNAMICS_IDENTIFICATION:
         st, rs = 'CONDITIONAL', ('classical ML requires an explicitly qualified lag/state representation before competing on a dynamics contract',)
     else:
         st, rs = 'NOT_APPLICABLE', ('the current representation/objective is outside first-class classical ML eligibility',)
-    out.append(FamilyEligibility(ModelFamily.CLASSICAL_ML, st, rs, 'linear/logistic models, SVM, tree ensembles and one-class learners; v2.10 adds a deterministic waveform-feature ridge classifier as a representation baseline, while broader backend choice remains application-triggered'))
+    out.append(FamilyEligibility(ModelFamily.CLASSICAL_ML, st, rs, 'linear/logistic models, SVM, tree ensembles and one-class learners; v2.15 supports deterministic time-domain and declared order-domain waveform ridge classification, including multiple candidate-specific representation configurations, plus time-domain waveform regression; broader backend choice remains application-triggered'))
 
     # DEEP_LEARNING
     if obj == ModelingObjective.OPERATOR_LEARNING:

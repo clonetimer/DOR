@@ -12,6 +12,11 @@ class PublicDataset:
     X has shape [trajectory, time, state], U has shape [trajectory, time-1, input].
     The schema carries semantic roles, dimensions and observation metadata; core
     algorithms must not infer device identity from variable names.
+
+    ``sample_time_s`` is optional traceable observation time in seconds with shape
+    [trajectory, time].  It may be absolute or trajectory-local; only differences
+    are interpreted by the Observation Gate.  The scalar ``dt`` remains the
+    nominal fixed-rate interval used by existing solvers.
     """
     X: np.ndarray
     U: np.ndarray
@@ -20,6 +25,7 @@ class PublicDataset:
     dt: float
     regime: str
     variant: str = "user"
+    sample_time_s: np.ndarray | None = None
 
     def validate(self) -> None:
         X=np.asarray(self.X); U=np.asarray(self.U); ids=np.asarray(self.trajectory_id)
@@ -34,6 +40,12 @@ class PublicDataset:
         states=list(self.schema.get("states",[])); inputs=list(self.schema.get("inputs",[]))
         if len(states) != X.shape[2] or len(inputs) != U.shape[2]:
             raise ValueError("schema dimensions do not match X/U")
+        if self.sample_time_s is not None:
+            time=np.asarray(self.sample_time_s,dtype=np.float64)
+            if time.shape != X.shape[:2]:
+                raise ValueError("sample_time_s must have shape [trajectory, time] matching X")
+            if not np.isfinite(time).all():
+                raise ValueError("sample_time_s must contain only finite seconds")
 
 
 @dataclass
