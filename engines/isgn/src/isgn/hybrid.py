@@ -200,13 +200,15 @@ def project_public_regime_windows(ds: PublicDataset, partition: RegimePartition,
     w=int(window_steps); stride=int(stride_steps if stride_steps is not None else window_steps)
     if w < 1 or stride < 1: raise ValueError("window_steps and stride_steps must be positive")
     valid=_regime_mask(partition,regime)
-    Xs=[]; Us=[]; parents=[]
+    Xs=[]; Us=[]; Ts=[]; parents=[]
     for k,row in enumerate(valid):
         start=0; T=len(row)
         while start+w <= T:
             if bool(np.all(row[start:start+w])):
                 Xs.append(np.asarray(ds.X[k,start:start+w+1]).copy())
                 Us.append(np.asarray(ds.U[k,start:start+w]).copy())
+                if ds.sample_time_s is not None:
+                    Ts.append(np.asarray(ds.sample_time_s[k,start:start+w+1],dtype=np.float64).copy())
                 parents.append({"trajectory_id":str(np.asarray(ds.trajectory_id)[k]),"start_interval":int(start),"end_interval":int(start+w)})
                 start += stride
             else:
@@ -220,7 +222,8 @@ def project_public_regime_windows(ds: PublicDataset, partition: RegimePartition,
         "window_steps":w,"stride_steps":stride,"transition_intervals_excluded":True,"parent_windows":parents,
     }
     out=PublicDataset(np.stack(Xs),np.stack(Us),np.arange(len(Xs),dtype=np.int64),schema,float(ds.dt),str(regime),
-                      variant=f"{ds.variant}-regime-{regime}")
+                      variant=f"{ds.variant}-regime-{regime}",
+                      sample_time_s=(np.stack(Ts) if ds.sample_time_s is not None else None))
     out.validate(); return out
 
 

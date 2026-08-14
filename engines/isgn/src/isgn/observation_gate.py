@@ -6,11 +6,12 @@ The gate does *not* discover a Mechanism Graph.  It audits whether the public
 measurement/command trajectories contain enough usable information to justify
 running a mechanism-discovery backend at all.
 
-It intentionally separates four evidence families:
+It intentionally separates five evidence families:
   1. trajectory/sampling sanity,
   2. persistent excitation of non-context inputs,
   3. source-column identifiability / collinearity,
-  4. per-state derivative reliability under the declared sampling interval.
+  4. per-state derivative reliability under the declared sampling interval,
+  5. temporal sufficiency of the declared instantaneous observation tuple.
 
 A FAIL is a refusal to claim that the *full declared state graph* is currently
 identifiable.  It is not a statement that the physical system has no mechanism.
@@ -47,6 +48,28 @@ class ObservationGateConfig:
     # the declared measurement noise/quantization floor.
     warn_measurement_variation_ratio: float = 5.0
     fail_measurement_variation_ratio: float = 2.0
+    # Optional per-sample timebase audit.  Existing fixed-rate datasets remain
+    # backward compatible when ``sample_time_s`` is absent.
+    warn_timebase_p95_relative_error: float = 0.05
+    fail_timebase_p95_relative_error: float = 0.25
+    warn_timebase_median_relative_error: float = 0.02
+    fail_timebase_median_relative_error: float = 0.10
+    fail_timebase_min_interval_ratio: float = 0.50
+    fail_timebase_max_interval_ratio: float = 2.00
+    # Causal temporal-sufficiency probe.  This is a preflight diagnostic, not a
+    # mechanism learner: it asks whether finite observation history contains
+    # substantially more held-out derivative information than the declared
+    # instantaneous state/input tuple.
+    temporal_history_lags: tuple[int, ...] = (1, 2, 4, 8, 16)
+    temporal_ridge_alpha: float = 1.0
+    temporal_min_train_rows_per_feature: float = 5.0
+    temporal_fail_min_instant_nrmse: float = 0.20
+    temporal_fail_max_history_nrmse: float = 0.50
+    temporal_fail_max_gain_ratio: float = 0.40
+    temporal_fail_min_absolute_gain: float = 0.20
+    temporal_warn_min_instant_nrmse: float = 0.20
+    temporal_warn_max_gain_ratio: float = 0.70
+    temporal_warn_min_absolute_gain: float = 0.10
 
 
 @dataclass
@@ -134,6 +157,82 @@ def _standardized_columns(A: np.ndarray, names: List[str], min_variation: float)
         Z = np.zeros((len(A), 0), dtype=np.float64)
     active_names = [names[i] for i in range(len(names)) if active[i]]
     return Z, active_names, inactive
+
+
+def _timebase_integrity(ds: PublicDataset, config: ObservationGateConfig) -> GateCheck:
+    """Audit optional observed sample times against the nominal fixed ``dt``.
+
+    Solvers in Toolkit 2.x still operate on a fixed nominal interval.  The
+    optional time vector therefore acts as provenance/evidence: large gaps,
+    non-monotone timestamps, or sustained rate mismatch must be refused before
+    derivative-based discovery silently treats them as ordinary adjacent samples.
+    """
+    if ds.sample_time_s is None:
+        return GateCheck(
+            "timebase_integrity", "N/A", {"sample_time_present": False},
+            "sample_time_s is not provided; nominal dt cannot be checked against observed timestamps",
+            "provide sample_time_s for operational data when logging gaps or clock jitter are possible",
+        )
+    time=np.asarray(ds.sample_time_s,dtype=np.float64)
+    expected=tuple(np.asarray(ds.X).shape[:2])
+    if time.shape != expected:
+        return GateCheck(
+            "timebase_integrity", "FAIL", {"sample_time_shape":list(time.shape),"expected_shape":list(expected)},
+            "sample_time_s shape does not match the state observation grid",
+            "rebuild the observation contract with one sample time for every X sample",
+        )
+    if not np.isfinite(time).all():
+        return GateCheck(
+            "timebase_integrity", "FAIL", {"sample_time_present":True},
+            "sample_time_s contains NaN/Inf",
+            "repair or explicitly segment the acquisition timebase before discovery",
+        )
+    delta=np.diff(time,axis=1)
+    if delta.size == 0 or np.any(delta <= 0.0):
+        return GateCheck(
+            "timebase_integrity", "FAIL", {"nonpositive_interval_count":int(np.sum(delta<=0.0))},
+            "sample_time_s is not strictly increasing within every trajectory",
+            "sort/segment the acquisition by physical time; do not identify dynamics across duplicate or reversed timestamps",
+        )
+    nominal=float(ds.dt)
+    ratio=delta/nominal
+    rel=np.abs(ratio-1.0)
+    median_interval=float(np.median(delta))
+    median_rel=float(abs(median_interval-nominal)/nominal)
+    p95_rel=float(np.percentile(rel,95.0))
+    min_ratio=float(np.min(ratio)); max_ratio=float(np.max(ratio))
+    metrics={
+        "sample_time_present":True,
+        "declared_dt_s":nominal,
+        "median_interval_s":median_interval,
+        "min_interval_s":float(np.min(delta)),
+        "max_interval_s":float(np.max(delta)),
+        "median_relative_error":median_rel,
+        "p95_relative_error":p95_rel,
+        "min_interval_ratio":min_ratio,
+        "max_interval_ratio":max_ratio,
+        "interval_count":int(delta.size),
+    }
+    hard=(median_rel > config.fail_timebase_median_relative_error
+          or p95_rel > config.fail_timebase_p95_relative_error
+          or min_ratio < config.fail_timebase_min_interval_ratio
+          or max_ratio > config.fail_timebase_max_interval_ratio)
+    if hard:
+        return GateCheck(
+            "timebase_integrity", "FAIL", metrics,
+            "observed sample timing is incompatible with the declared fixed-rate dt",
+            "split logging gaps and resample/validate jitter on a physical timebase before mechanism discovery",
+        )
+    if median_rel > config.warn_timebase_median_relative_error or p95_rel > config.warn_timebase_p95_relative_error:
+        return GateCheck(
+            "timebase_integrity", "WARN", metrics,
+            "observed sample timing has material jitter relative to the declared fixed-rate dt",
+            "preserve the timebase and verify resampling/filtered identification before interpreting fast dynamics",
+        )
+    return GateCheck(
+        "timebase_integrity", "PASS", metrics,
+        "observed sample timing is consistent with the declared nominal dt", "",
+    )
 
 
 def _hankel_excitation(ds: PublicDataset, config: ObservationGateConfig) -> GateCheck:
@@ -300,6 +399,205 @@ def _attach_sensor_contract_metrics(ds: PublicDataset, states: List[StateObserva
         audit.sensor_period_to_export_dt = None if dt <= 0 else float(period / dt)
 
 
+
+def _causal_ridge_nrmse(
+    Xtr: np.ndarray,
+    Ytr: np.ndarray,
+    Xva: np.ndarray,
+    Yva: np.ndarray,
+    *,
+    alpha: float,
+) -> np.ndarray:
+    """Deterministic standardized ridge probe used only by temporal preflight."""
+    Xtr = np.asarray(Xtr, dtype=np.float64)
+    Ytr = np.asarray(Ytr, dtype=np.float64)
+    Xva = np.asarray(Xva, dtype=np.float64)
+    Yva = np.asarray(Yva, dtype=np.float64)
+    if Ytr.ndim == 1:
+        Ytr = Ytr[:, None]
+    if Yva.ndim == 1:
+        Yva = Yva[:, None]
+    mu = np.mean(Xtr, axis=0, keepdims=True)
+    sd = np.std(Xtr, axis=0, keepdims=True)
+    active = sd.ravel() > 1e-12
+    if not np.any(active):
+        pred = np.broadcast_to(np.mean(Ytr, axis=0, keepdims=True), Yva.shape)
+    else:
+        Ztr = (Xtr[:, active] - mu[:, active]) / sd[:, active]
+        Zva = (Xva[:, active] - mu[:, active]) / sd[:, active]
+        ym = np.mean(Ytr, axis=0, keepdims=True)
+        Yc = Ytr - ym
+        gram = Ztr.T @ Ztr
+        reg = max(float(alpha), 0.0) * np.eye(gram.shape[0], dtype=np.float64)
+        try:
+            coef = np.linalg.solve(gram + reg, Ztr.T @ Yc)
+        except np.linalg.LinAlgError:
+            coef = np.linalg.lstsq(gram + reg, Ztr.T @ Yc, rcond=None)[0]
+        pred = Zva @ coef + ym
+    rmse = np.sqrt(np.mean((Yva - pred) ** 2, axis=0))
+    scale = np.std(Yva, axis=0) + 1e-12
+    return rmse / scale
+
+
+def _temporal_sufficiency_check(ds: PublicDataset, config: ObservationGateConfig) -> GateCheck:
+    """Compare causal instantaneous and finite-history derivative predictability.
+
+    A large held-out gain from history is evidence that the declared observation
+    tuple is not temporally sufficient for an *instantaneous full-state* claim.
+    It can arise from omitted physical state, sensor/observer dynamics, delay or
+    distributed dynamics.  The probe deliberately does not decide which remedy
+    is correct and never treats lag coefficients as physical mechanisms.
+    """
+    X = np.asarray(ds.X, dtype=np.float64)
+    U = np.asarray(ds.U, dtype=np.float64)
+    N, T, D = X.shape
+    names = [str(v.get("name", f"x{i}")) for i, v in enumerate(ds.schema.get("states", []))]
+    if len(names) != D:
+        names = [f"x{i}" for i in range(D)]
+    if N < 4 or T < 8:
+        return GateCheck(
+            "temporal_sufficiency", "N/A",
+            {"n_trajectories": int(N), "horizon": int(T - 1)},
+            "too few independent trajectories or samples for a held-out temporal-sufficiency audit",
+            "collect multiple independent trajectories before making an instantaneous full-state mechanism claim",
+        )
+
+    ntr = max(2, int(np.floor(0.70 * N)))
+    if ntr >= N:
+        ntr = N - 1
+    train_idx = np.arange(ntr)
+    val_idx = np.arange(ntr, N)
+    dt = float(ds.dt)
+    input_meta = list(ds.schema.get("inputs", []))
+    context_idx = [i for i, meta in enumerate(input_meta)
+                   if meta.get("role", "input") == "context"]
+    context_names = [str(input_meta[i].get("name", f"u{i}")) for i in context_idx]
+
+    def rows(indices: np.ndarray, lag: int) -> tuple[np.ndarray, np.ndarray]:
+        feats: list[np.ndarray] = []
+        targets: list[np.ndarray] = []
+        for n in indices:
+            for t in range(lag, T - 1):
+                parts = []
+                for k in range(lag + 1):
+                    xk = X[n, t - k]
+                    parts.append(xk)
+                    if U.shape[-1]:
+                        uk = U[n, t - k]
+                        parts.append(uk)
+                        # Declared context is allowed to modulate local state
+                        # dynamics.  Without this tiny bilinear basis, a valid
+                        # parameter-varying Markov system (for example, an
+                        # oscillator whose frequency changes with speed) can be
+                        # misdiagnosed as hidden temporal state merely because
+                        # an additive linear diagnostic cannot express X*c.
+                        # Dynamic inputs are deliberately excluded from this
+                        # expansion so this remains a conservative preflight,
+                        # not a generic nonlinear mechanism learner.
+                        if context_idx:
+                            ck = uk[context_idx]
+                            parts.append((xk[:, None] * ck[None, :]).reshape(-1))
+                feats.append(np.concatenate(parts) if parts else np.empty((0,), dtype=np.float64))
+                targets.append((X[n, t + 1] - X[n, t]) / dt)
+        if not feats:
+            return np.zeros((0, 0), dtype=np.float64), np.zeros((0, D), dtype=np.float64)
+        return np.asarray(feats, dtype=np.float64), np.asarray(targets, dtype=np.float64)
+
+    X0tr, Y0tr = rows(train_idx, 0)
+    X0va, Y0va = rows(val_idx, 0)
+    if len(X0tr) == 0 or len(X0va) == 0:
+        return GateCheck(
+            "temporal_sufficiency", "N/A", {},
+            "no held-out rows are available for the temporal-sufficiency audit",
+            "collect multiple independent trajectories",
+        )
+    inst = _causal_ridge_nrmse(X0tr, Y0tr, X0va, Y0va, alpha=config.temporal_ridge_alpha)
+    best = inst.copy()
+    best_lag = np.zeros(D, dtype=int)
+    tested: list[int] = []
+    skipped: dict[int, str] = {}
+    for lag in sorted({int(x) for x in config.temporal_history_lags if int(x) > 0}):
+        if lag >= T - 2:
+            skipped[lag] = "lag_exceeds_trajectory_horizon"
+            continue
+        Xhtr, Yhtr = rows(train_idx, lag)
+        Xhva, Yhva = rows(val_idx, lag)
+        nfeat = max(int(Xhtr.shape[1]), 1)
+        if len(Xhtr) < float(config.temporal_min_train_rows_per_feature) * nfeat or len(Xhva) < max(16, D * 4):
+            skipped[lag] = "insufficient_rows_for_history_dimension"
+            continue
+        hn = _causal_ridge_nrmse(Xhtr, Yhtr, Xhva, Yhva, alpha=config.temporal_ridge_alpha)
+        tested.append(lag)
+        improved = hn < best
+        best[improved] = hn[improved]
+        best_lag[improved] = lag
+
+    if not tested:
+        return GateCheck(
+            "temporal_sufficiency", "N/A",
+            {"instantaneous_nrmse": {names[i]: float(inst[i]) for i in range(D)}, "skipped_lags": skipped},
+            "trajectory count/horizon is insufficient for a stable finite-history comparison",
+            "collect longer or more independent trajectories before interpreting temporal sufficiency",
+        )
+
+    ratio = best / np.maximum(inst, 1e-12)
+    gain = inst - best
+    fail_states = []
+    warn_states = []
+    for i, name in enumerate(names):
+        hard = (
+            inst[i] >= config.temporal_fail_min_instant_nrmse
+            and best[i] <= config.temporal_fail_max_history_nrmse
+            and ratio[i] <= config.temporal_fail_max_gain_ratio
+            and gain[i] >= config.temporal_fail_min_absolute_gain
+        )
+        soft = (
+            inst[i] >= config.temporal_warn_min_instant_nrmse
+            and ratio[i] <= config.temporal_warn_max_gain_ratio
+            and gain[i] >= config.temporal_warn_min_absolute_gain
+        )
+        if hard:
+            fail_states.append(name)
+        elif soft:
+            warn_states.append(name)
+
+    metrics = {
+        "diagnostic_only": True,
+        "causal_instantaneous_features": (
+            "X[t], U[t], X[t]xcontext[t]" if context_idx else "X[t], U[t]"
+        ),
+        "context_interactions_enabled": bool(context_idx),
+        "context_inputs": context_names,
+        "history_lags_tested": tested,
+        "skipped_lags": skipped,
+        "instantaneous_nrmse": {names[i]: float(inst[i]) for i in range(D)},
+        "best_history_nrmse": {names[i]: float(best[i]) for i in range(D)},
+        "best_history_lag_steps": {names[i]: int(best_lag[i]) for i in range(D)},
+        "history_gain_ratio": {names[i]: float(ratio[i]) for i in range(D)},
+        "absolute_nrmse_gain": {names[i]: float(gain[i]) for i in range(D)},
+        "insufficient_states": fail_states,
+        "marginal_states": warn_states,
+        "train_trajectories": int(len(train_idx)),
+        "validation_trajectories": int(len(val_idx)),
+    }
+    if fail_states:
+        return GateCheck(
+            "temporal_sufficiency", "FAIL", metrics,
+            "finite observation history materially outpredicts the declared instantaneous state/input tuple for one or more states",
+            "treat the affected observation scope as dynamically incomplete; add independently measured state or a validated state-estimation/temporal frontend before full-state mechanism discovery, and do not interpret lag coefficients as mechanisms",
+        )
+    if warn_states:
+        return GateCheck(
+            "temporal_sufficiency", "WARN", metrics,
+            "finite observation history provides material held-out predictive gain for one or more states",
+            "audit omitted state, delay, sensor dynamics or distributed memory before interpreting an instantaneous mechanism graph",
+        )
+    return GateCheck(
+        "temporal_sufficiency", "PASS", metrics,
+        "finite history does not provide a material held-out advantage over the declared instantaneous observation tuple",
+        "",
+    )
+
 def _measurement_chain_check(ds: PublicDataset, states: List[StateObservationAudit], config: ObservationGateConfig) -> GateCheck:
     _attach_sensor_contract_metrics(ds, states)
     with_sensor = [s for s in states if s.sensor_sample_period_s is not None]
@@ -385,13 +683,19 @@ def assess_observation(ds: PublicDataset, *, config: Optional[ObservationGateCon
     else:
         checks.append(GateCheck("data_integrity","PASS",{"n_trajectories":int(X.shape[0]),"horizon":int(U.shape[1]),"dt":float(ds.dt)},"trajectory-level data contract is valid",""))
 
-    # Avoid numerical diagnostics on malformed arrays.
+    # If observed sample times are available, reject incompatible timebases
+    # before derivative/excitation diagnostics assume equally spaced samples.
+    if not any(c.status == "FAIL" for c in checks):
+        checks.append(_timebase_integrity(ds,cfg))
+
+    # Avoid numerical diagnostics on malformed or temporally invalid arrays.
     if any(c.status == "FAIL" for c in checks):
         states=[]
     else:
         checks.append(_hankel_excitation(ds,cfg))
         checks.append(_source_identifiability(ds,cfg))
         states=_state_derivative_probe(ds,cfg)
+        checks.append(_temporal_sufficiency_check(ds,cfg))
         checks.append(_measurement_chain_check(ds,states,cfg))
         checks.append(_sampling_bandwidth_check(states,cfg))
 
@@ -408,6 +712,8 @@ def assess_observation(ds: PublicDataset, *, config: Optional[ObservationGateCon
     for c in checks:
         if c.name == "measurement_chain":
             contract_blocked.extend(c.metrics.get("resolution_insufficient_states", []))
+        if c.name == "temporal_sufficiency":
+            contract_blocked.extend(c.metrics.get("insufficient_states", []))
     blocked=[]
     for name in [*state_blocked,*contract_blocked]:
         if name not in blocked:

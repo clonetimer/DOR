@@ -96,6 +96,18 @@ class ManagedReferenceBundle:
     health_status: str = "unknown"
     generation: int = 0
     validated_for_promotion: bool = False
+    # Optional application-declared promotion guard.  Fleet Reference plans with
+    # multiple predeclared constructions use this to bind the aggregate
+    # robustness decision to the actual promotion call.  Single-construction
+    # and legacy paths leave these fields unset and retain existing behavior.
+    promotion_guard_id: str | None = None
+    promotion_guard_planned_variants: int | None = None
+    promotion_guard_satisfied: bool = False
+    # Fleet-scope bundles must pass the asset-stratified atomic commissioning
+    # path before promotion. Generic single-sentinel validation is never enough
+    # to qualify every admitted fleet member. This state is shadow-only; active
+    # bundles have already crossed the gate before durable persistence.
+    fleet_commissioning_satisfied: bool = False
     power_limited: bool = False
 
 
@@ -207,7 +219,7 @@ class ReferenceBundleManager:
             bundle.meta.key,
             None,
             "reference_unsupported",
-            "active Reference Bundle is incompatible with current modality/provider contract",
+            "active Reference Bundle is incompatible with current modality/provider/asset/context contract",
             {"compatibility_mismatch": list(reasons)},
         )
 
@@ -306,6 +318,23 @@ class ReferenceBundleManager:
         bundle = self._shadow.get(key)
         if bundle is None:
             raise KeyError(f"no staged reference bundle for {key!r}")
+        compat = bundle.meta.compatibility
+        asset_scope = None if compat is None else compat.asset_scope
+        if asset_scope is not None and asset_scope.kind.value == "fleet_group":
+            bundle.lifecycle_state = "fleet_validation_required"
+            bundle.validated_for_promotion = False
+            bundle.fleet_commissioning_satisfied = False
+            self._history.append({
+                "event": "validate_bundle_rejected_fleet_generic_path",
+                "key": repr(key),
+                "bundle_id": bundle.meta.bundle_id,
+                "fleet_group_id": asset_scope.fleet_group_id,
+                "required_assets": sorted(asset_scope.admitted_asset_ids),
+            })
+            raise RuntimeError(
+                "fleet-scope Reference Bundle cannot use generic validate_candidate(); "
+                "use validate_fleet_reference_candidate() with one independent sentinel contract per admitted asset"
+            )
         mismatch = self._compatibility_reasons(bundle, sentinel_compatibility)
         if mismatch:
             bundle.lifecycle_state = "rejected"
@@ -381,6 +410,20 @@ class ReferenceBundleManager:
         bundle = self._shadow.get(key)
         if bundle is None:
             raise KeyError(f"no staged reference bundle for {key!r}")
+        compat = bundle.meta.compatibility
+        asset_scope = None if compat is None else compat.asset_scope
+        if (
+            asset_scope is not None
+            and asset_scope.kind.value == "fleet_group"
+            and not bundle.fleet_commissioning_satisfied
+        ):
+            raise RuntimeError(
+                "reference bundle has not passed bundle-level promotion policy: fleet-scope Reference Bundle has not passed asset-stratified fleet commissioning"
+            )
+        if bundle.promotion_guard_id is not None and not bundle.promotion_guard_satisfied:
+            raise RuntimeError(
+                f"reference bundle promotion guard {bundle.promotion_guard_id!r} has not been satisfied"
+            )
         if not bundle.validated_for_promotion:
             raise RuntimeError("reference bundle has not passed bundle-level promotion policy")
         root_reference_id = self._root.promote(key)

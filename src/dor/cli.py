@@ -22,10 +22,11 @@ from .dataset_registry import build_benchmark_plan, catalog_summary, default_cat
 from .public_adapters import prepare_spacecraft_dataset, prepare_uci_hydraulic
 from .research_registry import default_method_catalog_path, load_method_catalog, method_catalog_summary
 from .modality_calibration import assess_modality_mask_calibration
+from .m2n_forecast_bridge import bind_m2n_forecast_contract
 
 
 def main() -> int:
-    p=argparse.ArgumentParser(prog='dor',description='DOR v0.7 development preview: automatic diagnostic pipeline design plus v0.6 localization/root-cause reasoning')
+    p=argparse.ArgumentParser(prog='dor',description='DOR 1.0.2 R4-derived fault-diagnosis orchestration and automatic diagnostic model design')
     sp=p.add_subparsers(dest='command',required=True)
     sp.add_parser('stack-info',help='show installed four-tool component versions')
 
@@ -86,6 +87,8 @@ def main() -> int:
     mt.add_argument('--detection',default=None); mt.add_argument('--classification',default=None); mt.add_argument('--localization',default=None); mt.add_argument('--root-cause',default=None); mt.add_argument('--identification',default=None); mt.add_argument('--case-id',default=None); mt.add_argument('--output',required=True)
     vv=sp.add_parser('vertical-validate',help='evaluate domain/task evidence grades without upgrading cross-domain evidence')
     vv.add_argument('--registry',required=True); vv.add_argument('--output',required=True)
+    fb=sp.add_parser('forecast-bind',help='bind M2N recursive forecast horizon to an explicit DOR deployment contract')
+    fb.add_argument('--manifest',required=True); fb.add_argument('--device-card',required=True); fb.add_argument('--output',required=True)
     fg=sp.add_parser('freeze-gate',help='evaluate explicit development-exit gates')
     fg.add_argument('--evidence',required=True); fg.add_argument('--vertical',required=True); fg.add_argument('--output',required=True)
     ca=sp.add_parser('class-arbitrate',help='conservative arbitration over one or more FEC class prediction-set CSVs')
@@ -119,6 +122,9 @@ def main() -> int:
         result=assess_modality_mask_calibration(args.modalities,calibration_rows=args.calibration_rows,min_group_size=args.min_group_size).to_dict()
         if args.output: write_json(args.output,result)
         print(json.dumps(result,indent=2)); return 0 if result['status']!='INSUFFICIENT_FOR_EXHAUSTIVE_MASKS' else 2
+    if args.command=='forecast-bind':
+        result=bind_m2n_forecast_contract(load_json(args.manifest),load_json(args.device_card)); write_json(args.output,result)
+        print(json.dumps({'state':'OK','binding_status':result['status'],'forecast_evaluation':result.get('forecast_evaluation'),'output':str(Path(args.output).resolve())},indent=2)); return 0
     if args.command=='manifest-check':
         m=formalize_manifest(load_json(args.manifest),load_json(args.request),args.data); write_json(args.output,m); print(json.dumps({'state':'OK','contract':m['contract'],'output':str(Path(args.output).resolve())},indent=2)); return 0
     if args.command=='reference-plan':

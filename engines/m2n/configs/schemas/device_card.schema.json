@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "m2n://schemas/device_card.schema.json",
-  "title": "M2N Device Card v2.12",
+  "title": "M2N Device Card v2.16",
   "type": "object",
   "required": [
     "schema_version",
@@ -27,7 +27,11 @@
         "2.9",
         "2.10",
         "2.11",
-        "2.12"
+        "2.12",
+        "2.13",
+        "2.14",
+        "2.15",
+        "2.16"
       ]
     },
     "template": {
@@ -142,6 +146,7 @@
           "enum": [
             "TABULAR",
             "MULTIVARIATE_SEQUENCE",
+            "WAVEFORM_SEQUENCE",
             "FUNCTION",
             "REGULAR_GRID_FIELD"
           ]
@@ -183,7 +188,56 @@
           }
         },
         "constraints": {
-          "type": "object"
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "representation_candidates": {
+              "type": "array",
+              "minItems": 1,
+              "description": "Optional first-class representation candidates. v2.15 parameterizes deterministic waveform FEATURE/ORDER candidates so multiple same-kind representations can compete under independent validation.",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "kind",
+                  "waveform_representation"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "kind": {
+                    "enum": [
+                      "WAVEFORM_FEATURE_LINEAR",
+                      "WAVEFORM_ORDER_LINEAR"
+                    ]
+                  },
+                  "waveform_representation": {
+                    "type": "object"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "forecast_evaluation": {
+              "type": "object",
+              "description": "Optional v2.16 forecast-horizon qualification. Legacy default is ONE_STEP/horizon=1. RECURSIVE_ROLLOUT initially supports only closed DYNAMICS_IDENTIFICATION states where input_columns == target_columns; future exogenous inputs are never fabricated.",
+              "properties": {
+                "mode": {
+                  "enum": [
+                    "ONE_STEP",
+                    "RECURSIVE_ROLLOUT"
+                  ]
+                },
+                "horizon_steps": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              },
+              "additionalProperties": false
+            }
+          }
         }
       },
       "additionalProperties": true

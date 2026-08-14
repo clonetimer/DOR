@@ -264,4 +264,5 @@ def slice_time_window(ds: PublicDataset, start_s: float, end_s: float) -> Public
     i0=max(0,min(i0,ds.X.shape[1]-2)); i1=max(i0+1,min(i1,ds.X.shape[1]-1))
     return PublicDataset(X=np.asarray(ds.X[:,i0:i1+1]).copy(),U=np.asarray(ds.U[:,i0:i1]).copy(),
                          trajectory_id=np.asarray(ds.trajectory_id).copy(),schema=ds.schema,dt=float(ds.dt),
-                         regime=ds.regime,variant=f"{ds.variant}-window-{start_s:g}-{end_s:g}")
+                         regime=ds.regime,variant=f"{ds.variant}-window-{start_s:g}-{end_s:g}",
+                         sample_time_s=(None if ds.sample_time_s is None else np.asarray(ds.sample_time_s[:,i0:i1+1],dtype=np.float64).copy()))

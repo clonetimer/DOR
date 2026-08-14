@@ -6,8 +6,8 @@ contracts, IR lowering/compilation, architecture selection, finite portfolios,
 and model-evidence utilities without the historical experiment harnesses.
 """
 
-__version__ = "2.12.0+dor.1"
-__method_baseline__ = "M2N v2.12 model-family/temporal/context-support integration plus DOR finite diagnostic orchestration, safe symbolic compilation and UDE; adopted methods do not bypass qualification"
+__version__ = "2.16.1+timer.1"
+__method_baseline__ = "M2N v2.16 forecast-horizon/representation qualification plus DOR finite diagnostic orchestration, safe symbolic compilation and executable UDE; adopted methods do not bypass qualification"
 
 from .canonical_ir import Dim, CanonicalIR, canonical_signature, compile_canonical
 from .knowledge_contract import (

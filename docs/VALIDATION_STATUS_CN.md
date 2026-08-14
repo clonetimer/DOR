@@ -1,4 +1,18 @@
-# DOR Diagnostic Stack v0.6.0 DEV PROTO — 验证状态
+# DOR Diagnostic Stack — 验证状态
+
+## 0. 当前 R4-derived 集成状态（2026-08-14）
+
+当前源码：DOR 1.0.2+timer.1 / ISGN 2.3.0+timer.1 / M2N 2.16.1+timer.1 / FEC 2.4.2+timer.1。
+
+| 套件 | fresh full regression |
+|---|---:|
+| DOR | 101 passed |
+| ISGN | 109 passed |
+| M2N | 95 passed |
+| FEC | 118 passed |
+| 合计 | **423 passed** |
+
+这些结果支持当前源码的软件兼容性和安全合同，不是新设备盲测准确率、跨设备泛化或飞行部署证据。完整吸收审计见 `DOR_V102_R4_ASSIMILATION_CN.md`。下文保留早期 v0.6 历史状态，避免覆盖既有开发证据。
 
 ## 1. 生命周期结论
 

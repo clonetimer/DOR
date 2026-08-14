@@ -1,8 +1,8 @@
-# DOR 四工具合体故障诊断工具包 — v0.8 集成开发版使用指南
+# DOR 四工具合体故障诊断工具包 — v1.0.2+timer.1 R4 集成版使用指南
 
-源码版本：DOR 0.8.0.dev0 / ISGN 2.2.0 / M2N 2.12.0+dor.1 / FEC 2.4.0
+源码版本：DOR 1.0.2+timer.1 / ISGN 2.3.0+timer.1 / M2N 2.16.1+timer.1 / FEC 2.4.2+timer.1
 
-> v0.8 是选择性集成开发版：保留表格诊断、符号编译和 UDE，新增模型族/时序/波形设计、辨识桥、多任务仲裁与验证冻结门。它不保证任意设备的全局最优模型。
+> 本版保留表格诊断、符号编译、UDE 和自动设计，新增 R4 时间观测门、递归时距资格和资产/舰队 Reference 治理。它只在显式候选、数据与预算合同内选择最合适模型，不保证任意设备的全局最优模型。
 
 ## 1. 安装
 
@@ -24,6 +24,14 @@ m2n model-plan --spec device_card.json --data sequence.csv --out model_plan.json
 m2n temporal-design --spec device_card.json --data sequence.csv --out temporal_output
 m2n predict-temporal --design-dir temporal_output --data heldout.csv --out predictions.csv
 ```
+
+需要递归时距时先由 DOR 绑定：
+
+```bash
+dor forecast-bind --manifest dataset_manifest.json --device-card device_card.json --output bound_device_card.json
+```
+
+`deployment.forecast_evaluation` 可声明 `ONE_STEP/1` 或 `RECURSIVE_ROLLOUT/H`。M2N 不得自行猜测 H，也不得为闭环预测发明未来外生输入。
 
 `DeviceCard` 必须显式声明 independent context、局部时间、数据 split 和 `modeling_contract`。工况支持标志只表示是否位于训练经验支持域，不是故障概率。
 

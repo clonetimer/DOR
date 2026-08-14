@@ -1,5 +1,5 @@
 """DOR — Diagnostic Orchestration & Reasoning runtime."""
-__version__ = "0.8.0.dev0"
+__version__ = "1.0.2+timer.1"
 from .arbiter import arbitrate_anomaly_csv, arbitrate_anomaly_portfolio, arbitrate_class_portfolio
 from .control import build_plan, formalize_manifest, qualify_task
 from .reference import build_reference_applicability, normalize_context_levels, select_hierarchical_fec_output
@@ -9,6 +9,7 @@ from .localization import localize_faults, localize_from_files, localize_batch_f
 from .rootcause import infer_root_causes, infer_root_causes_from_files
 from .auto_design import predict_pipeline, run_auto_design
 from .modality_calibration import ModalityMaskCalibrationPlan, assess_modality_mask_calibration
+from .m2n_forecast_bridge import bind_m2n_forecast_contract
 from .identification import (
     build_fault_identification_request,
     build_identification_request_from_files,
@@ -46,6 +47,7 @@ __all__ = [
     "predict_pipeline",
     "ModalityMaskCalibrationPlan",
     "assess_modality_mask_calibration",
+    "bind_m2n_forecast_contract",
     "build_fault_identification_request",
     "build_identification_request_from_files",
     "identify_fault_changes",

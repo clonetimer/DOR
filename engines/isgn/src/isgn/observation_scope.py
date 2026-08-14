@@ -107,6 +107,7 @@ def project_state_scope(ds: PublicDataset, states: Sequence[str], *, variant_suf
         dt=float(ds.dt),
         regime=str(ds.regime),
         variant=f"{ds.variant}-{variant_suffix}",
+        sample_time_s=(None if ds.sample_time_s is None else np.asarray(ds.sample_time_s,dtype=np.float64).copy()),
     )
 
 

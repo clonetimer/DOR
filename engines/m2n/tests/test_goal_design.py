@@ -22,15 +22,22 @@ def _mechanics_spec():
 
 
 def test_goal_design_selects_and_predicts(tmp_path:Path):
-    spec=_mechanics_spec(); sp=tmp_path/'device_card.json'; sp.write_text(json.dumps(spec))
+    spec=_mechanics_spec(); spec['schema_version']='2.3'; spec['data']['time_column']='t_s'
+    spec['qualification'].update({'independent_context_column':'cycle_id','min_train_independent_contexts':3,'min_validation_independent_contexts':2})
+    sp=tmp_path/'device_card.json'; sp.write_text(json.dumps(spec))
     rng=np.random.default_rng(3); n=160; v=rng.uniform(-1,1,n); v[np.abs(v)<.05]+=.1; u=rng.uniform(-1,1,n); a=1.2*u-.2*v-.45*np.sign(v); split=np.array(['train']*110+['val']*50,dtype=object)
+    tr_context=np.array(['tr0']*37+['tr1']*37+['tr2']*36,dtype=object); va_context=np.array(['va0']*25+['va1']*25,dtype=object); context=np.r_[tr_context,va_context]
+    t=np.r_[np.r_[np.arange(37),np.arange(37),np.arange(36)],np.r_[np.arange(25),np.arange(25)]]
     dp=tmp_path/'data.csv'
     with dp.open('w',newline='') as f:
-        w=csv.writer(f); w.writerow(['q','v','u','a','split']); w.writerows(zip(np.zeros(n),v,u,a,split))
+        w=csv.writer(f); w.writerow(['q','v','u','a','split','cycle_id','t_s']); w.writerows(zip(np.zeros(n),v,u,a,split,context,t))
     out=tmp_path/'out'; r=run_goal_driven_design(sp,dp,out)
     assert r.status=='SELECTED'; assert 'viscous_coulomb' in r.selected_candidate_id
     arts=list((out/'models').glob('*.pt')); assert len(arts)==1
     pp=tmp_path/'pred.csv'; predict_model_artifact(arts[0],dp,pp); assert pp.exists()
+    with pp.open(newline='') as f:
+        header=next(csv.reader(f))
+    assert header[:2]==['m2n_independent_context','time_s']
 
 
 def test_goal_design_ambiguous_on_one_direction_friction(tmp_path:Path):

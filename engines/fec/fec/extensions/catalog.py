@@ -20,6 +20,36 @@ CATALOG={
         ('genuine_class_probability_scores','independent_labeled_calibration','shared_class_frame'),
         'fit only on an independent calibration split; require score rows to sum to one; unseen/sparse modality masks abstain',False,
         'do not reuse model-selection validation as calibration, normalize arbitrary logits silently, or promote prediction sets to root-cause diagnosis','production_diagnostic_control_plane'),
+    'context_reference_binding':ExtensionSpec(
+        'context_reference_binding','bind a commissioned calibration Reference to an externally declared operating/task context identity',
+        ('external_operating_context','reference_compatibility_contract'),
+        'new context-aware adapters bind references to an exact declared context; missing or mismatched runtime context returns reference_unsupported',False,
+        'do not reuse a Reference across operating/task domains merely because modality, provider, physical asset, and real/simulation provenance still match','release_candidate_control_plane'),
+    'asset_reference_scope':ExtensionSpec(
+        'asset_reference_scope','bind a commissioned Reference to one physical asset or an explicitly admitted fleet group',
+        ('physical_asset_id','reference_compatibility_contract'),
+        'new adapters default to asset-local; unseen assets return reference_unsupported',False,
+        'do not infer cross-asset exchangeability from a shared sensor schema, provider version, or model family','release_candidate_control_plane'),
+    'fleet_asset_admission_gate':ExtensionSpec(
+        'fleet_asset_admission_gate','audit a candidate asset with an independent externally trusted normal sentinel before widening a Reference to a fleet group',
+        ('active_reference_bundle','candidate_asset_id','trusted_normal_sentinel','matching_non_asset_reference_contract'),
+        'admit only healthy asset-level calibration audits; anti-conservative, conservative/power-limited, sparse-support, or unverified assets remain blocked by default',False,
+        'do not add an asset to a fleet scope because its schema matches or because fault-detection performance looks good','release_candidate_control_plane'),
+    'fleet_reference_robustness_gate':ExtensionSpec(
+        'fleet_reference_robustness_gate','block fleet scope widening when a candidate asset qualification is sensitive to finite Reference construction',
+        ('predeclared_reference_variants','variant_level_reference_validation','candidate_asset_admission_per_valid_variant'),
+        'require sufficient predeclared Reference-variant coverage and unanimous healthy admission by default; any anti-conservative valid variant blocks widening',False,
+        'do not cherry-pick the one Reference split/bootstrap that admits the candidate and do not count reused folds as new independent data','release_candidate_control_plane'),
+    'fleet_reference_commissioning_gate':ExtensionSpec(
+        'fleet_reference_commissioning_gate','atomically validate a multi-asset fleet Reference against one independent trusted-normal sentinel per declared member asset',
+        ('staged_fleet_reference_bundle','fleet_asset_membership','trusted_normal_sentinel_per_asset','runtime_contract_per_asset'),
+        'fleet_group bundles reject generic candidate validation; promotion is allowed only when every declared fleet member passes its own compatibility/support/calibration-health audit through the asset-stratified fleet path; conservative is blocked by default',False,
+        'do not use generic single-sentinel bundle validation for fleet scope, do not validate a mixed-asset sentinel as if it came from one runtime asset, and do not let a later passing asset overwrite an earlier rejection','release_candidate_control_plane'),
+    'fleet_reference_promotion_guard':ExtensionSpec(
+        'fleet_reference_promotion_guard','bind a predeclared multi-construction fleet robustness decision to the actual Reference promotion call',
+        ('reference_construction_plan_id','planned_variant_count','variant_level_atomic_commissioning','aggregate_robustness_decision'),
+        'an individually passing variant remains robustness_pending; only a matching accepted aggregate robustness attestation unlocks promotion',False,
+        'do not call ordinary promote on one favorable Reference construction after predeclaring multiple constructions whose aggregate robustness gate is HOLD/BLOCK','release_candidate_control_plane'),
     'lineage_availability_resolution':ExtensionSpec(
         'lineage_availability_resolution','propagate physical modality loss through virtual/learned Evidence lineage before reference selection',
         ('evidence_provenance_graph','observed_modality_state','explicit_provider_selection'),

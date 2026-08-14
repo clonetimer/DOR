@@ -6,7 +6,7 @@ from isgn.fusion import build_operational_model
 from isgn.consensus import build_consensus_model
 
 
-def _replace(ds, *, X=None, U=None):
+def _replace(ds, *, X=None, U=None, sample_time_s=None):
     return PublicDataset(
         X=np.asarray(ds.X if X is None else X, dtype=np.float32),
         U=np.asarray(ds.U if U is None else U, dtype=np.float32),
@@ -15,6 +15,7 @@ def _replace(ds, *, X=None, U=None):
         dt=ds.dt,
         regime=ds.regime,
         variant=ds.variant,
+        sample_time_s=(ds.sample_time_s if sample_time_s is None else sample_time_s),
     )
 
 
@@ -101,3 +102,129 @@ def test_sensor_contract_is_nonintrusive_without_sensor_metadata():
     mc = next(c for c in r.checks if c.name == "measurement_chain")
     assert mc.status == "N/A"
     assert r.can_run_discovery
+
+
+def test_timebase_contract_passes_uniform_time_and_blocks_hidden_gap():
+    ds, _ = simulate("thermal", 8, T=121, dt=0.05, seed=101)
+    t = np.broadcast_to(np.arange(ds.X.shape[1], dtype=float) * ds.dt, ds.X.shape[:2]).copy()
+    good = _replace(ds, sample_time_s=t)
+    rg = assess_observation(good)
+    tc = next(c for c in rg.checks if c.name == "timebase_integrity")
+    assert tc.status == "PASS"
+    assert rg.can_run_discovery
+
+    bad_t = t.copy()
+    bad_t[:, 60:] += 20.0 * ds.dt
+    bad = _replace(ds, sample_time_s=bad_t)
+    rb = assess_observation(bad)
+    tc = next(c for c in rb.checks if c.name == "timebase_integrity")
+    assert tc.status == "FAIL"
+    assert tc.metrics["max_interval_ratio"] > 2.0
+    assert rb.status == "OBSERVATION_INSUFFICIENT"
+    assert rb.can_run_discovery is False
+
+
+def test_timebase_contract_warns_on_material_but_bounded_jitter():
+    ds, _ = simulate("thermal", 8, T=121, dt=0.05, seed=101)
+    intervals = np.full(ds.X.shape[1]-1, ds.dt, dtype=float)
+    intervals[::10] *= 0.90
+    t1 = np.concatenate([[0.0], np.cumsum(intervals)])
+    t = np.broadcast_to(t1, ds.X.shape[:2]).copy()
+    r = assess_observation(_replace(ds, sample_time_s=t))
+    tc = next(c for c in r.checks if c.name == "timebase_integrity")
+    assert tc.status == "WARN"
+    assert r.status == "CONDITIONALLY_QUALIFIED"
+    assert r.can_run_discovery
+
+
+def test_temporal_sufficiency_passes_known_full_state_and_blocks_missing_state():
+    # Full first-order state + inputs: current observation should already explain
+    # the derivative, so adding lagged history must not be required.
+    full, _ = simulate("motor", 24, T=161, dt=0.05, seed=101, regime="iid", variant="clean")
+    rf = assess_observation(full)
+    tf = next(c for c in rf.checks if c.name == "temporal_sufficiency")
+    assert tf.status == "PASS", tf.to_dict()
+    assert rf.can_run_discovery
+
+    # Remove motor speed while retaining the measured current and both declared
+    # inputs.  Frozen 2.3rc1 treated this scope as QUALIFIED even though current
+    # history acts as a strong proxy for the omitted dynamic state.  The new
+    # preflight must refuse the full-state mechanism claim rather than treating
+    # lag coefficients as a mechanism.
+    schema = {
+        "states": [dict(full.schema["states"][0])],
+        "inputs": [dict(x) for x in full.schema["inputs"]],
+    }
+    partial = PublicDataset(
+        X=np.asarray(full.X)[:, :, :1],
+        U=np.asarray(full.U),
+        trajectory_id=np.asarray(full.trajectory_id),
+        schema=schema,
+        dt=full.dt,
+        regime=full.regime,
+        variant=full.variant,
+    )
+    rp = assess_observation(partial)
+    tp = next(c for c in rp.checks if c.name == "temporal_sufficiency")
+    assert tp.status == "FAIL", tp.to_dict()
+    assert "i" in tp.metrics["insufficient_states"]
+    assert tp.metrics["history_gain_ratio"]["i"] < 0.40
+    assert rp.status == "OBSERVATION_INSUFFICIENT"
+    assert rp.can_run_discovery is False
+    assert "i" in rp.blocked_states
+
+
+def test_temporal_sufficiency_does_not_false_reject_full_state_msd():
+    ds, _ = simulate("msd", 24, T=161, dt=0.05, seed=303, regime="iid", variant="clean")
+    r = assess_observation(ds)
+    tc = next(c for c in r.checks if c.name == "temporal_sufficiency")
+    assert tc.status == "PASS", tc.to_dict()
+    assert r.can_run_discovery
+
+
+def test_temporal_sufficiency_respects_declared_context_modulation_without_masking_missing_state():
+    # Parameter-varying oscillator: the *full* instantaneous Markov state is
+    # [x1, x2], while a declared context scales the rotation rate.  An additive
+    # X+context probe cannot represent c*X and would falsely attribute the
+    # resulting model error to temporal memory.  The context-aware preflight
+    # should pass the full state while still rejecting x1-only observation.
+    dt = 0.01
+    T = 401
+    contexts = [0.6, 0.8, 1.0, 1.2] * 3
+    X = []
+    U = []
+    ids = []
+    for n, c in enumerate(contexts):
+        omega = 2.0 * np.pi * 1.5 * c
+        t = np.arange(T, dtype=float) * dt
+        phase = 0.37 * n
+        X.append(np.stack([np.sin(omega*t + phase), np.cos(omega*t + phase)], axis=-1))
+        U.append(np.full((T-1, 1), c, dtype=float))
+        ids.append(f"ctx-{n}")
+    schema = {
+        "states": [{"name": "x1"}, {"name": "x2"}],
+        "inputs": [{"name": "speed_context", "role": "context"}],
+    }
+    full = PublicDataset(np.asarray(X, dtype=np.float32), np.asarray(U, dtype=np.float32),
+                         np.asarray(ids), schema, dt, None, None)
+    rf = assess_observation(full)
+    tf = next(c for c in rf.checks if c.name == "temporal_sufficiency")
+    assert tf.status == "PASS", tf.to_dict()
+    assert tf.metrics["context_interactions_enabled"] is True
+    assert tf.metrics["context_inputs"] == ["speed_context"]
+    assert max(tf.metrics["instantaneous_nrmse"].values()) < 0.02
+    assert rf.can_run_discovery
+
+    partial_schema = {
+        "states": [{"name": "x1"}],
+        "inputs": [{"name": "speed_context", "role": "context"}],
+    }
+    partial = PublicDataset(np.asarray(X, dtype=np.float32)[:, :, :1], np.asarray(U, dtype=np.float32),
+                            np.asarray(ids), partial_schema, dt, None, None)
+    rp = assess_observation(partial)
+    tp = next(c for c in rp.checks if c.name == "temporal_sufficiency")
+    assert tp.status == "FAIL", tp.to_dict()
+    assert tp.metrics["instantaneous_nrmse"]["x1"] > 0.90
+    assert tp.metrics["best_history_nrmse"]["x1"] < 0.10
+    assert "x1" in tp.metrics["insufficient_states"]
+    assert rp.can_run_discovery is False
