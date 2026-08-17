@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "dor-diagnostic-stack"
-version = "1.0.2+timer.1"
-description = "DOR R4-derived orchestration, reasoning, and mechanism-aware automatic fault-diagnostic pipeline design"
+version = "1.0.3+timer.1"
+description = "DOR R5-derived orchestration, reasoning, active mechanism discovery, and automatic fault-diagnostic pipeline design"
 requires-python = ">=3.10"
 dependencies = ["numpy>=1.24", "pandas>=1.5", "scikit-learn>=1.4", "joblib>=1.3"]
 

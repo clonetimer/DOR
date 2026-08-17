@@ -4,7 +4,7 @@ Core scope: recover and complete missing industrial mechanisms from partial phys
 then certify or refuse the recovered Operational Mechanism Model. Atlas, architecture, PHM,
 and closed-loop modules are optional downstream/auxiliary capabilities.
 """
-__version__="2.3.0+timer.1"
+__version__="2.4.0+timer.1"
 from .api import (RecoveryResult, RecoverySummary, recover_graph, complete_graph, certify_completion, calibrate_completion_coverage, fit_normal_phm, extract_mechanism_features, save_checkpoint, load_checkpoint)
 from .phm import PHMHealthCalibration, anchored_parameter_drift, mechanism_health_evidence, calibrate_phm_health, score_phm_health, slice_time_window
 from .io import from_arrays, save_npz, load_npz, save_algebraic_npz, load_algebraic_npz
@@ -56,3 +56,20 @@ from .discovery_policy import DiscoveryRouteDecision, recommend_discovery_route
 __all__ += ["DiscoveryRouteDecision", "recommend_discovery_route"]
 from .tabulated import Tabulated1DResult, fit_tabulated_1d
 __all__ += ["Tabulated1DResult", "fit_tabulated_1d"]
+
+from .active_discovery import (
+    ParameterParticle, ExperimentCandidate, ExperimentExecutionPolicy, ExperimentAdmission,
+    admit_experiment_candidate, ParticleSimulationSummary, ParticleSimulationBank,
+    ParticleUpdateRecord, ParameterParticleSMC, DesignScore, EvidenceStabilityDecision,
+    StructureIdentifiabilityDecision, entropy_bits, expected_structure_information_gain,
+    rank_experiments, predictive_adequacy, assess_evidence_stability,
+    structure_pair_separation, assess_structure_identifiability, admit_proposal_particles,
+)
+__all__ += [
+    "ParameterParticle", "ExperimentCandidate", "ExperimentExecutionPolicy", "ExperimentAdmission",
+    "admit_experiment_candidate", "ParticleSimulationSummary", "ParticleSimulationBank",
+    "ParticleUpdateRecord", "ParameterParticleSMC", "DesignScore", "EvidenceStabilityDecision",
+    "StructureIdentifiabilityDecision", "entropy_bits", "expected_structure_information_gain",
+    "rank_experiments", "predictive_adequacy", "assess_evidence_stability",
+    "structure_pair_separation", "assess_structure_identifiability", "admit_proposal_particles",
+]

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "isgn-toolkit"
-version = "2.3.0+timer.1"
+version = "2.4.0+timer.1"
 description = "ISGN: recover and certify missing industrial mechanisms from partial physics and operational data"
 requires-python = ">=3.10"
 dependencies = ["numpy", "torch", "scipy", "scikit-learn", "lxml"]

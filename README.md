@@ -1,10 +1,18 @@
-# DOR Diagnostic Stack v1.0.2+timer.1 — Satellite R4-derived Integration
+# DOR Diagnostic Stack v1.0.3+timer.1 — Satellite R5-derived Integration
 
-> 本版本选择性吸收 DOR Satellite R4：新增 ISGN 时间观测门、M2N 预测时距资格与 FEC 资产/舰队 Reference 治理，同时保留 Auto Diagnostic Architect、安全符号编译、UDE 和模态掩码审计。根因与跨设备泛化仍受证据边界约束，不能据此宣称任意设备全局最优。
+> 本版本在 R4 能力上选择性吸收 R5 Active Mechanism Discovery：用结构—参数粒子和信息增益排序减少机理歧义，并以 DOR advisory firewall 阻断真值、LIVE 执行和原始载荷越界。自动设计、安全符号编译、UDE、模态掩码审计均保留；仍不能据此宣称任意设备全局最优。
 
-源码组件：DOR `1.0.2+timer.1` / ISGN `2.3.0+timer.1` / M2N `2.16.1+timer.1` / FEC `2.4.2+timer.1`。
+源码组件：DOR `1.0.3+timer.1` / ISGN `2.4.0+timer.1` / M2N `2.16.1+timer.1` / FEC `2.4.2+timer.1`。
 
-2026-08-14 fresh full regression：DOR 101 + ISGN 109 + M2N 95 + FEC 118 = **423 passed**。吸收决策、机制边界和测试计划见 `docs/DOR_V102_R4_ASSIMILATION_CN.md`，实施台账见 `docs/IMPLEMENTATION_LEDGER_DOR_V102_R4_CN.md`。
+2026-08-18 fresh full regression：DOR 107 + ISGN 125 + M2N 95 + FEC 118 = **445 passed**，另 1 个可选依赖测试跳过。吸收决策和边界见 `docs/DOR_V103_R5_ASSIMILATION_CN.md`，实施台账见 `docs/IMPLEMENTATION_LEDGER_DOR_V103_R5_CN.md`。
+
+Active Discovery 输出必须经过不可执行的 DOR 防火墙：
+
+```bash
+dor active-discovery-advisory --input isgn_active_discovery.json --output advisory.json
+```
+
+该入口不会执行实验；缺失真值隔离声明、非法后验、无稳定性/覆盖证明的唯一机理状态或任何 LIVE 建议都会返回 `BLOCKED`。
 
 ## 自动诊断模型设计预览
 
@@ -59,7 +67,7 @@ dor spacecraft-prepare --dataset-root whole_spacecraft_phm_dataset_v6_0 \
 
 # DOR Diagnostic Stack v0.6.0 — Propagation / Root-Cause Development Prototype
 
-**当前源码组件基线：DOR 1.0.2+timer.1 / ISGN 2.3.0+timer.1 / M2N 2.16.1+timer.1 / FEC 2.4.2+timer.1**
+**当前源码组件基线：DOR 1.0.3+timer.1 / ISGN 2.4.0+timer.1 / M2N 2.16.1+timer.1 / FEC 2.4.2+timer.1**
 
 新增入口：`m2n model-plan`、`m2n temporal-design`、`m2n predict-temporal`、`dor identify-plan`、`dor identify`、`dor multi-task-arbitrate`、`dor vertical-validate` 和 `dor freeze-gate`。设计与证据边界见 `docs/EXTERNAL_TOOLKIT_INTEGRATION_DESIGN_CN.md`。
 

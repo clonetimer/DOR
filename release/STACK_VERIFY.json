@@ -4,22 +4,22 @@
     {
       "check": "wheel:isgn",
       "ok": true,
-      "sha256": "95250a1a1e2c348162604d972af9e37e99387ee6b94f61dbcc8bc0058fa2a3f7"
+      "sha256": "7a78e6cbb11d071fba058b3b342ce18da65647e5a92bb2033bb9990f47af3b31"
     },
     {
       "check": "wheel:m2n",
       "ok": true,
-      "sha256": "77ba758b5a4df4dc35e357fa8f2471cd82f9727c316c017795c6ab994b3dea50"
+      "sha256": "49a726dbb762896edfacc42865d6cab59d0c09b8ba156ceee2a8d7cff0e8a3fe"
     },
     {
       "check": "wheel:fec",
       "ok": true,
-      "sha256": "35da6d2f41439ef0c85ec8db10e0b1237ae1e90f4e8c5c8024970cce7830a254"
+      "sha256": "209bab26a94e87cf9cb973685f4f8671c6da5605864a46d5ab54338ef4e792ea"
     },
     {
       "check": "wheel:dor",
       "ok": true,
-      "sha256": "ba765822cd9d8c536bf12fba6416d8cbf15ddf994a9f41b6eb37ce8135c4db95"
+      "sha256": "c95fb13e41c7c726dbf110ec735ee21b51b6086027bd57cbf71476f266f5db9c"
     },
     {
       "check": "schema:dataset_manifest_0.4.schema.json",
@@ -59,6 +59,54 @@
     },
     {
       "check": "schema:root_cause_result_0.6.schema.json",
+      "ok": true
+    },
+    {
+      "check": "schema:fault_identification_request_0.7.schema.json",
+      "ok": true
+    },
+    {
+      "check": "schema:fault_identification_result_0.7.schema.json",
+      "ok": true
+    },
+    {
+      "check": "schema:isgn_identification_evidence_0.7.schema.json",
+      "ok": true
+    },
+    {
+      "check": "schema:isgn_mechanism_baseline_0.7.schema.json",
+      "ok": true
+    },
+    {
+      "check": "schema:multitask_diagnosis_0.8.schema.json",
+      "ok": true
+    },
+    {
+      "check": "schema:vertical_validation_0.9.schema.json",
+      "ok": true
+    },
+    {
+      "check": "schema:development_freeze_gate_1.0.schema.json",
+      "ok": true
+    },
+    {
+      "check": "schema:auto_design_request_1.0.schema.json",
+      "ok": true
+    },
+    {
+      "check": "schema:device_mechanism_card_1.0.schema.json",
+      "ok": true
+    },
+    {
+      "check": "schema:multimodal_dataset_manifest_1.0.schema.json",
+      "ok": true
+    },
+    {
+      "check": "schema:public_diagnostic_dataset_catalog_1.0.schema.json",
+      "ok": true
+    },
+    {
+      "check": "schema:isgn_active_discovery_advisory_1.0.schema.json",
       "ok": true
     },
     {

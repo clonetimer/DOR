@@ -23,12 +23,15 @@ from .public_adapters import prepare_spacecraft_dataset, prepare_uci_hydraulic
 from .research_registry import default_method_catalog_path, load_method_catalog, method_catalog_summary
 from .modality_calibration import assess_modality_mask_calibration
 from .m2n_forecast_bridge import bind_m2n_forecast_contract
+from .isgn_active_discovery_bridge import build_active_discovery_advisory
 
 
 def main() -> int:
-    p=argparse.ArgumentParser(prog='dor',description='DOR 1.0.2 R4-derived fault-diagnosis orchestration and automatic diagnostic model design')
+    p=argparse.ArgumentParser(prog='dor',description='DOR 1.0.3 R5-derived fault-diagnosis orchestration and automatic diagnostic model design')
     sp=p.add_subparsers(dest='command',required=True)
     sp.add_parser('stack-info',help='show installed four-tool component versions')
+    ada=sp.add_parser('active-discovery-advisory',help='sanitize ISGN Active Discovery output into a non-executable DOR advisory')
+    ada.add_argument('--input',required=True); ada.add_argument('--output',required=True)
 
     ad=sp.add_parser('auto-design',help='design a qualified detection/localization/classification/identification pipeline from device mechanisms and data')
     ad.add_argument('--device-card',required=True); ad.add_argument('--manifest',required=True); ad.add_argument('--data',required=True); ad.add_argument('--request',required=True); ad.add_argument('--out',required=True)
@@ -98,6 +101,9 @@ def main() -> int:
 
     if args.command=='stack-info':
         print(json.dumps(stack_info(),indent=2)); return 0
+    if args.command=='active-discovery-advisory':
+        result=build_active_discovery_advisory(load_json(args.input)); write_json(args.output,result)
+        print(json.dumps({'state':result['status'],'output':str(Path(args.output).resolve())},indent=2)); return 0 if result['status']=='ADVISORY_ONLY' else 2
     if args.command=='auto-design':
         result=run_auto_design(args.device_card,args.manifest,args.data,args.request,args.out,ontology_path=args.ontology,resume=args.resume)
         print(json.dumps({'state':result['status'],'device_id':result['device_id'],'candidate_count':result['candidate_count'],'out':str(Path(args.out).resolve())},indent=2)); return 0 if result['status']!='UNSUPPORTED' else 2

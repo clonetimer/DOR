@@ -1,4 +1,17 @@
-# DOR 0.6 DEV PROTO Verification
+# DOR 1.0.3+timer.1 R5-derived Integration Verification
+
+2026-08-18 fresh checks:
+
+- DOR 107 passed, 1 optional skipped; strict JSON Schema test independently passed in the system environment;
+- ISGN 125 passed; M2N 95 passed; FEC 118 passed;
+- total 445 passed, 1 optional skipped;
+- four-wheel isolated import/API/CLI smoke passed;
+- `scripts/verify_stack.py` passed, including the Active Discovery advisory schema and release hygiene;
+- local editable metadata matches DOR 1.0.3+timer.1 and ISGN 2.4.0+timer.1.
+
+Active Discovery remains planning-only. It does not authorize diagnosis, root-cause claims, mechanism certification, experiment execution, or live actuation.
+
+## Historical v0.6 lifecycle note
 
 This package is a development prototype, not a v0.6 closure release.
 

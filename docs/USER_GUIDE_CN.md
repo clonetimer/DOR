@@ -1,6 +1,20 @@
-# DOR 四工具合体故障诊断工具包 — v1.0.2+timer.1 R4 集成版使用指南
+# DOR 四工具合体故障诊断工具包 — v1.0.3+timer.1 R5 集成版使用指南
 
-源码版本：DOR 1.0.2+timer.1 / ISGN 2.3.0+timer.1 / M2N 2.16.1+timer.1 / FEC 2.4.2+timer.1
+源码版本：DOR 1.0.3+timer.1 / ISGN 2.4.0+timer.1 / M2N 2.16.1+timer.1 / FEC 2.4.2+timer.1
+
+## R5 Active Discovery 建议入口
+
+当已有机理候选仍无法区分时，可由 ISGN 用仿真银行和实验候选生成结构后验、可辨识性与下一实验排序，再交给 DOR 做边界审查：
+
+```bash
+dor active-discovery-advisory \
+  --input isgn_active_discovery.json \
+  --output active_discovery_advisory.json
+```
+
+输入必须显式包含 `truth_quarantine`，其中 `truth_channels_allowed`、`held_out_truth_loaded`、`true_structure_loaded` 均精确为 `false`；`structure_posterior` 必须为有限、非负且总和为 1 的映射。若声称 `UNIQUE_SUPPORTED`，还必须有 `evidence_stability.status=STABLE` 和 `hypothesis_space_coverage_complete=true`。
+
+该命令只输出 `ADVISORY_ONLY` 或 `BLOCKED`，永不允许实验执行、诊断、根因或机理认证。输入中的 `payload`、`command`、`actuator` 与安全证据内容不会被转发；真实设备实验必须由外部安全授权流程处理。
 
 > 本版保留表格诊断、符号编译、UDE 和自动设计，新增 R4 时间观测门、递归时距资格和资产/舰队 Reference 治理。它只在显式候选、数据与预算合同内选择最合适模型，不保证任意设备的全局最优模型。
 
