@@ -1,0 +1,206 @@
+{
+  "contract": "DOR-HYDRAULIC-PRACTICAL-STRESS/1.0",
+  "dataset": "examples/hydraulic_accumulator/hydraulic_accumulator_features.csv",
+  "request": "validation/hydraulic_accumulator/m2n_request_effective.json",
+  "row_counts": {
+    "train": 729,
+    "val": 240,
+    "cal": 240,
+    "test": 240
+  },
+  "split_audit": {
+    "split_group_overlaps": {
+      "train__val": [],
+      "train__cal": [],
+      "train__test": [],
+      "val__cal": [],
+      "val__test": [],
+      "cal__test": []
+    },
+    "all_split_groups_disjoint": true,
+    "full_feature_exact_duplicate_overlap_counts": {
+      "train__val": 0,
+      "train__cal": 0,
+      "train__test": 0,
+      "val__cal": 0,
+      "val__test": 0,
+      "cal__test": 0
+    },
+    "no_cross_split_exact_feature_duplicates": true
+  },
+  "candidate_selection": {
+    "validation_results": {
+      "logistic_regression": {
+        "accuracy": 0.825,
+        "macro_f1": 0.8252427477264458
+      },
+      "random_forest": {
+        "accuracy": 0.8666666666666667,
+        "macro_f1": 0.870057223882992
+      },
+      "hist_gradient_boosting": {
+        "accuracy": 0.8916666666666667,
+        "macro_f1": 0.8938922148886137
+      }
+    },
+    "selected": "hist_gradient_boosting",
+    "test_labels_used_for_selection": false,
+    "test": {
+      "accuracy": 0.9708333333333333,
+      "macro_f1": 0.9706137958746006
+    }
+  },
+  "nuisance_only_baseline": {
+    "columns": [
+      "cooler",
+      "valve",
+      "pump"
+    ],
+    "test": {
+      "accuracy": 0.25,
+      "macro_f1": 0.14615384615384616
+    }
+  },
+  "mechanism_view": {
+    "same_family": "hist_gradient_boosting",
+    "raw_test": {
+      "accuracy": 0.9625,
+      "macro_f1": 0.9621649824763641
+    },
+    "raw_plus_mechanism_test": {
+      "accuracy": 0.9708333333333333,
+      "macro_f1": 0.9706137958746006
+    },
+    "macro_f1_delta": 0.008448813398236554,
+    "declared_practical_margin": 0.02
+  },
+  "synthetic_noise_stress": [
+    {
+      "noise_std_fraction": 0.01,
+      "accuracy": 0.95,
+      "macro_f1": 0.9498490301453364
+    },
+    {
+      "noise_std_fraction": 0.05,
+      "accuracy": 0.8083333333333333,
+      "macro_f1": 0.806602590230754
+    },
+    {
+      "noise_std_fraction": 0.1,
+      "accuracy": 0.6458333333333334,
+      "macro_f1": 0.6405076872587381
+    },
+    {
+      "noise_std_fraction": 0.2,
+      "accuracy": 0.5625,
+      "macro_f1": 0.5450875110175741
+    }
+  ],
+  "synthetic_missing_sensor_stress": [
+    {
+      "sensor": "EPS1",
+      "masked_columns": 12,
+      "supported_by_estimator": true,
+      "accuracy": 0.9708333333333333,
+      "macro_f1": 0.9709363497465102
+    },
+    {
+      "sensor": "FS1",
+      "masked_columns": 12,
+      "supported_by_estimator": true,
+      "accuracy": 0.9458333333333333,
+      "macro_f1": 0.9455658316383592
+    },
+    {
+      "sensor": "FS2",
+      "masked_columns": 12,
+      "supported_by_estimator": true,
+      "accuracy": 0.8541666666666666,
+      "macro_f1": 0.851844035775299
+    },
+    {
+      "sensor": "PS1",
+      "masked_columns": 12,
+      "supported_by_estimator": true,
+      "accuracy": 0.9791666666666666,
+      "macro_f1": 0.979165219806931
+    },
+    {
+      "sensor": "PS2",
+      "masked_columns": 12,
+      "supported_by_estimator": true,
+      "accuracy": 0.9708333333333333,
+      "macro_f1": 0.9706137958746006
+    },
+    {
+      "sensor": "PS3",
+      "masked_columns": 12,
+      "supported_by_estimator": true,
+      "accuracy": 0.9333333333333333,
+      "macro_f1": 0.9333297748333733
+    },
+    {
+      "sensor": "PS4",
+      "masked_columns": 12,
+      "supported_by_estimator": true,
+      "accuracy": 0.9708333333333333,
+      "macro_f1": 0.9706137958746006
+    },
+    {
+      "sensor": "PS5",
+      "masked_columns": 12,
+      "supported_by_estimator": true,
+      "accuracy": 0.9666666666666667,
+      "macro_f1": 0.9663304812016487
+    },
+    {
+      "sensor": "PS6",
+      "masked_columns": 12,
+      "supported_by_estimator": true,
+      "accuracy": 0.9708333333333333,
+      "macro_f1": 0.9706137958746006
+    },
+    {
+      "sensor": "TS1",
+      "masked_columns": 12,
+      "supported_by_estimator": true,
+      "accuracy": 0.9583333333333334,
+      "macro_f1": 0.9577395969261998
+    },
+    {
+      "sensor": "TS2",
+      "masked_columns": 12,
+      "supported_by_estimator": true,
+      "accuracy": 0.9625,
+      "macro_f1": 0.9621401313783184
+    },
+    {
+      "sensor": "TS3",
+      "masked_columns": 12,
+      "supported_by_estimator": true,
+      "accuracy": 0.975,
+      "macro_f1": 0.9748914413783443
+    },
+    {
+      "sensor": "TS4",
+      "masked_columns": 12,
+      "supported_by_estimator": true,
+      "accuracy": 0.9375,
+      "macro_f1": 0.9369005226916399
+    },
+    {
+      "sensor": "VS1",
+      "masked_columns": 12,
+      "supported_by_estimator": true,
+      "accuracy": 0.9708333333333333,
+      "macro_f1": 0.9706137958746006
+    }
+  ],
+  "evidence_scope": {
+    "real_test_rig_derived_subset": true,
+    "full_official_2205_cycle_raw_benchmark": false,
+    "new_asset_or_new_session_validation": false,
+    "synthetic_stress_is_not_real_distribution_shift_evidence": true,
+    "synthetic_missing_sensor_is_not_operational_missing_sensor_qualification": true
+  }
+}

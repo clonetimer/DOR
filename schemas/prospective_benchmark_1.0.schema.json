@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "DOR-PROSPECTIVE-BENCHMARK/1.0",
+  "type": "object",
+  "required": ["contract", "policy_sha256", "benchmark_kind", "source", "freeze", "integrity", "metrics"],
+  "properties": {
+    "contract": {"const": "DOR-PROSPECTIVE-BENCHMARK/1.0"},
+    "policy_sha256": {"type": "string", "pattern": "^[0-9a-fA-F]{64}$"},
+    "benchmark_kind": {"enum": ["ANOMALY_TRIAGE", "CLASSIFICATION"]},
+    "source": {"type": "object"},
+    "freeze": {"type": "object"},
+    "integrity": {"type": "object"},
+    "metrics": {"type": "object"}
+  },
+  "additionalProperties": true
+}

@@ -1,6 +1,36 @@
-# DOR 四工具合体故障诊断工具包 — v1.0.3+timer.1 R5 集成版使用指南
+# DOR 四工具合体故障诊断工具包 — v1.0.5+timer.1 Production Evidence Closure Phase 2 使用指南
 
-源码版本：DOR 1.0.3+timer.1 / ISGN 2.4.0+timer.1 / M2N 2.16.1+timer.1 / FEC 2.4.2+timer.1
+源码版本：DOR 1.0.5+timer.1 / ISGN 2.4.0+timer.1 / M2N 2.16.1+timer.1 / FEC 2.4.2+timer.1
+
+## 生产证据门禁
+
+在把 benchmark 结果用于落地决策前，先运行：
+
+```bash
+dor production-evidence-gate \
+  --evidence release/PRODUCTION_EVIDENCE_INPUT.json \
+  --output production_evidence_status.json
+```
+
+当前发布基线是 `ASSISTED_POC=SUPPORTED`、`ASSISTED_PRODUCTION=BLOCKED`、`SAFETY_CRITICAL_AUTONOMY=BLOCKED`。该门禁不会用单测或总体平均分替代跨工况、跨资产、真实漂移、部署负载或安全证据。详见 `PRODUCTION_EVIDENCE_CLOSURE_CN.md`。
+
+Phase 2 在此基础上增加：
+
+```bash
+# 新 session/new asset 打开 test 前，policy 必须已冻结并 hash 绑定
+dor prospective-evaluate --policy release/PROSPECTIVE_ACCEPTANCE_POLICY_NEXT.json \
+  --benchmark prospective_benchmark.json --output prospective_result.json
+
+# selected benchmark segments 只会给 PROXY_ONLY；连续运行才可能取得 production credit
+dor deployment-ops-evaluate --spec deployment_ops.json \
+  --predictions predictions.csv --output ops_result.json
+
+# 外部官方数据先做本地 bytes/hash/结构 intake
+dor source-intake-check --spec release/source_intake_specs/UCI_HYDRAULIC_447.json \
+  --artifact condition+monitoring+of+hydraulic+systems.zip --output intake.json
+```
+
+当前 OPSSAT control intentionally 返回 `INELIGIBLE`，即使 16/16 冻结 metric checks 通过；这是因为历史 test 已知，不能重新解释为 prospective benchmark。详见 `PRODUCTION_EVIDENCE_CLOSURE_PHASE2_CN.md`。
 
 ## R5 Active Discovery 建议入口
 

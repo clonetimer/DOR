@@ -15,6 +15,10 @@ from .identification import identify_from_files, build_identification_request_fr
 from .multitask import arbitrate_multitask_from_files
 from .vertical import evaluate_vertical_from_file
 from .freeze import evaluate_freeze_gate_from_files
+from .production_evidence import evaluate_production_evidence_from_file
+from .prospective_evidence import evaluate_prospective_benchmark_from_files
+from .deployment_ops import evaluate_deployment_operations_from_files
+from .source_intake import validate_public_source_intake_from_files
 from .isgn_identification_bridge import build_isgn_identification_evidence_from_files
 from .stack import stack_info
 from .auto_design import predict_pipeline, run_auto_design
@@ -27,7 +31,7 @@ from .isgn_active_discovery_bridge import build_active_discovery_advisory
 
 
 def main() -> int:
-    p=argparse.ArgumentParser(prog='dor',description='DOR 1.0.3 R5-derived fault-diagnosis orchestration and automatic diagnostic model design')
+    p=argparse.ArgumentParser(prog='dor',description='DOR 1.0.5 prospective-evidence closure fault-diagnosis orchestration and automatic diagnostic model design')
     sp=p.add_subparsers(dest='command',required=True)
     sp.add_parser('stack-info',help='show installed four-tool component versions')
     ada=sp.add_parser('active-discovery-advisory',help='sanitize ISGN Active Discovery output into a non-executable DOR advisory')
@@ -50,6 +54,15 @@ def main() -> int:
     uh.add_argument('--archive',required=True); uh.add_argument('--out',required=True); uh.add_argument('--sensors',nargs='*',default=None); uh.add_argument('--seed',type=int,default=447); uh.add_argument('--block-size',type=int,default=5)
     sc=sp.add_parser('spacecraft-prepare',help='stream a sat-sim spacecraft file tree into a leakage-bounded DOR table')
     sc.add_argument('--dataset-root',required=True); sc.add_argument('--out',required=True); sc.add_argument('--feature-profile',choices=['causal_raw','deployable_full'],default='causal_raw')
+    pe=sp.add_parser('production-evidence-gate',help='separate assisted POC evidence from production and safety-critical deployment evidence')
+    pe.add_argument('--evidence',required=True); pe.add_argument('--output',required=True)
+    pr=sp.add_parser('prospective-evaluate',help='evaluate a new-session/new-asset benchmark against an exactly frozen prospective acceptance policy')
+    pr.add_argument('--policy',required=True); pr.add_argument('--benchmark',required=True); pr.add_argument('--output',required=True)
+    dop=sp.add_parser('deployment-ops-evaluate',help='evaluate alert-burden metrics without confusing selected benchmark segments with continuous operations')
+    dop.add_argument('--spec',required=True); dop.add_argument('--predictions',required=True); dop.add_argument('--output',required=True)
+    si=sp.add_parser('source-intake-check',help='hash-bind and structure-check a locally acquired public benchmark artifact')
+    si.add_argument('--spec',required=True); si.add_argument('--artifact',required=True); si.add_argument('--output',required=True)
+
     mf=sp.add_parser('mask-calibration-plan',help='audit whether calibration data can support declared modality-presence masks')
     mf.add_argument('--modalities',nargs='+',required=True); mf.add_argument('--calibration-rows',type=int,required=True); mf.add_argument('--min-group-size',type=int,default=20); mf.add_argument('--output',default=None)
 
@@ -124,6 +137,18 @@ def main() -> int:
     if args.command=='spacecraft-prepare':
         result=prepare_spacecraft_dataset(args.dataset_root,args.out,feature_profile=args.feature_profile)
         print(json.dumps({'state':'OK','binding':result,'out':str(Path(args.out).resolve())},indent=2)); return 0
+    if args.command=='production-evidence-gate':
+        result=evaluate_production_evidence_from_file(args.evidence); write_json(args.output,result)
+        print(json.dumps({'state':'OK','assisted_poc':result['profiles']['ASSISTED_POC']['status'],'assisted_production':result['profiles']['ASSISTED_PRODUCTION']['status'],'safety_critical_autonomy':result['profiles']['SAFETY_CRITICAL_AUTONOMY']['status'],'output':str(Path(args.output).resolve())},indent=2)); return 0 if result['profiles']['ASSISTED_POC']['status']=='SUPPORTED' else 2
+    if args.command=='prospective-evaluate':
+        result=evaluate_prospective_benchmark_from_files(args.policy,args.benchmark); write_json(args.output,result)
+        print(json.dumps({'state':result['status'],'production_gate_credit':result['production_gate_credit'],'metric_checks':result.get('metric_summary',{}),'output':str(Path(args.output).resolve())},indent=2)); return 0 if result['status']=='PASS' else 2
+    if args.command=='deployment-ops-evaluate':
+        result=evaluate_deployment_operations_from_files(args.spec,args.predictions); write_json(args.output,result)
+        print(json.dumps({'state':result['status'],'production_gate_credit':result['production_gate_credit'],'false_alarm_rate_per_nominal_hour':result.get('false_alarm_rate_per_nominal_hour'),'output':str(Path(args.output).resolve())},indent=2)); return 0 if result['status']=='PASS' else 2
+    if args.command=='source-intake-check':
+        result=validate_public_source_intake_from_files(args.spec,args.artifact); write_json(args.output,result)
+        print(json.dumps({'state':result['status'],'dataset_id':result.get('dataset_id'),'sha256':result.get('hashes',{}).get('sha256'),'output':str(Path(args.output).resolve())},indent=2)); return 0 if result['status']=='PASS' else 2
     if args.command=='mask-calibration-plan':
         result=assess_modality_mask_calibration(args.modalities,calibration_rows=args.calibration_rows,min_group_size=args.min_group_size).to_dict()
         if args.output: write_json(args.output,result)

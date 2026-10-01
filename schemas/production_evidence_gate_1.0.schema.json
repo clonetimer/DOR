@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DOR Production Evidence Gate 1.0",
+  "type": "object",
+  "required": ["contract", "target_use", "profiles", "errors", "safety"],
+  "properties": {
+    "contract": {"const": "DOR-PRODUCTION-EVIDENCE-GATE/1.0"},
+    "target_use": {"type": "string"},
+    "target_domain": {"type": ["string", "null"]},
+    "profiles": {
+      "type": "object",
+      "required": ["ASSISTED_POC", "ASSISTED_PRODUCTION", "SAFETY_CRITICAL_AUTONOMY"],
+      "additionalProperties": {
+        "type": "object",
+        "required": ["status", "blocking_gates", "gates"],
+        "properties": {
+          "status": {"enum": ["SUPPORTED", "BLOCKED"]},
+          "blocking_gates": {"type": "array", "items": {"type": "string"}},
+          "gates": {"type": "array"}
+        }
+      }
+    },
+    "errors": {"type": "array", "items": {"type": "string"}},
+    "safety": {"type": "object"}
+  }
+}

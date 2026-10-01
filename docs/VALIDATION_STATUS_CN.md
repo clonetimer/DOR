@@ -1,8 +1,34 @@
 # DOR Diagnostic Stack — 验证状态
 
-## 0. 当前 R5-derived 集成状态（2026-08-18）
+## 0B. 1.0.5 Production Evidence Closure Phase 2（2026-09-30）
 
-当前源码：DOR 1.0.3+timer.1 / ISGN 2.4.0+timer.1 / M2N 2.16.1+timer.1 / FEC 2.4.2+timer.1。
+当前源码：DOR 1.0.5+timer.1 / ISGN 2.4.0+timer.1 / M2N 2.16.1+timer.1 / FEC 2.4.2+timer.1。
+
+- 新增 prospective blind-evidence evaluator；当前 OPSSAT **16/16 metric checks passed but INELIGIBLE**，不授予 production credit。
+- 新增 deployment-operations evaluator；当前 OPSSAT selected segments 约 **28.3575 nominal h / 31 FP / 1.093 proxy FP/h**，状态 `PROXY_ONLY`，禁止解释为连续任务误报率。
+- 新增 public-source intake；UCI Hydraulic 和 NASA ADAPT 官方资源约束已固化，但当前 runtime 无外网 DNS，未声称二进制资源已获取。
+- 生产层级仍保持：`ASSISTED_POC=SUPPORTED` / `ASSISTED_PRODUCTION=BLOCKED` / `SAFETY_CRITICAL_AUTONOMY=BLOCKED`。
+- 新增 9 个 Phase-2 单测首轮 **9 passed**；完整回归结果以本版 `release/VERIFICATION.md` 为准。
+
+完整边界见 `PRODUCTION_EVIDENCE_CLOSURE_PHASE2_CN.md`。
+
+## 0A. 1.0.4 Production Evidence Closure Phase 1（2026-09-30）
+
+当前源码：DOR 1.0.4+timer.1 / ISGN 2.4.0+timer.1 / M2N 2.16.1+timer.1 / FEC 2.4.2+timer.1。
+
+- DOR fresh: **111 passed**
+- M2N fresh: **95 passed**
+- FEC fresh: **118 passed**
+- ISGN: **125 tests collected**；当前 monolithic full run 超出执行窗口，本次不声称 fresh 125 passed。
+- OPSSAT channel-wise remediation: supported F1 **0.8250**，recall **0.9000**，FPR **0.0751**。
+- Hydraulic independent HGB: test macro-F1 **0.9706**；5% synthetic feature-noise 后约 **0.8066**。
+- Production evidence gate: `ASSISTED_POC=SUPPORTED` / `ASSISTED_PRODUCTION=BLOCKED` / `SAFETY_CRITICAL_AUTONOMY=BLOCKED`。
+
+完整边界见 `PRODUCTION_EVIDENCE_CLOSURE_CN.md`。
+
+## 0. 历史 R5-derived 集成状态（2026-08-18）
+
+历史源码基线：DOR 1.0.3+timer.1 / ISGN 2.4.0+timer.1 / M2N 2.16.1+timer.1 / FEC 2.4.2+timer.1。
 
 | 套件 | fresh full regression |
 |---|---:|

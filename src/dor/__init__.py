@@ -1,5 +1,5 @@
 """DOR — Diagnostic Orchestration & Reasoning runtime."""
-__version__ = "1.0.3+timer.1"
+__version__ = "1.0.5+timer.1"
 from .arbiter import arbitrate_anomaly_csv, arbitrate_anomaly_portfolio, arbitrate_class_portfolio
 from .control import build_plan, formalize_manifest, qualify_task
 from .reference import build_reference_applicability, normalize_context_levels, select_hierarchical_fec_output
@@ -25,6 +25,7 @@ from .isgn_identification_bridge import (
 from .multitask import arbitrate_multitask, arbitrate_multitask_from_files
 from .vertical import evaluate_vertical, evaluate_vertical_from_file, validate_vertical_registry
 from .freeze import evaluate_freeze_gate, evaluate_freeze_gate_from_files
+from .production_evidence import evaluate_production_evidence, evaluate_production_evidence_from_file
 
 __all__ = [
     "arbitrate_anomaly_csv",
@@ -64,4 +65,6 @@ __all__ = [
     "validate_vertical_registry",
     "evaluate_freeze_gate",
     "evaluate_freeze_gate_from_files",
+    "evaluate_production_evidence",
+    "evaluate_production_evidence_from_file",
 ]

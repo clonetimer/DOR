@@ -1,0 +1,141 @@
+{
+  "contract": "DOR-PROSPECTIVE-BENCHMARK/1.0",
+  "policy_sha256": "d8d7aedf1c7c2d1400e60d8848a1f5c89551b52ec96bde78bb6c3d864742c12b",
+  "benchmark_kind": "ANOMALY_TRIAGE",
+  "source": {
+    "dataset_id": "OPSSAT-AD-v2-current-historical-test",
+    "source_sha256": "1539b5131796c0cb723561a8be8d1ec56ea8e4be858008ff647aef25e110a8df",
+    "independent_holdout": false,
+    "new_session_or_asset": false,
+    "first_seen_after_policy_freeze": false
+  },
+  "freeze": {
+    "candidate_set_frozen_before_test": false,
+    "hyperparameters_frozen_before_test": false,
+    "acceptance_thresholds_frozen_before_test": true,
+    "test_labels_must_not_change_model_or_threshold": true
+  },
+  "integrity": {
+    "historical_test_results_known_before_current_design": true,
+    "test_labels_used_for_candidate_selection": false,
+    "test_labels_used_for_threshold_calibration": false
+  },
+  "metrics": {
+    "supported_fraction": 0.9886578449905482,
+    "overall": {
+      "n": 523,
+      "normal_n": 413,
+      "anomaly_n": 110,
+      "precision": 0.7615384615384615,
+      "recall": 0.9,
+      "f1": 0.825,
+      "balanced_accuracy": 0.9124697336561743,
+      "false_positive_rate": 0.07506053268765134,
+      "tp": 99,
+      "fp": 31,
+      "fn": 11,
+      "tn": 382
+    },
+    "channel_metrics": {
+      "CADC0872": {
+        "n": 132,
+        "normal_n": 100,
+        "anomaly_n": 32,
+        "precision": 0.7435897435897436,
+        "recall": 0.90625,
+        "f1": 0.8169014084507042,
+        "balanced_accuracy": 0.903125,
+        "false_positive_rate": 0.1,
+        "tp": 29,
+        "fp": 10,
+        "fn": 3,
+        "tn": 90
+      },
+      "CADC0873": {
+        "n": 153,
+        "normal_n": 122,
+        "anomaly_n": 31,
+        "precision": 0.75,
+        "recall": 0.8709677419354839,
+        "f1": 0.8059701492537313,
+        "balanced_accuracy": 0.8985986250661027,
+        "false_positive_rate": 0.07377049180327869,
+        "tp": 27,
+        "fp": 9,
+        "fn": 4,
+        "tn": 113
+      },
+      "CADC0874": {
+        "n": 52,
+        "normal_n": 29,
+        "anomaly_n": 23,
+        "precision": 0.9565217391304348,
+        "recall": 0.9565217391304348,
+        "f1": 0.9565217391304348,
+        "balanced_accuracy": 0.9610194902548725,
+        "false_positive_rate": 0.034482758620689655,
+        "tp": 22,
+        "fp": 1,
+        "fn": 1,
+        "tn": 28
+      },
+      "CADC0884": {
+        "n": 36,
+        "normal_n": 36,
+        "anomaly_n": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "balanced_accuracy": null,
+        "false_positive_rate": 0.1111111111111111,
+        "tp": 0,
+        "fp": 4,
+        "fn": 0,
+        "tn": 32
+      },
+      "CADC0888": {
+        "n": 64,
+        "normal_n": 52,
+        "anomaly_n": 12,
+        "precision": 0.9166666666666666,
+        "recall": 0.9166666666666666,
+        "f1": 0.9166666666666666,
+        "balanced_accuracy": 0.9487179487179487,
+        "false_positive_rate": 0.019230769230769232,
+        "tp": 11,
+        "fp": 1,
+        "fn": 1,
+        "tn": 51
+      },
+      "CADC0892": {
+        "n": 53,
+        "normal_n": 46,
+        "anomaly_n": 7,
+        "precision": 0.6,
+        "recall": 0.8571428571428571,
+        "f1": 0.7058823529411765,
+        "balanced_accuracy": 0.8850931677018633,
+        "false_positive_rate": 0.08695652173913043,
+        "tp": 6,
+        "fp": 4,
+        "fn": 1,
+        "tn": 42
+      },
+      "CADC0894": {
+        "n": 33,
+        "normal_n": 28,
+        "anomaly_n": 5,
+        "precision": 0.6666666666666666,
+        "recall": 0.8,
+        "f1": 0.7272727272727273,
+        "balanced_accuracy": 0.8642857142857143,
+        "false_positive_rate": 0.07142857142857142,
+        "tp": 4,
+        "fp": 2,
+        "fn": 1,
+        "tn": 26
+      }
+    }
+  },
+  "note": "Deliberately ineligible control: passing metrics cannot retroactively create prospective evidence."
+}

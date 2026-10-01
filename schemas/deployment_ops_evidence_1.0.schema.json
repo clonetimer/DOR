@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "DOR-DEPLOYMENT-OPS-EVIDENCE/1.0",
+  "type": "object",
+  "required": ["contract", "coverage_mode", "columns"],
+  "properties": {
+    "contract": {"const": "DOR-DEPLOYMENT-OPS-EVIDENCE/1.0"},
+    "coverage_mode": {"enum": ["CONTIGUOUS_OPERATION", "SELECTED_SEGMENTS"]},
+    "columns": {"type": "object"},
+    "coverage": {"type": "object"}
+  },
+  "additionalProperties": true
+}

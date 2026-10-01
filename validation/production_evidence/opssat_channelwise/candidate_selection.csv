@@ -1,0 +1,10 @@
+channel,status,selected_candidate,candidate_family,train_normal_n,validation_n,validation_anomaly_n,calibration_normal_n,test_n,selection_basis,validation_average_precision,validation_roc_auc,validation_normal_fpr_at_train_q90
+CADC0872,SUPPORTED,pca_reconstruction_8,pca,220,146,99.0,48,132,validation anomaly ranking by average precision then ROC-AUC,0.9901340832612109,0.9770040833870622,
+CADC0873,SUPPORTED,ledoit_wolf_mahalanobis,ledoit_wolf,256,128,74.0,56,153,validation anomaly ranking by average precision then ROC-AUC,0.9930026661031252,0.9872372372372373,
+CADC0874,SUPPORTED,pca_reconstruction_8,pca,62,60,46.0,20,52,validation anomaly ranking by average precision then ROC-AUC,0.9999999999999999,1.0,
+CADC0884,SUPPORTED,pca_reconstruction_2,pca,84,18,0.0,20,36,no validation anomalies; minimize validation normal exceedance against train-only q90,,,0.0
+CADC0886,ABSTAIN_CALIBRATION_POWER,,,3,3,,1,4,calibration_normal_n=1 < 20,,,
+CADC0888,SUPPORTED,knn_distance_5,knn,98,69,48.0,21,64,validation anomaly ranking by average precision then ROC-AUC,0.9894559551906409,0.9732142857142857,
+CADC0890,ABSTAIN_CALIBRATION_POWER,,,1,10,,1,2,calibration_normal_n=1 < 20,,,
+CADC0892,SUPPORTED,pca_reconstruction_12,pca,91,46,27.0,21,53,validation anomaly ranking by average precision then ROC-AUC,0.8670499939412732,0.8265107212475633,
+CADC0894,SUPPORTED,ledoit_wolf_mahalanobis,ledoit_wolf,61,30,16.0,20,33,validation anomaly ranking by average precision then ROC-AUC,0.9299202077162603,0.9151785714285714,

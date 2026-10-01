@@ -1,0 +1,32 @@
+{
+  "contract": "DOR-PUBLIC-SOURCE-INTAKE/1.0",
+  "dataset_id": "uci-hydraulic-447-official",
+  "official_url": "https://archive.ics.uci.edu/static/public/447/condition%2Bmonitoring%2Bof%2Bhydraulic%2Bsystems.zip",
+  "expected_filename": "condition+monitoring+of+hydraulic+systems.zip",
+  "retrieval_attestation": "REQUIRE_USER_OR_CI_DOWNLOAD_RECORD",
+  "zip_requirements": {
+    "required_members": [
+      "profile.txt",
+      "PS1.txt",
+      "PS2.txt",
+      "PS3.txt",
+      "PS4.txt",
+      "PS5.txt",
+      "PS6.txt",
+      "EPS1.txt",
+      "FS1.txt",
+      "FS2.txt",
+      "TS1.txt",
+      "TS2.txt",
+      "TS3.txt",
+      "TS4.txt",
+      "VS1.txt",
+      "CE.txt",
+      "CP.txt",
+      "SE.txt"
+    ]
+  },
+  "notes": [
+    "Official UCI page declares 2205 instances and raw multi-rate sensor matrices. The existing adapter performs exact 2205-row matrix-shape validation after intake."
+  ]
+}

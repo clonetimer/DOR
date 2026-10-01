@@ -1,0 +1,146 @@
+{
+  "contract": "DOR-PROSPECTIVE-EVALUATION/1.0",
+  "status": "INELIGIBLE",
+  "production_gate_credit": false,
+  "benchmark_kind": "ANOMALY_TRIAGE",
+  "policy_sha256": "d8d7aedf1c7c2d1400e60d8848a1f5c89551b52ec96bde78bb6c3d864742c12b",
+  "dataset_id": "OPSSAT-AD-v2-current-historical-test",
+  "source_sha256": "1539b5131796c0cb723561a8be8d1ec56ea8e4be858008ff647aef25e110a8df",
+  "eligibility": {
+    "eligible": false,
+    "failures": [
+      "independent_holdout must be True",
+      "new_session_or_asset must be True",
+      "first_seen_after_policy_freeze must be True",
+      "candidate_set_frozen_before_test must be True",
+      "hyperparameters_frozen_before_test must be True",
+      "historical_test_results_known_before_current_design must be False"
+    ],
+    "principle": "metric success cannot repair a non-prospective or unbound evaluation"
+  },
+  "metric_checks": [
+    {
+      "metric": "supported_fraction",
+      "value": 0.9886578449905482,
+      "operator": ">=",
+      "threshold": 0.98,
+      "pass": true
+    },
+    {
+      "metric": "overall_recall",
+      "value": 0.9,
+      "operator": ">=",
+      "threshold": 0.85,
+      "pass": true
+    },
+    {
+      "metric": "overall_false_positive_rate",
+      "value": 0.07506053268765134,
+      "operator": "<=",
+      "threshold": 0.08,
+      "pass": true
+    },
+    {
+      "metric": "channel[CADC0872].recall",
+      "value": 0.90625,
+      "operator": ">=",
+      "threshold": 0.75,
+      "pass": true
+    },
+    {
+      "metric": "channel[CADC0872].false_positive_rate",
+      "value": 0.1,
+      "operator": "<=",
+      "threshold": 0.12,
+      "pass": true
+    },
+    {
+      "metric": "channel[CADC0873].recall",
+      "value": 0.8709677419354839,
+      "operator": ">=",
+      "threshold": 0.75,
+      "pass": true
+    },
+    {
+      "metric": "channel[CADC0873].false_positive_rate",
+      "value": 0.07377049180327869,
+      "operator": "<=",
+      "threshold": 0.12,
+      "pass": true
+    },
+    {
+      "metric": "channel[CADC0874].recall",
+      "value": 0.9565217391304348,
+      "operator": ">=",
+      "threshold": 0.75,
+      "pass": true
+    },
+    {
+      "metric": "channel[CADC0874].false_positive_rate",
+      "value": 0.034482758620689655,
+      "operator": "<=",
+      "threshold": 0.12,
+      "pass": true
+    },
+    {
+      "metric": "channel[CADC0884].false_positive_rate",
+      "value": 0.1111111111111111,
+      "operator": "<=",
+      "threshold": 0.12,
+      "pass": true
+    },
+    {
+      "metric": "channel[CADC0888].recall",
+      "value": 0.9166666666666666,
+      "operator": ">=",
+      "threshold": 0.75,
+      "pass": true
+    },
+    {
+      "metric": "channel[CADC0888].false_positive_rate",
+      "value": 0.019230769230769232,
+      "operator": "<=",
+      "threshold": 0.12,
+      "pass": true
+    },
+    {
+      "metric": "channel[CADC0892].recall",
+      "value": 0.8571428571428571,
+      "operator": ">=",
+      "threshold": 0.75,
+      "pass": true
+    },
+    {
+      "metric": "channel[CADC0892].false_positive_rate",
+      "value": 0.08695652173913043,
+      "operator": "<=",
+      "threshold": 0.12,
+      "pass": true
+    },
+    {
+      "metric": "channel[CADC0894].recall",
+      "value": 0.8,
+      "operator": ">=",
+      "threshold": 0.75,
+      "pass": true
+    },
+    {
+      "metric": "channel[CADC0894].false_positive_rate",
+      "value": 0.07142857142857142,
+      "operator": "<=",
+      "threshold": 0.12,
+      "pass": true
+    }
+  ],
+  "metric_summary": {
+    "checks": 16,
+    "passed": 16,
+    "all_passed": true
+  },
+  "errors": [],
+  "safety": {
+    "current_or_historical_test_outcomes_must_not_drive_model_changes": true,
+    "exact_frozen_policy_binding_required": true,
+    "new_session_or_asset_required_for_production_credit": true
+  }
+}

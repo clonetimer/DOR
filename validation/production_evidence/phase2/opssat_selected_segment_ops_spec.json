@@ -1,0 +1,15 @@
+{
+  "contract": "DOR-DEPLOYMENT-OPS-EVIDENCE/1.0",
+  "coverage_mode": "SELECTED_SEGMENTS",
+  "supported_status": "SUPPORTED",
+  "columns": {
+    "true_label": "true_label",
+    "prediction": "prediction",
+    "duration_seconds": "duration",
+    "status": "status"
+  },
+  "coverage": {
+    "complete_observation_window": false
+  },
+  "source_note": "OPSSAT-AD contains domain-expert-selected telemetry segments, not continuous mission exposure."
+}

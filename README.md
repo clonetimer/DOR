@@ -1,8 +1,17 @@
-# DOR Diagnostic Stack v1.0.3+timer.1 — Satellite R5-derived Integration
+# DOR Diagnostic Stack v1.0.5+timer.1 — Production Evidence Closure Phase 2
 
-> 本版本在 R4 能力上选择性吸收 R5 Active Mechanism Discovery：用结构—参数粒子和信息增益排序减少机理歧义，并以 DOR advisory firewall 阻断真值、LIVE 执行和原始载荷越界。自动设计、安全符号编译、UDE、模态掩码审计均保留；仍不能据此宣称任意设备全局最优。
+> 本版本不继续扩展诊断阶段，而是把 prospective blind evaluation、continuous-operations evidence 和 public-source intake 变成 fail-closed 可执行合同。自动设计、安全符号编译、UDE、模态掩码审计、Active Discovery advisory 均保留；仍不能据此宣称任意设备全局最优或生产安全就绪。
 
-源码组件：DOR `1.0.3+timer.1` / ISGN `2.4.0+timer.1` / M2N `2.16.1+timer.1` / FEC `2.4.2+timer.1`。
+源码组件：DOR `1.0.5+timer.1` / ISGN `2.4.0+timer.1` / M2N `2.16.1+timer.1` / FEC `2.4.2+timer.1`。
+
+当前机器可验证发布语义保持：`ASSISTED_POC=SUPPORTED`，`ASSISTED_PRODUCTION=BLOCKED`，`SAFETY_CRITICAL_AUTONOMY=BLOCKED`。Phase 2 新增的 prospective evaluator 对当前 OPSSAT remediation 得到 **16/16 metric checks passed but INELIGIBLE**：历史 test 已知且不是冻结后的新 mission slice，因此不能回填成盲测。selected-segment 告警负担也被强制标成 `PROXY_ONLY`，不能写成生产 false alarms/hour。详见 `docs/PRODUCTION_EVIDENCE_CLOSURE_PHASE2_CN.md`。
+
+```bash
+dor production-evidence-gate --evidence release/PRODUCTION_EVIDENCE_INPUT.json --output production_evidence_status.json
+dor prospective-evaluate --policy release/PROSPECTIVE_ACCEPTANCE_POLICY_NEXT.json --benchmark new_benchmark.json --output prospective_result.json
+dor deployment-ops-evaluate --spec ops_spec.json --predictions predictions.csv --output ops_result.json
+dor source-intake-check --spec release/source_intake_specs/UCI_HYDRAULIC_447.json --artifact condition+monitoring+of+hydraulic+systems.zip --output intake.json
+```
 
 2026-08-18 fresh full regression：DOR 107 + ISGN 125 + M2N 95 + FEC 118 = **445 passed**，另 1 个可选依赖测试跳过。吸收决策和边界见 `docs/DOR_V103_R5_ASSIMILATION_CN.md`，实施台账见 `docs/IMPLEMENTATION_LEDGER_DOR_V103_R5_CN.md`。
 
@@ -67,7 +76,7 @@ dor spacecraft-prepare --dataset-root whole_spacecraft_phm_dataset_v6_0 \
 
 # DOR Diagnostic Stack v0.6.0 — Propagation / Root-Cause Development Prototype
 
-**当前源码组件基线：DOR 1.0.3+timer.1 / ISGN 2.4.0+timer.1 / M2N 2.16.1+timer.1 / FEC 2.4.2+timer.1**
+**当前源码组件基线：DOR 1.0.5+timer.1 / ISGN 2.4.0+timer.1 / M2N 2.16.1+timer.1 / FEC 2.4.2+timer.1**
 
 新增入口：`m2n model-plan`、`m2n temporal-design`、`m2n predict-temporal`、`dor identify-plan`、`dor identify`、`dor multi-task-arbitrate`、`dor vertical-validate` 和 `dor freeze-gate`。设计与证据边界见 `docs/EXTERNAL_TOOLKIT_INTEGRATION_DESIGN_CN.md`。
 

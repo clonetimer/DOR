@@ -1,0 +1,122 @@
+{
+  "contract": "DOR-PRODUCTION-EVIDENCE/1.0",
+  "target_use": "operator-assisted anomaly triage and controlled diagnostic-ML qualification",
+  "target_domain": "satellite_and_industrial_hydraulic_development",
+  "gates": [
+    {
+      "gate": "SOFTWARE_REGRESSION",
+      "status": "PASS",
+      "reason": "Fresh Phase-2 regression passed across all bundled components: DOR 120/120, M2N 95/95, FEC 118/118, and ISGN 125/125 when every ISGN test file is run in fresh-process partitions. The monolithic ISGN pytest process still exceeds the constrained runtime window, so the release records the partitioned full-suite pass explicitly rather than misreporting a monolithic pass.",
+      "evidence": [
+        "tests/",
+        "engines/m2n/tests/",
+        "engines/fec/tests/",
+        "engines/isgn/tests/",
+        "scripts/verify_all_tests.py",
+        "validation/production_evidence/phase2/regression_summary.json"
+      ]
+    },
+    {
+      "gate": "RELEASE_HYGIENE",
+      "status": "PASS",
+      "reason": "Release packaging excludes Python caches and test caches; scripts/verify_stack.py independently checks release hygiene and wheel/schema presence.",
+      "evidence": [
+        "scripts/verify_stack.py",
+        ".gitignore"
+      ]
+    },
+    {
+      "gate": "REAL_TARGET_DATA",
+      "status": "PASS",
+      "reason": "OPSSAT uses real in-orbit telemetry-derived public benchmark data and the hydraulic example is derived from a real hydraulic test rig dataset; evidence scope remains explicitly narrower than a production fleet claim.",
+      "evidence": [
+        "examples/opssat_ad/dataset_manifest.json",
+        "examples/hydraulic_accumulator/dataset_manifest.json"
+      ]
+    },
+    {
+      "gate": "ROLE_SEPARATION",
+      "status": "PASS",
+      "reason": "Train/validation/calibration/test roles are explicit. OPSSAT remediation fits only train-normal rows, selects candidates only on validation, calibrates only on calibration-normal rows, and uses test labels only for final reporting. Hydraulic split_group sets are disjoint and candidate selection uses validation rather than test labels.",
+      "evidence": [
+        "validation/production_evidence/opssat_channelwise/summary.json",
+        "validation/production_evidence/hydraulic_practical_stress.json"
+      ]
+    },
+    {
+      "gate": "SUBGROUP_REPORTING",
+      "status": "PASS",
+      "reason": "OPSSAT now reports per-channel performance rather than relying on an aggregate metric; sparse channels remain fail-closed.",
+      "evidence": [
+        "validation/production_evidence/opssat_channelwise/summary.json",
+        "validation/production_evidence/opssat_channelwise/candidate_selection.csv"
+      ]
+    },
+    {
+      "gate": "PROSPECTIVE_ACCEPTANCE_POLICY",
+      "status": "BLOCKED",
+      "reason": "Frozen acceptance policy is now hash-bound and executable. The current OPSSAT remediation passes all 16 frozen metric checks but is explicitly INELIGIBLE for prospective credit because the historical test was known before the remediation and it is not a new session/asset. A new independent benchmark is still required.",
+      "evidence": [
+        "release/PROSPECTIVE_ACCEPTANCE_POLICY_NEXT.json",
+        "release/PROSPECTIVE_POLICY_SHA256.txt",
+        "validation/production_evidence/phase2/current_opssat_prospective_result.json"
+      ]
+    },
+    {
+      "gate": "DISTRIBUTION_SHIFT",
+      "status": "BLOCKED",
+      "reason": "Only synthetic feature-space Gaussian noise stress has been run for the hydraulic subset; no real sensor drift, calibration drift, maintenance-state shift, new session, or temporal distribution-shift qualification is present.",
+      "evidence": [
+        "validation/production_evidence/hydraulic_practical_stress.json"
+      ]
+    },
+    {
+      "gate": "MISSING_SENSOR",
+      "status": "BLOCKED",
+      "reason": "Artificial sensor-column masking has been quantified, but no operational missing-channel benchmark with declared availability semantics and recalibration policy has been completed.",
+      "evidence": [
+        "validation/production_evidence/hydraulic_practical_stress.json"
+      ]
+    },
+    {
+      "gate": "NEW_SESSION_OR_ASSET",
+      "status": "BLOCKED",
+      "reason": "The prospective evaluator is implemented, but no post-freeze new asset, new test-rig session, or new mission period has been evaluated. The current OPSSAT benchmark is machine-marked INELIGIBLE for this gate.",
+      "evidence": [
+        "validation/production_evidence/phase2/current_opssat_prospective_result.json"
+      ]
+    },
+    {
+      "gate": "DEPLOYMENT_OPERATIONS",
+      "status": "BLOCKED",
+      "reason": "Selected-segment OPSSAT exposure can now be quantified, but it is PROXY_ONLY rather than continuous mission operations. The current proxy is about 1.093 false-positive segments per selected nominal segment-hour; this MUST NOT be reported as production false alarms/hour. Continuous exposure, detection delay, CPU/RAM, sustained latency, cold start, and operator workload evidence remain absent.",
+      "evidence": [
+        "validation/production_evidence/phase2/opssat_selected_segment_ops_result.json"
+      ]
+    },
+    {
+      "gate": "HAZARD_ANALYSIS",
+      "status": "BLOCKED",
+      "reason": "No system-specific safety/hazard analysis maps diagnostic failures and abstentions to operational consequences.",
+      "evidence": []
+    },
+    {
+      "gate": "CLOSED_LOOP_SAFETY",
+      "status": "BLOCKED",
+      "reason": "DOR is not qualified to autonomously command or control safety-critical equipment from the current evidence set.",
+      "evidence": []
+    },
+    {
+      "gate": "REAL_FAULT_INJECTION",
+      "status": "BLOCKED",
+      "reason": "NASA ADAPT official resource identities are now captured as source-intake specs, but the runtime cannot fetch the binary resources and no complete real fault-injection telemetry replay has been executed. Source-constrained fixtures remain contract evidence only.",
+      "evidence": [
+        "examples/nasa_adapt_v06_source_constrained_fixture/README.md",
+        "release/NASA_ADAPT_ACQUISITION_STATUS.md",
+        "release/source_intake_specs/NASA_ADAPT_DATASET_TEXT_ZIP.json",
+        "release/source_intake_specs/NASA_ADAPT_EXPERIMENT_LOG_XLS.json",
+        "release/source_intake_specs/NASA_ADAPT_ADAPTHTMLDIAGRAMS_ZIP.json"
+      ]
+    }
+  ]
+}

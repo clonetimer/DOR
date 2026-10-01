@@ -17,7 +17,7 @@ def main():
       'isgn':'isgn_toolkit-2.4.0+timer.1-py3-none-any.whl',
       'm2n':'m2n_toolkit-2.16.1+timer.1-py3-none-any.whl',
       'fec':'fec_toolkit-2.4.2+timer.1-py3-none-any.whl',
-      'dor':'dor_diagnostic_stack-1.0.3+timer.1-py3-none-any.whl',
+      'dor':'dor_diagnostic_stack-1.0.5+timer.1-py3-none-any.whl',
     }
     for k,n in wheels.items():
         p=ROOT/'wheels'/n; checks.append({'check':f'wheel:{k}','ok':p.is_file() and p.stat().st_size>0,'sha256':sha256(p) if p.is_file() else None})
@@ -29,10 +29,58 @@ def main():
       'multitask_diagnosis_0.8.schema.json','vertical_validation_0.9.schema.json','development_freeze_gate_1.0.schema.json',
       'auto_design_request_1.0.schema.json','device_mechanism_card_1.0.schema.json',
       'multimodal_dataset_manifest_1.0.schema.json','public_diagnostic_dataset_catalog_1.0.schema.json',
-      'isgn_active_discovery_advisory_1.0.schema.json'
+      'isgn_active_discovery_advisory_1.0.schema.json','production_evidence_gate_1.0.schema.json',
+      'prospective_benchmark_1.0.schema.json','deployment_ops_evidence_1.0.schema.json','public_source_intake_1.0.schema.json'
     ]
     for n in schemas:
         p=ROOT/'schemas'/n; checks.append({'check':f'schema:{n}','ok':p.is_file()})
+
+    # v1.0.5 practical-evidence closure artifacts must preserve the distinction
+    # between assisted POC support and production readiness.
+    pe=ROOT/'release'/'PRODUCTION_EVIDENCE_STATUS.json'
+    if pe.is_file():
+        ped=json.loads(pe.read_text())
+        profiles=ped.get('profiles',{})
+        checks.append({'check':'production_evidence_semantics','ok':profiles.get('ASSISTED_POC',{}).get('status')=='SUPPORTED' and profiles.get('ASSISTED_PRODUCTION',{}).get('status')=='BLOCKED' and profiles.get('SAFETY_CRITICAL_AUTONOMY',{}).get('status')=='BLOCKED'})
+    else:
+        checks.append({'check':'production_evidence_semantics','ok':False,'reason':'release/PRODUCTION_EVIDENCE_STATUS.json missing'})
+
+    oprem=ROOT/'validation'/'production_evidence'/'opssat_channelwise'/'summary.json'
+    if oprem.is_file():
+        opd=json.loads(oprem.read_text())
+        checks.append({'check':'opssat_channelwise_remediation','ok':opd.get('selection_safety',{}).get('test_labels_used_for_candidate_selection') is False and opd.get('selection_safety',{}).get('therefore_this_is_development_remediation_not_a_fresh_blind_benchmark') is True})
+    else:
+        checks.append({'check':'opssat_channelwise_remediation','ok':False})
+
+    hyd=ROOT/'validation'/'production_evidence'/'hydraulic_practical_stress.json'
+    if hyd.is_file():
+        hydj=json.loads(hyd.read_text())
+        checks.append({'check':'hydraulic_practical_stress_semantics','ok':hydj.get('candidate_selection',{}).get('test_labels_used_for_selection') is False and hydj.get('evidence_scope',{}).get('synthetic_stress_is_not_real_distribution_shift_evidence') is True})
+    else:
+        checks.append({'check':'hydraulic_practical_stress_semantics','ok':False})
+
+    # v1.0.5 Phase-2 evidence-integrity controls: good metrics do not repair
+    # non-prospective evaluation, and selected benchmark segments do not become
+    # operational exposure merely because a per-hour proxy can be calculated.
+    prospective=ROOT/'validation'/'production_evidence'/'phase2'/'current_opssat_prospective_result.json'
+    if prospective.is_file():
+        pr=json.loads(prospective.read_text())
+        checks.append({'check':'prospective_fail_closed_semantics','ok':pr.get('status')=='INELIGIBLE' and pr.get('production_gate_credit') is False and pr.get('metric_summary',{}).get('all_passed') is True})
+    else:
+        checks.append({'check':'prospective_fail_closed_semantics','ok':False})
+
+    ops=ROOT/'validation'/'production_evidence'/'phase2'/'opssat_selected_segment_ops_result.json'
+    if ops.is_file():
+        opj=json.loads(ops.read_text())
+        checks.append({'check':'selected_segment_ops_proxy_semantics','ok':opj.get('status')=='PROXY_ONLY' and opj.get('production_gate_credit') is False and opj.get('safety',{}).get('selected_segment_proxy_is_not_operational_false_alarms_per_hour') is True})
+    else:
+        checks.append({'check':'selected_segment_ops_proxy_semantics','ok':False})
+
+    intake_specs=[
+      'UCI_HYDRAULIC_447.json','NASA_ADAPT_DATASET_TEXT_ZIP.json',
+      'NASA_ADAPT_EXPERIMENT_LOG_XLS.json','NASA_ADAPT_ADAPTHTMLDIAGRAMS_ZIP.json'
+    ]
+    checks.append({'check':'phase2_source_intake_specs','ok':all((ROOT/'release'/'source_intake_specs'/name).is_file() for name in intake_specs)})
 
     # v0.4 inherited real-domain regression remains in the release.
     op=json.loads((ROOT/'validation/opssat_ad/diagnosis_bundle.json').read_text())

@@ -19,7 +19,7 @@
     {
       "check": "wheel:dor",
       "ok": true,
-      "sha256": "c95fb13e41c7c726dbf110ec735ee21b51b6086027bd57cbf71476f266f5db9c"
+      "sha256": "1938cb87b2e897c68c4b7c23ccb366b2721e01742d056d5471c1aa430c0ac598"
     },
     {
       "check": "schema:dataset_manifest_0.4.schema.json",
@@ -107,6 +107,46 @@
     },
     {
       "check": "schema:isgn_active_discovery_advisory_1.0.schema.json",
+      "ok": true
+    },
+    {
+      "check": "schema:production_evidence_gate_1.0.schema.json",
+      "ok": true
+    },
+    {
+      "check": "schema:prospective_benchmark_1.0.schema.json",
+      "ok": true
+    },
+    {
+      "check": "schema:deployment_ops_evidence_1.0.schema.json",
+      "ok": true
+    },
+    {
+      "check": "schema:public_source_intake_1.0.schema.json",
+      "ok": true
+    },
+    {
+      "check": "production_evidence_semantics",
+      "ok": true
+    },
+    {
+      "check": "opssat_channelwise_remediation",
+      "ok": true
+    },
+    {
+      "check": "hydraulic_practical_stress_semantics",
+      "ok": true
+    },
+    {
+      "check": "prospective_fail_closed_semantics",
+      "ok": true
+    },
+    {
+      "check": "selected_segment_ops_proxy_semantics",
+      "ok": true
+    },
+    {
+      "check": "phase2_source_intake_specs",
       "ok": true
     },
     {

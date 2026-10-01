@@ -1,0 +1,11 @@
+{
+  "contract": "DOR-PUBLIC-SOURCE-INTAKE/1.0",
+  "dataset_id": "nasa-adapt-dataset_text-zip",
+  "official_url": "https://c3.nasa.gov/dashlink/static/media/dataset/dataset_text.zip",
+  "expected_filename": "dataset_text.zip",
+  "expected_size_bytes": 234841,
+  "retrieval_attestation": "REQUIRE_USER_OR_CI_DOWNLOAD_RECORD",
+  "notes": [
+    "Expected size is bound to the NASA DASHlink public resource listing used for Phase 2 acquisition planning."
+  ]
+}

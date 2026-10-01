@@ -1,0 +1,31 @@
+{
+  "contract": "DOR-PROSPECTIVE-ACCEPTANCE-POLICY/1.0",
+  "frozen_for": "next independent dataset/session/asset evaluation after DOR 1.0.4+timer.1",
+  "policy_scope": "development qualification for assisted analytics; not a safety-derived production SLO",
+  "rules": {
+    "test_role": {
+      "candidate_set_frozen_before_test": true,
+      "hyperparameters_frozen_before_test": true,
+      "acceptance_thresholds_frozen_before_test": true,
+      "test_labels_must_not_change_model_or_threshold": true
+    },
+    "opssat_like_anomaly_triage": {
+      "minimum_supported_fraction": 0.98,
+      "minimum_overall_recall": 0.85,
+      "maximum_overall_false_positive_rate": 0.08,
+      "minimum_channel_recall_when_channel_has_at_least_5_anomalies": 0.75,
+      "maximum_channel_false_positive_rate_when_channel_has_at_least_20_normals": 0.12,
+      "sparse_calibration_contexts": "ABSTAIN"
+    },
+    "hydraulic_like_classification": {
+      "minimum_macro_f1_on_new_session_or_asset": 0.90,
+      "minimum_per_class_recall": 0.80,
+      "split_unit": "session_or_asset_group",
+      "test_group_must_be_unseen": true
+    }
+  },
+  "limitations": [
+    "These thresholds were frozen after analysis of the current OPSSAT and hydraulic evidence and therefore MUST NOT be used to retroactively qualify the current test results.",
+    "Before production use, thresholds must be replaced or justified by domain hazard analysis, operator workload limits, and mission/business costs of false positives and missed faults."
+  ]
+}

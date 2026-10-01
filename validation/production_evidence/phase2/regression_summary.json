@@ -1,0 +1,19 @@
+{
+  "contract": "DOR-REGRESSION-SUMMARY/1.0",
+  "release": "1.0.5+timer.1",
+  "fresh_phase2": true,
+  "suites": {
+    "DOR": {"tests": 120, "passed": 120, "mode": "standalone_full_suite"},
+    "M2N": {"tests": 95, "passed": 95, "mode": "standalone_full_suite"},
+    "FEC": {"tests": 118, "passed": 118, "mode": "standalone_full_suite"},
+    "ISGN": {
+      "tests": 125,
+      "passed": 125,
+      "mode": "fresh_process_file_partitions",
+      "partition_test_counts": [41, 21, 15, 27, 21],
+      "monolithic_status": "RUNTIME_WINDOW_EXCEEDED",
+      "note": "All discovered test files were included; partitioning is execution hygiene, not test selection."
+    }
+  },
+  "all_discovered_tests_passed": true
+}

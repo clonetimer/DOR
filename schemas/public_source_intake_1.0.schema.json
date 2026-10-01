@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "DOR-PUBLIC-SOURCE-INTAKE/1.0",
+  "type": "object",
+  "required": ["contract", "dataset_id", "official_url"],
+  "properties": {
+    "contract": {"const": "DOR-PUBLIC-SOURCE-INTAKE/1.0"},
+    "dataset_id": {"type": "string", "minLength": 1},
+    "official_url": {"type": "string", "pattern": "^https://"},
+    "expected_filename": {"type": "string"},
+    "expected_size_bytes": {"type": "integer", "minimum": 0},
+    "expected_hashes": {"type": "object"},
+    "zip_requirements": {"type": "object"}
+  },
+  "additionalProperties": true
+}

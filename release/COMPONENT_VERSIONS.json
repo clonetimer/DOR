@@ -1,11 +1,11 @@
 {
-  "stack_status": "DOR 1.0.3+timer.1 R5-derived integration; root-cause v0.6 lifecycle remains not closed",
-  "dor": "1.0.3+timer.1",
+  "stack_status": "DOR 1.0.5+timer.1 Production Evidence Closure Phase 2; prospective and deployment-operations evidence integrity enforced",
+  "dor": "1.0.5+timer.1",
   "isgn": "2.4.0+timer.1",
   "m2n": "2.16.1+timer.1",
   "fec": "2.4.2+timer.1",
-  "integration": "Satellite R5-derived Active Discovery",
-  "fresh_full_regression": "445 passed, 1 optional skipped",
-  "previous_closed_node": "DOR 0.5.0 DEV RC1",
-  "next_gate": "real NASA ADAPT fault-injection root-cause benchmark"
+  "integration": "Production Evidence Closure Phase 2",
+  "fresh_full_regression": "DOR 120/120 passed; M2N 95/95 passed; FEC 118/118 passed; ISGN 125/125 passed in fresh-process file partitions; monolithic ISGN process exceeded constrained runtime window",
+  "previous_closed_node": "DOR 1.0.4+timer.1 Production Evidence Closure Phase 1",
+  "next_gate": "post-freeze independent new-session/new-asset benchmark, complete UCI Hydraulic raw replay, and real NASA ADAPT fault-injection root-cause benchmark"
 }

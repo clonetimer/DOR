@@ -1,0 +1,21 @@
+{
+  "contract": "DOR-DEPLOYMENT-OPS-EVALUATION/1.0",
+  "status": "PROXY_ONLY",
+  "production_gate_credit": false,
+  "coverage_mode": "SELECTED_SEGMENTS",
+  "observed_supported_hours": 38.92138888888889,
+  "nominal_supported_hours": 28.3575,
+  "false_alarm_count": 31,
+  "false_alarm_rate_per_nominal_hour": 1.0931852243674511,
+  "missed_anomaly_segments": 11,
+  "supported_segments": 523,
+  "abstain_or_unsupported_segments": 6,
+  "limitations": [
+    "selected benchmark segments are not a contiguous mission/plant exposure denominator; rate is a benchmark proxy only"
+  ],
+  "errors": [],
+  "safety": {
+    "selected_segment_proxy_is_not_operational_false_alarms_per_hour": true,
+    "continuous_exposure_required_for_production_credit": true
+  }
+}

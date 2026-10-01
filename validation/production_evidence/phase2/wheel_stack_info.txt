@@ -1,0 +1,22 @@
+{
+  "DOR": {
+    "distribution": "dor-diagnostic-stack",
+    "version": "1.0.5+timer.1",
+    "installed": true
+  },
+  "ISGN": {
+    "distribution": "isgn-toolkit",
+    "version": "2.4.0+timer.1",
+    "installed": true
+  },
+  "M2N": {
+    "distribution": "m2n-toolkit",
+    "version": "2.16.1+timer.1",
+    "installed": true
+  },
+  "FEC": {
+    "distribution": "fec-toolkit",
+    "version": "2.4.2+timer.1",
+    "installed": true
+  }
+}
